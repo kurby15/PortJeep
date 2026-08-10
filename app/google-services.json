@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "21007589577",
+    "project_id": "portjeep",
+    "storage_bucket": "portjeep.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:21007589577:android:f50a9accaddbba560ead18",
+        "android_client_info": {
+          "package_name": "com.example.portjeep"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAUlnkTkWkIX_UG8VwL-muUU0rD3pEe794"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

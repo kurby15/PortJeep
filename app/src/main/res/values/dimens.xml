@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Standard Spacing System -->
+    <dimen name="spacing_extra_small">4dp</dimen>
+    <dimen name="spacing_small">8dp</dimen>
+    <dimen name="spacing_compact">12dp</dimen>
+    <dimen name="spacing_standard">16dp</dimen>
+    <dimen name="spacing_section">24dp</dimen>
+    <dimen name="spacing_large">32dp</dimen>
+
+    <!-- App-wide Screen Margins -->
+    <dimen name="screen_padding_horizontal">16dp</dimen>
+    <dimen name="screen_padding_vertical">16dp</dimen>
+
+    <!-- Card/Input Elements -->
+    <dimen name="card_padding_standard">16dp</dimen>
+    <dimen name="card_corner_radius_standard">16dp</dimen>
+</resources>
