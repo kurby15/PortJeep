@@ -154,10 +154,7 @@
 
     </LinearLayout>
 
-
-    <!-- ========================================================= -->
-    <!-- RECYCLER VIEW                                             -->
-    <!-- ========================================================= -->
+    <!-- RECYCLER VIEW (with bottom padding for navigation bar) -->
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_schedule_list"
@@ -168,6 +165,6 @@
         android:paddingStart="20dp"
         android:paddingTop="10dp"
         android:paddingEnd="20dp"
-        android:paddingBottom="24dp" />
+        android:paddingBottom="150dp" />
 
 </LinearLayout>

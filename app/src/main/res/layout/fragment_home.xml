@@ -556,6 +556,11 @@
 
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Bottom spacing to prevent content from being hidden behind the navigation bar -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="120dp" />
+
         </LinearLayout>
 
     </LinearLayout>

@@ -3,82 +3,111 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#E8EDF7"
-    android:fillViewport="true">
+    android:background="#F8FAFC"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:fillViewport="true"
+    android:overScrollMode="never">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingBottom="@dimen/spacing_section">
+        android:clipChildren="false"
+        android:orientation="vertical">
 
-        <!-- Top Header Section -->
+        <!-- ========================================================= -->
+        <!-- MODERN HEADER                                             -->
+        <!-- ========================================================= -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#2E58B8"
+            android:background="#1D3557"
             android:orientation="vertical"
-            android:paddingStart="@dimen/screen_padding_horizontal"
-            android:paddingTop="@dimen/spacing_section"
-            android:paddingEnd="@dimen/screen_padding_horizontal"
-            android:paddingBottom="@dimen/spacing_large">
+            android:paddingStart="22dp"
+            android:paddingTop="30dp"
+            android:paddingEnd="22dp"
+            android:paddingBottom="42dp">
 
+            <!-- Small label -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="My Profile"
-                android:textColor="@android:color/white"
-                android:textSize="24sp"
+                android:letterSpacing="0.08"
+                android:text="DRIVER ACCOUNT"
+                android:textColor="#AFC4DF"
+                android:textSize="10sp"
                 android:textStyle="bold" />
 
+            <!-- Title -->
             <TextView
+                android:id="@+id/tv_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_extra_small"
-                android:text="View-only"
-                android:textColor="#B3C6F7"
-                android:textSize="13sp" />
+                android:layout_marginTop="4dp"
+                android:text="My Profile"
+                android:textColor="#FFFFFF"
+                android:textSize="28sp"
+                android:textStyle="bold" />
+
+            <!-- Subtitle -->
+            <TextView
+                android:id="@+id/tv_subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:text="View and manage your account details"
+                android:textColor="#DCE7F5"
+                android:textSize="12sp" />
+
         </LinearLayout>
 
+        <!-- ========================================================= -->
+        <!-- MAIN CONTENT CONTAINER                                    -->
+        <!-- ========================================================= -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="-20dp"
+            android:layout_marginTop="-22dp"
+            android:clipChildren="false"
             android:orientation="vertical"
-            android:paddingStart="@dimen/screen_padding_horizontal"
-            android:paddingEnd="@dimen/screen_padding_horizontal">
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="36dp">
 
             <!-- Profile Summary Header Card -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="@android:color/white"
-                app:cardCornerRadius="@dimen/card_corner_radius_standard"
-                app:cardElevation="0dp"
-                app:strokeWidth="0dp">
+                app:cardBackgroundColor="#FFFFFF"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="3dp"
+                app:strokeColor="#E8EDF3"
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:padding="@dimen/card_padding_standard">
+                    android:padding="20dp">
 
                     <TextView
                         android:id="@+id/tv_avatar_initials"
                         android:layout_width="60dp"
                         android:layout_height="60dp"
                         android:background="@drawable/bg_circle_avatar"
+                        android:backgroundTint="#EFF6FF"
                         android:gravity="center"
                         android:text="RD"
-                        android:textColor="@android:color/white"
-                        android:textSize="22sp"
+                        android:textColor="#1D3557"
+                        android:textSize="20sp"
                         android:textStyle="bold" />
 
                     <LinearLayout
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/spacing_standard"
+                        android:layout_marginStart="14dp"
+                        android:layout_weight="1"
                         android:orientation="vertical">
 
                         <TextView
@@ -86,7 +115,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Ricardo Dela Cruz"
-                            android:textColor="#263238"
+                            android:textColor="#0F172A"
                             android:textSize="18sp"
                             android:textStyle="bold" />
 
@@ -94,24 +123,24 @@
                             android:id="@+id/tv_employee_number"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/spacing_extra_small"
+                            android:layout_marginTop="2dp"
                             android:text="EMP-2024-0042"
-                            android:textColor="#78909C"
-                            android:textSize="12sp" />
+                            android:textColor="#64748B"
+                            android:textSize="11sp" />
 
                         <TextView
                             android:id="@+id/tv_status_badge"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/spacing_small"
+                            android:layout_marginTop="8dp"
                             android:background="@drawable/bg_status_active"
-                            android:paddingStart="@dimen/spacing_small"
-                            android:paddingTop="@dimen/spacing_extra_small"
-                            android:paddingEnd="@dimen/spacing_small"
-                            android:paddingBottom="@dimen/spacing_extra_small"
+                            android:paddingStart="10dp"
+                            android:paddingTop="5dp"
+                            android:paddingEnd="10dp"
+                            android:paddingBottom="5dp"
                             android:text="●  Active"
                             android:textColor="#2E7D32"
-                            android:textSize="11sp"
+                            android:textSize="10sp"
                             android:textStyle="bold" />
                     </LinearLayout>
                 </LinearLayout>
@@ -121,20 +150,22 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_section"
-                android:layout_marginBottom="@dimen/spacing_small"
+                android:layout_marginTop="26dp"
+                android:layout_marginBottom="8dp"
+                android:letterSpacing="0.05"
                 android:text="PERSONAL INFORMATION"
-                android:textColor="#90A4AE"
-                android:textSize="12sp"
+                android:textColor="#1D3557"
+                android:textSize="11sp"
                 android:textStyle="bold" />
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="@android:color/white"
-                app:cardCornerRadius="@dimen/card_corner_radius_standard"
-                app:cardElevation="0dp"
-                app:strokeWidth="0dp">
+                app:cardBackgroundColor="#FFFFFF"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="2dp"
+                app:strokeColor="#E8EDF3"
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -148,27 +179,28 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
-                        android:padding="@dimen/spacing_standard">
+                        android:padding="16dp">
 
                         <ImageView
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
+                            android:layout_width="38dp"
+                            android:layout_height="38dp"
                             android:background="@drawable/bg_icon_blue_light"
-                            android:padding="@dimen/spacing_small"
+                            android:backgroundTint="#EFF6FF"
+                            android:padding="10dp"
                             android:src="@drawable/work"
-                            app:tint="#3D6FD4" />
+                            app:tint="#1D3557" />
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/spacing_compact"
+                            android:layout_marginStart="13dp"
                             android:orientation="vertical">
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="POSITION"
-                                android:textColor="#90A4AE"
+                                android:textColor="#94A3B8"
                                 android:textSize="10sp"
                                 android:textStyle="bold" />
 
@@ -176,10 +208,10 @@
                                 android:id="@+id/tv_position"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="@dimen/spacing_extra_small"
+                                android:layout_marginTop="2dp"
                                 android:text="Driver"
-                                android:textColor="#263238"
-                                android:textSize="14sp"
+                                android:textColor="#0F172A"
+                                android:textSize="13sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
                     </LinearLayout>
@@ -189,27 +221,28 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
-                        android:padding="@dimen/spacing_standard">
+                        android:padding="16dp">
 
                         <ImageView
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
+                            android:layout_width="38dp"
+                            android:layout_height="38dp"
                             android:background="@drawable/bg_icon_blue_light"
-                            android:padding="@dimen/spacing_small"
+                            android:backgroundTint="#EFF6FF"
+                            android:padding="10dp"
                             android:src="@drawable/calendar"
-                            app:tint="#3D6FD4" />
+                            app:tint="#1D3557" />
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/spacing_compact"
+                            android:layout_marginStart="13dp"
                             android:orientation="vertical">
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="DATE HIRED"
-                                android:textColor="#90A4AE"
+                                android:textColor="#94A3B8"
                                 android:textSize="10sp"
                                 android:textStyle="bold" />
 
@@ -217,10 +250,10 @@
                                 android:id="@+id/tv_date_hired"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="@dimen/spacing_extra_small"
+                                android:layout_marginTop="2dp"
                                 android:text="June 1, 2021"
-                                android:textColor="#263238"
-                                android:textSize="14sp"
+                                android:textColor="#0F172A"
+                                android:textSize="13sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
                     </LinearLayout>
@@ -230,27 +263,28 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
-                        android:padding="@dimen/spacing_standard">
+                        android:padding="16dp">
 
                         <ImageView
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
+                            android:layout_width="38dp"
+                            android:layout_height="38dp"
                             android:background="@drawable/bg_icon_blue_light"
-                            android:padding="@dimen/spacing_small"
+                            android:backgroundTint="#EFF6FF"
+                            android:padding="10dp"
                             android:src="@drawable/civil"
-                            app:tint="#3D6FD4" />
+                            app:tint="#1D3557" />
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/spacing_compact"
+                            android:layout_marginStart="13dp"
                             android:orientation="vertical">
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="CIVIL STATUS"
-                                android:textColor="#90A4AE"
+                                android:textColor="#94A3B8"
                                 android:textSize="10sp"
                                 android:textStyle="bold" />
 
@@ -258,10 +292,10 @@
                                 android:id="@+id/tv_civil_status"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="@dimen/spacing_extra_small"
+                                android:layout_marginTop="2dp"
                                 android:text="Married"
-                                android:textColor="#263238"
-                                android:textSize="14sp"
+                                android:textColor="#0F172A"
+                                android:textSize="13sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
                     </LinearLayout>
@@ -271,27 +305,28 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
-                        android:padding="@dimen/spacing_standard">
+                        android:padding="16dp">
 
                         <ImageView
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
+                            android:layout_width="38dp"
+                            android:layout_height="38dp"
                             android:background="@drawable/bg_icon_blue_light"
-                            android:padding="@dimen/spacing_small"
+                            android:backgroundTint="#EFF6FF"
+                            android:padding="10dp"
                             android:src="@drawable/sex"
-                            app:tint="#3D6FD4" />
+                            app:tint="#1D3557" />
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/spacing_compact"
+                            android:layout_marginStart="13dp"
                             android:orientation="vertical">
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="SEX"
-                                android:textColor="#90A4AE"
+                                android:textColor="#94A3B8"
                                 android:textSize="10sp"
                                 android:textStyle="bold" />
 
@@ -299,10 +334,10 @@
                                 android:id="@+id/tv_sex"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="@dimen/spacing_extra_small"
+                                android:layout_marginTop="2dp"
                                 android:text="Male"
-                                android:textColor="#263238"
-                                android:textSize="14sp"
+                                android:textColor="#0F172A"
+                                android:textSize="13sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
                     </LinearLayout>
@@ -314,20 +349,22 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_section"
-                android:layout_marginBottom="@dimen/spacing_small"
+                android:layout_marginTop="26dp"
+                android:layout_marginBottom="8dp"
+                android:letterSpacing="0.05"
                 android:text="CONTACT INFORMATION"
-                android:textColor="#90A4AE"
-                android:textSize="12sp"
+                android:textColor="#1D3557"
+                android:textSize="11sp"
                 android:textStyle="bold" />
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="@android:color/white"
-                app:cardCornerRadius="@dimen/card_corner_radius_standard"
-                app:cardElevation="0dp"
-                app:strokeWidth="0dp">
+                app:cardBackgroundColor="#FFFFFF"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="2dp"
+                app:strokeColor="#E8EDF3"
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -341,27 +378,28 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
-                        android:padding="@dimen/spacing_standard">
+                        android:padding="16dp">
 
                         <ImageView
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
+                            android:layout_width="38dp"
+                            android:layout_height="38dp"
                             android:background="@drawable/bg_icon_blue_light"
-                            android:padding="@dimen/spacing_small"
+                            android:backgroundTint="#EFF6FF"
+                            android:padding="10dp"
                             android:src="@drawable/mail"
-                            app:tint="#3D6FD4" />
+                            app:tint="#1D3557" />
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/spacing_compact"
+                            android:layout_marginStart="13dp"
                             android:orientation="vertical">
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="EMAIL"
-                                android:textColor="#90A4AE"
+                                android:textColor="#94A3B8"
                                 android:textSize="10sp"
                                 android:textStyle="bold" />
 
@@ -369,10 +407,10 @@
                                 android:id="@+id/tv_email"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="@dimen/spacing_extra_small"
+                                android:layout_marginTop="2dp"
                                 android:text="r.delacruz@portjeep.ph"
-                                android:textColor="#263238"
-                                android:textSize="14sp"
+                                android:textColor="#0F172A"
+                                android:textSize="13sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
                     </LinearLayout>
@@ -382,27 +420,28 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
-                        android:padding="@dimen/spacing_standard">
+                        android:padding="16dp">
 
                         <ImageView
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
+                            android:layout_width="38dp"
+                            android:layout_height="38dp"
                             android:background="@drawable/bg_icon_blue_light"
-                            android:padding="@dimen/spacing_small"
+                            android:backgroundTint="#EFF6FF"
+                            android:padding="10dp"
                             android:src="@drawable/phone"
-                            app:tint="#3D6FD4" />
+                            app:tint="#1D3557" />
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/spacing_compact"
+                            android:layout_marginStart="13dp"
                             android:orientation="vertical">
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="CONTACT NO."
-                                android:textColor="#90A4AE"
+                                android:textColor="#94A3B8"
                                 android:textSize="10sp"
                                 android:textStyle="bold" />
 
@@ -410,10 +449,10 @@
                                 android:id="@+id/tv_phone"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="@dimen/spacing_extra_small"
+                                android:layout_marginTop="2dp"
                                 android:text="09171234567"
-                                android:textColor="#263238"
-                                android:textSize="14sp"
+                                android:textColor="#0F172A"
+                                android:textSize="13sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
                     </LinearLayout>
@@ -423,27 +462,28 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
-                        android:padding="@dimen/spacing_standard">
+                        android:padding="16dp">
 
                         <ImageView
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
+                            android:layout_width="38dp"
+                            android:layout_height="38dp"
                             android:background="@drawable/bg_icon_blue_light"
-                            android:padding="@dimen/spacing_small"
+                            android:backgroundTint="#EFF6FF"
+                            android:padding="10dp"
                             android:src="@drawable/location"
-                            app:tint="#3D6FD4" />
+                            app:tint="#1D3557" />
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/spacing_compact"
+                            android:layout_marginStart="13dp"
                             android:orientation="vertical">
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="ADDRESS"
-                                android:textColor="#90A4AE"
+                                android:textColor="#94A3B8"
                                 android:textSize="10sp"
                                 android:textStyle="bold" />
 
@@ -451,10 +491,10 @@
                                 android:id="@+id/tv_address"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="@dimen/spacing_extra_small"
+                                android:layout_marginTop="2dp"
                                 android:text="Brgy. Balintawak, Caloocan City"
-                                android:textColor="#263238"
-                                android:textSize="14sp"
+                                android:textColor="#0F172A"
+                                android:textSize="13sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
                     </LinearLayout>
@@ -468,13 +508,13 @@
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
-                android:layout_marginTop="@dimen/spacing_section"
+                android:layout_marginTop="26dp"
                 android:text="CHANGE PASSWORD"
-                android:textColor="#3D6FD4"
+                android:textColor="#1D3557"
                 android:textSize="13sp"
                 android:textStyle="bold"
                 app:cornerRadius="14dp"
-                app:strokeColor="#3D6FD4"
+                app:strokeColor="#1D3557"
                 app:strokeWidth="1.5dp" />
 
             <com.google.android.material.button.MaterialButton
@@ -482,17 +522,24 @@
                 style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
-                android:layout_marginTop="@dimen/spacing_compact"
-                android:backgroundTint="#E8EDF7"
+                android:layout_marginTop="10dp"
+                android:backgroundTint="#FEF2F2"
                 android:text="SIGN OUT"
-                android:textColor="#3D6FD4"
+                android:textColor="#E63946"
                 android:textSize="13sp"
                 android:textStyle="bold"
                 app:cornerRadius="14dp"
                 app:icon="@drawable/logout"
                 app:iconGravity="textStart"
-                app:iconTint="#3D6FD4" />
+                app:iconTint="#E63946" />
+
+            <!-- Bottom spacing to prevent content from being hidden behind the navigation bar -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="120dp" />
 
         </LinearLayout>
+
     </LinearLayout>
+
 </ScrollView>
