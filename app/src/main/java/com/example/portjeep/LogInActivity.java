@@ -75,17 +75,37 @@ public class LogInActivity extends AppCompatActivity {
         String email = etEmail.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
 
-        if (email.isEmpty() || password.isEmpty()) {
-            showError("Please enter both email and password.");
+        // Reset inputs to default border state first
+        etEmail.setBackgroundResource(R.drawable.bg_pill_input);
+        etPassword.setBackgroundResource(R.drawable.bg_pill_input);
+        tvError.setVisibility(View.GONE);
+
+        // Separate field validation checks
+        if (email.isEmpty() && password.isEmpty()) {
+            etEmail.setBackgroundResource(R.drawable.bg_pill_input_error);
+            etPassword.setBackgroundResource(R.drawable.bg_pill_input_error);
+            showError("Please enter your email and password.");
+            return;
+        }
+
+        if (email.isEmpty()) {
+            etEmail.setBackgroundResource(R.drawable.bg_pill_input_error);
+            showError("Please enter your email address.");
+            return;
+        }
+
+        if (password.isEmpty()) {
+            etPassword.setBackgroundResource(R.drawable.bg_pill_input_error);
+            showError("Please enter your password.");
             return;
         }
 
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            etEmail.setBackgroundResource(R.drawable.bg_pill_input_error);
             showError("Please enter a valid email address.");
             return;
         }
 
-        tvError.setVisibility(View.GONE);
         setLoadingState(true);
 
         // 1. Authenticate with Firebase Auth
@@ -96,40 +116,44 @@ public class LogInActivity extends AppCompatActivity {
                         validateUserRoleAndProceed(user.getUid(), false);
                     } else {
                         setLoadingState(false);
+                        // Highlight both fields on general authentication failure
+                        etEmail.setBackgroundResource(R.drawable.bg_pill_input_error);
+                        etPassword.setBackgroundResource(R.drawable.bg_pill_input_error);
+
                         String errorMsg = task.getException() != null ?
-                                task.getException().getLocalizedMessage() : "Authentication failed.";
+                                task.getException().getLocalizedMessage() : "Authentication failed. Please check your credentials.";
                         showError(errorMsg);
                     }
                 });
     }
 
     private void validateUserRoleAndProceed(String uid, boolean isAutoLogin) {
-        // 2. Fetch profile from File201
+        // 2. Fetch profile from Firestore
         db.collection("File201")
                 .document(uid)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (!documentSnapshot.exists()) {
-                        denyAccess("Access Denied: No record found in File201 for this account.");
+                        denyAccess("Access Denied: Your account profile could not be found. Please contact the administrator.");
                         return;
                     }
 
-                    // SAFE RETRIEVAL: position_id might be a Number in Firestore
+                    // SAFE RETRIEVAL: Check if user has necessary role ID setup
                     Object posIdObj = documentSnapshot.get("position_id");
                     String positionId = posIdObj != null ? String.valueOf(posIdObj) : null;
 
                     if (positionId == null || positionId.trim().isEmpty()) {
-                        denyAccess("Access Denied: 'position_id' field is missing in your account.");
+                        denyAccess("Access Denied: Your account setup is incomplete. Please contact support.");
                         return;
                     }
 
-                    // 3. Resolve Position document from 'Positions' collection
+                    // 3. Resolve role from 'Positions' collection
                     db.collection("Positions")
                             .document(positionId)
                             .get()
                             .addOnSuccessListener(posDoc -> {
                                 if (!posDoc.exists()) {
-                                    denyAccess("Access Denied: Position ID '" + positionId + "' not found in Positions collection.");
+                                    denyAccess("Access Denied: We could not verify your account permissions. Please contact support.");
                                     return;
                                 }
 
@@ -137,7 +161,7 @@ public class LogInActivity extends AppCompatActivity {
                                 Map<String, Object> data = posDoc.getData();
 
                                 if (data != null && !data.isEmpty()) {
-                                    // Try common position field keys
+                                    // Try common role field keys
                                     String[] commonKeys = {"title", "name", "position", "position_name", "role", "description", "Title", "Name", "Position"};
                                     for (String key : commonKeys) {
                                         if (data.containsKey(key) && data.get(key) instanceof String) {
@@ -158,14 +182,14 @@ public class LogInActivity extends AppCompatActivity {
                                 }
 
                                 if (rawTitle == null) {
-                                    denyAccess("Access Denied: Could not read position title field.");
+                                    denyAccess("Access Denied: There was an issue verifying your account details. Please contact the administrator.");
                                     return;
                                 }
 
                                 String secretKey = BuildConfig.CRYPTO_SECRET_KEY;
                                 String positionTitle = CryptoUtils.decrypt(rawTitle, secretKey);
 
-                                // 4. Validate Driver or PAO role
+                                // 4. Validate authorized roles
                                 if (isAuthorizedRole(positionTitle)) {
                                     setLoadingState(false);
                                     if (!isAutoLogin) {
@@ -173,12 +197,12 @@ public class LogInActivity extends AppCompatActivity {
                                     }
                                     navigateToMain(uid);
                                 } else {
-                                    denyAccess("Access Denied: Only Drivers and PAOs can access this app (Found: " + positionTitle + ").");
+                                    denyAccess("\t\t\t\t\t\tUnauthorized Access\nPlease Contact your administrator.");
                                 }
                             })
-                            .addOnFailureListener(e -> denyAccess("Positions Check Failed: " + e.getLocalizedMessage()));
+                            .addOnFailureListener(e -> denyAccess("Authentication Error: Unable to verify account permissions. Please try again later."));
                 })
-                .addOnFailureListener(e -> denyAccess("File201 Check Failed: " + e.getLocalizedMessage()));
+                .addOnFailureListener(e -> denyAccess("Authentication Error: Unable to retrieve account profile. Please try again later."));
     }
 
     private boolean isAuthorizedRole(String positionTitle) {
@@ -212,9 +236,11 @@ public class LogInActivity extends AppCompatActivity {
         if (isLoading) {
             btnLogin.setEnabled(false);
             btnLogin.setText("Signing in...");
+            btnLogin.setAlpha(0.7f);
         } else {
             btnLogin.setEnabled(true);
-            btnLogin.setText("Sign in");
+            btnLogin.setText("Sign In");
+            btnLogin.setAlpha(1.0f);
         }
     }
 }
