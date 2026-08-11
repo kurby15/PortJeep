@@ -4,9 +4,12 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,6 +34,7 @@ import java.util.Map;
 public class HomeFragment extends Fragment {
 
     private TextView tvGreeting, tvDriverName, tvRoleBadge;
+    private ImageView ivRobot;
     private TextView tvUnitNo, tvPlateNo, tvDriverFullName, tvPaoFullName;
     private TextView tvTodayDate, tvJeepStatus, tvAssignmentStatus;
     private MaterialCardView cardMySchedule, cardSalary;
@@ -53,9 +57,19 @@ public class HomeFragment extends Fragment {
         db = FirebaseFirestore.getInstance();
 
         // Bind Views
+        // Bind Views
         tvGreeting = view.findViewById(R.id.tv_greeting);
         tvDriverName = view.findViewById(R.id.tv_driver_name);
         tvRoleBadge = view.findViewById(R.id.tv_role_badge);
+
+        // Robot GIF
+        ivRobot = view.findViewById(R.id.iv_robot);
+
+        Glide.with(this)
+                .asGif()
+                .load(R.drawable.robot2)
+                .into(ivRobot);
+
         tvUnitNo = view.findViewById(R.id.tv_unit_no);
         tvPlateNo = view.findViewById(R.id.tv_plate_no);
         tvJeepStatus = view.findViewById(R.id.tv_jeep_status);
