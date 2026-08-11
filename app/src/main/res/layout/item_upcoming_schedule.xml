@@ -1,67 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="?attr/selectableItemBackground"
-    android:padding="@dimen/spacing_compact">
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="16dp"
+    android:paddingTop="12dp"
+    android:paddingEnd="16dp"
+    android:paddingBottom="12dp">
 
+    <!-- Calendar Icon Container -->
     <ImageView
-        android:id="@+id/iv_icon"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:background="@drawable/bg_quick_schedule"
-        android:padding="@dimen/spacing_small"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/bg_circle_icon"
+        android:backgroundTint="#EFF6FF"
+        android:contentDescription="Schedule date"
+        android:padding="10dp"
         android:src="@drawable/calendar"
-        app:tint="#3D6FD4" />
+        app:tint="#1D3557" />
 
+    <!-- Day & Date Information -->
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_marginStart="@dimen/spacing_compact"
-        android:layout_toEndOf="@id/iv_icon"
+        android:layout_marginStart="12dp"
+        android:layout_weight="1"
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/tv_day"
+            android:id="@+id/tv_schedule_day"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#263238"
+            android:text="Friday"
+            android:textColor="#0F172A"
             android:textSize="14sp"
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/tv_date"
+            android:id="@+id/tv_schedule_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#90A4AE"
+            android:layout_marginTop="2dp"
+            android:text="August 14, 2026"
+            android:textColor="#64748B"
             android:textSize="11sp" />
+
     </LinearLayout>
 
-    <ImageView
-        android:id="@+id/iv_chevron"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:layout_alignParentEnd="true"
-        android:layout_centerVertical="true"
-        android:src="@drawable/chevron"
-        app:tint="#B0BEC5" />
-
+    <!-- Status Badge -->
     <TextView
-        android:id="@+id/tv_status"
+        android:id="@+id/tv_schedule_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_marginEnd="@dimen/spacing_small"
-        android:layout_toStartOf="@id/iv_chevron"
+        android:layout_marginEnd="8dp"
         android:background="@drawable/bg_status_assigned"
-        android:paddingStart="@dimen/spacing_small"
-        android:paddingTop="@dimen/spacing_extra_small"
-        android:paddingEnd="@dimen/spacing_small"
-        android:paddingBottom="@dimen/spacing_extra_small"
-        android:textColor="#3D6FD4"
-        android:textSize="11sp"
+        android:paddingStart="10dp"
+        android:paddingTop="5dp"
+        android:paddingEnd="10dp"
+        android:paddingBottom="5dp"
+        android:text="●  Assigned"
+        android:textColor="#1D3557"
+        android:textSize="10sp"
         android:textStyle="bold" />
 
-</RelativeLayout>
+    <!-- Chevron Arrow -->
+    <ImageView
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:contentDescription="View details"
+        android:src="@drawable/chevron"
+        app:tint="#94A3B8" />
+
+</LinearLayout>

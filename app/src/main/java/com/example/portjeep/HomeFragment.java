@@ -57,7 +57,6 @@ public class HomeFragment extends Fragment {
         db = FirebaseFirestore.getInstance();
 
         // Bind Views
-        // Bind Views
         tvGreeting = view.findViewById(R.id.tv_greeting);
         tvDriverName = view.findViewById(R.id.tv_driver_name);
         tvRoleBadge = view.findViewById(R.id.tv_role_badge);
@@ -378,27 +377,81 @@ public class HomeFragment extends Fragment {
         for (DocumentSnapshot doc : docs) {
             View itemView = inflater.inflate(R.layout.item_upcoming_schedule, containerUpcoming, false);
 
-            TextView tvDay = itemView.findViewById(R.id.tv_day);
-            TextView tvDate = itemView.findViewById(R.id.tv_date);
-            TextView tvStatus = itemView.findViewById(R.id.tv_status);
+            TextView tvScheduleDay = itemView.findViewById(R.id.tv_schedule_day);
+            TextView tvScheduleDate = itemView.findViewById(R.id.tv_schedule_date);
+            TextView tvScheduleStatus = itemView.findViewById(R.id.tv_schedule_status);
+            TextView tvJeepUnit = itemView.findViewById(R.id.tv_jeep_unit);
+            TextView tvDriverName = itemView.findViewById(R.id.tv_driver_name);
+            TextView tvPaoName = itemView.findViewById(R.id.tv_pao_name);
 
             Object scheduleDateObj = doc.get("date");
             if (scheduleDateObj == null) scheduleDateObj = doc.get("schedule_date");
 
             if (scheduleDateObj instanceof Timestamp) {
                 Date date = ((Timestamp) scheduleDateObj).toDate();
-                tvDay.setText(dayFormat.format(date));
-                tvDate.setText(dateFormat.format(date));
+                if (tvScheduleDay != null) tvScheduleDay.setText(dayFormat.format(date));
+                if (tvScheduleDate != null) tvScheduleDate.setText(dateFormat.format(date));
             } else {
                 String rawDay = getFieldString(doc, "day");
                 String day = CryptoUtils.decrypt(rawDay, secretKey);
-                tvDay.setText(day != null && !day.isEmpty() ? day : "Scheduled");
-                tvDate.setText("Upcoming");
+                if (tvScheduleDay != null) tvScheduleDay.setText(day != null && !day.isEmpty() ? day : "Scheduled");
+                if (tvScheduleDate != null) tvScheduleDate.setText("Upcoming");
             }
 
-            String rawStatus = getFieldString(doc, "status");
+            String rawStatus = getFieldString(doc, "status", "assignment_status");
             String status = CryptoUtils.decrypt(rawStatus, secretKey);
-            tvStatus.setText("●  " + (status != null && !status.isEmpty() ? status : "Assigned"));
+            if (tvScheduleStatus != null) {
+                tvScheduleStatus.setText("●  " + (status != null && !status.isEmpty() ? status : "Assigned"));
+            }
+
+            // Populate Jeep Unit details if available in schedule/jeep
+            String jeepId = getFieldString(doc, "jeep", "jeep_id", "jeepId");
+            if (jeepId != null && !jeepId.isEmpty() && tvJeepUnit != null) {
+                db.collection("Jeeps").document(jeepId).get().addOnSuccessListener(jeepDoc -> {
+                    if (isAdded() && jeepDoc.exists()) {
+                        String rawUnitNo = getFieldString(jeepDoc, "unit_number", "unit_no");
+                        String rawPlateNo = getFieldString(jeepDoc, "plate_number", "plate_no");
+                        String unitNo = CryptoUtils.decrypt(rawUnitNo, secretKey);
+                        String plateNo = CryptoUtils.decrypt(rawPlateNo, secretKey);
+
+                        String unitText = (unitNo != null && !unitNo.isEmpty() ? "Unit " + unitNo : "Unit N/A");
+                        String plateText = (plateNo != null && !plateNo.isEmpty() ? plateNo : "N/A");
+                        tvJeepUnit.setText(unitText + " · " + plateText);
+                    }
+                });
+            } else if (tvJeepUnit != null) {
+                tvJeepUnit.setText("No Unit · N/A");
+            }
+
+            // Populate Driver Name
+            String driverId = getFieldString(doc, "driver", "driver_id", "driverId");
+            if (driverId != null && !driverId.isEmpty() && tvDriverName != null) {
+                db.collection("File201").document(driverId).get().addOnSuccessListener(dDoc -> {
+                    if (isAdded() && dDoc.exists()) {
+                        String fn = CryptoUtils.decrypt(getFieldString(dDoc, "first_name"), secretKey);
+                        String ln = CryptoUtils.decrypt(getFieldString(dDoc, "last_name"), secretKey);
+                        String name = ((fn != null ? fn : "") + " " + (ln != null ? ln : "")).trim();
+                        tvDriverName.setText(!name.isEmpty() ? name : "Unassigned");
+                    }
+                });
+            } else if (tvDriverName != null) {
+                tvDriverName.setText("Unassigned");
+            }
+
+            // Populate PAO Name
+            String paoId = getFieldString(doc, "pao", "pao_id", "paoId");
+            if (paoId != null && !paoId.isEmpty() && tvPaoName != null) {
+                db.collection("File201").document(paoId).get().addOnSuccessListener(pDoc -> {
+                    if (isAdded() && pDoc.exists()) {
+                        String fn = CryptoUtils.decrypt(getFieldString(pDoc, "first_name"), secretKey);
+                        String ln = CryptoUtils.decrypt(getFieldString(pDoc, "last_name"), secretKey);
+                        String name = ((fn != null ? fn : "") + " " + (ln != null ? ln : "")).trim();
+                        tvPaoName.setText(!name.isEmpty() ? name : "Unassigned");
+                    }
+                });
+            } else if (tvPaoName != null) {
+                tvPaoName.setText("Unassigned");
+            }
 
             containerUpcoming.addView(itemView);
         }
