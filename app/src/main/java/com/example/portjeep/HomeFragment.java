@@ -1,5 +1,6 @@
 package com.example.portjeep;
 
+import android.app.Dialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -99,9 +100,20 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        cardSalary.setOnClickListener(v ->
-                Toast.makeText(getContext(), "Opening Salary Details...", Toast.LENGTH_SHORT).show()
-        );
+        cardSalary.setOnClickListener(v -> {
+            if (getActivity() != null) {
+                BottomNavigationView navBar = getActivity().findViewById(R.id.bottom_navigation);
+                if (navBar != null) {
+                    navBar.setSelectedItemId(R.id.nav_salary);
+                } else {
+                    requireActivity().getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.fragment_container, new SalaryFragment())
+                            .addToBackStack(null)
+                            .commit();
+                }
+            }
+        });
 
         return view;
     }
@@ -259,10 +271,9 @@ public class HomeFragment extends Fragment {
         String driverId = getFieldString(scheduleDoc, "driver", "driver_id", "driverId");
         String paoId = getFieldString(scheduleDoc, "pao", "pao_id", "paoId");
 
-        String rawAssignStatus = getFieldString(scheduleDoc, "status", "assignment_status");
-        String assignStatus = CryptoUtils.decrypt(rawAssignStatus, secretKey);
+        // Status forced to Assigned for Today
         if (tvAssignmentStatus != null) {
-            tvAssignmentStatus.setText("●  " + (assignStatus != null && !assignStatus.isEmpty() ? assignStatus : "Assigned"));
+            tvAssignmentStatus.setText("●  Assigned");
         }
 
         // Fetch Jeep Unit Details
@@ -380,81 +391,131 @@ public class HomeFragment extends Fragment {
             TextView tvScheduleDay = itemView.findViewById(R.id.tv_schedule_day);
             TextView tvScheduleDate = itemView.findViewById(R.id.tv_schedule_date);
             TextView tvScheduleStatus = itemView.findViewById(R.id.tv_schedule_status);
-            TextView tvJeepUnit = itemView.findViewById(R.id.tv_jeep_unit);
-            TextView tvDriverName = itemView.findViewById(R.id.tv_driver_name);
-            TextView tvPaoName = itemView.findViewById(R.id.tv_pao_name);
 
             Object scheduleDateObj = doc.get("date");
             if (scheduleDateObj == null) scheduleDateObj = doc.get("schedule_date");
 
+            final String dayText;
+            final String dateText;
+
             if (scheduleDateObj instanceof Timestamp) {
                 Date date = ((Timestamp) scheduleDateObj).toDate();
-                if (tvScheduleDay != null) tvScheduleDay.setText(dayFormat.format(date));
-                if (tvScheduleDate != null) tvScheduleDate.setText(dateFormat.format(date));
+                dayText = dayFormat.format(date);
+                dateText = dateFormat.format(date);
             } else {
                 String rawDay = getFieldString(doc, "day");
                 String day = CryptoUtils.decrypt(rawDay, secretKey);
-                if (tvScheduleDay != null) tvScheduleDay.setText(day != null && !day.isEmpty() ? day : "Scheduled");
-                if (tvScheduleDate != null) tvScheduleDate.setText("Upcoming");
+                dayText = (day != null && !day.isEmpty()) ? day : "Scheduled";
+                dateText = "Upcoming";
             }
 
-            String rawStatus = getFieldString(doc, "status", "assignment_status");
-            String status = CryptoUtils.decrypt(rawStatus, secretKey);
+            if (tvScheduleDay != null) tvScheduleDay.setText(dayText);
+            if (tvScheduleDate != null) tvScheduleDate.setText(dateText);
+
             if (tvScheduleStatus != null) {
-                tvScheduleStatus.setText("●  " + (status != null && !status.isEmpty() ? status : "Assigned"));
+                // Changed from Assigned to Scheduled for upcoming shifts
+                tvScheduleStatus.setText("●  Scheduled");
             }
 
-            // Populate Jeep Unit details if available in schedule/jeep
-            String jeepId = getFieldString(doc, "jeep", "jeep_id", "jeepId");
-            if (jeepId != null && !jeepId.isEmpty() && tvJeepUnit != null) {
-                db.collection("Jeeps").document(jeepId).get().addOnSuccessListener(jeepDoc -> {
-                    if (isAdded() && jeepDoc.exists()) {
-                        String rawUnitNo = getFieldString(jeepDoc, "unit_number", "unit_no");
-                        String rawPlateNo = getFieldString(jeepDoc, "plate_number", "plate_no");
-                        String unitNo = CryptoUtils.decrypt(rawUnitNo, secretKey);
-                        String plateNo = CryptoUtils.decrypt(rawPlateNo, secretKey);
-
-                        String unitText = (unitNo != null && !unitNo.isEmpty() ? "Unit " + unitNo : "Unit N/A");
-                        String plateText = (plateNo != null && !plateNo.isEmpty() ? plateNo : "N/A");
-                        tvJeepUnit.setText(unitText + " · " + plateText);
-                    }
-                });
-            } else if (tvJeepUnit != null) {
-                tvJeepUnit.setText("No Unit · N/A");
-            }
-
-            // Populate Driver Name
-            String driverId = getFieldString(doc, "driver", "driver_id", "driverId");
-            if (driverId != null && !driverId.isEmpty() && tvDriverName != null) {
-                db.collection("File201").document(driverId).get().addOnSuccessListener(dDoc -> {
-                    if (isAdded() && dDoc.exists()) {
-                        String fn = CryptoUtils.decrypt(getFieldString(dDoc, "first_name"), secretKey);
-                        String ln = CryptoUtils.decrypt(getFieldString(dDoc, "last_name"), secretKey);
-                        String name = ((fn != null ? fn : "") + " " + (ln != null ? ln : "")).trim();
-                        tvDriverName.setText(!name.isEmpty() ? name : "Unassigned");
-                    }
-                });
-            } else if (tvDriverName != null) {
-                tvDriverName.setText("Unassigned");
-            }
-
-            // Populate PAO Name
-            String paoId = getFieldString(doc, "pao", "pao_id", "paoId");
-            if (paoId != null && !paoId.isEmpty() && tvPaoName != null) {
-                db.collection("File201").document(paoId).get().addOnSuccessListener(pDoc -> {
-                    if (isAdded() && pDoc.exists()) {
-                        String fn = CryptoUtils.decrypt(getFieldString(pDoc, "first_name"), secretKey);
-                        String ln = CryptoUtils.decrypt(getFieldString(pDoc, "last_name"), secretKey);
-                        String name = ((fn != null ? fn : "") + " " + (ln != null ? ln : "")).trim();
-                        tvPaoName.setText(!name.isEmpty() ? name : "Unassigned");
-                    }
-                });
-            } else if (tvPaoName != null) {
-                tvPaoName.setText("Unassigned");
-            }
+            // Click listener to trigger the schedule details modal
+            itemView.setOnClickListener(v -> showScheduleDetailsModal(doc, dayText, dateText));
 
             containerUpcoming.addView(itemView);
         }
+    }
+
+    private void showScheduleDetailsModal(DocumentSnapshot doc, String dayText, String dateText) {
+        if (getContext() == null || !isAdded()) return;
+
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_schedule_details, null);
+
+        // Binding to exact IDs from item_upcoming_schedule.xml
+        TextView tvModalDay = dialogView.findViewById(R.id.tv_schedule_day);
+        TextView tvModalDate = dialogView.findViewById(R.id.tv_schedule_date);
+        TextView tvModalStatus = dialogView.findViewById(R.id.tv_schedule_status);
+        TextView tvModalJeepUnit = dialogView.findViewById(R.id.tv_jeep_unit);
+        TextView tvModalDriverName = dialogView.findViewById(R.id.tv_driver_name);
+        TextView tvModalPaoName = dialogView.findViewById(R.id.tv_pao_name);
+
+        if (tvModalDay != null) tvModalDay.setText(dayText);
+        if (tvModalDate != null) tvModalDate.setText(dateText);
+        if (tvModalStatus != null) {
+            // Also updated modal status for upcoming schedule details to Scheduled
+            tvModalStatus.setText("●  Scheduled");
+        }
+        if (tvModalJeepUnit != null) tvModalJeepUnit.setText("Loading Unit...");
+        if (tvModalDriverName != null) tvModalDriverName.setText("Loading Driver...");
+        if (tvModalPaoName != null) tvModalPaoName.setText("Loading PAO...");
+
+        String secretKey = BuildConfig.CRYPTO_SECRET_KEY;
+        String jeepId = getFieldString(doc, "jeep", "jeep_id", "jeepId");
+        String driverId = getFieldString(doc, "driver", "driver_id", "driverId");
+        String paoId = getFieldString(doc, "pao", "pao_id", "paoId");
+
+        // Fetch Jeep Info
+        if (jeepId != null && !jeepId.isEmpty()) {
+            db.collection("Jeeps").document(jeepId).get().addOnSuccessListener(jeepDoc -> {
+                if (isAdded() && jeepDoc.exists() && tvModalJeepUnit != null) {
+                    String rawUnit = getFieldString(jeepDoc, "unit_number", "unit_no");
+                    String rawPlate = getFieldString(jeepDoc, "plate_number", "plate_no");
+                    String unit = CryptoUtils.decrypt(rawUnit, secretKey);
+                    String plate = CryptoUtils.decrypt(rawPlate, secretKey);
+                    tvModalJeepUnit.setText("Unit " + (unit != null && !unit.isEmpty() ? unit : "N/A") + " · " + (plate != null && !plate.isEmpty() ? plate : "N/A"));
+                }
+            }).addOnFailureListener(e -> {
+                if (isAdded() && tvModalJeepUnit != null) tvModalJeepUnit.setText("Unit N/A");
+            });
+        } else if (tvModalJeepUnit != null) {
+            tvModalJeepUnit.setText("Unassigned Unit");
+        }
+
+        // Fetch Driver Info
+        if (driverId != null && !driverId.isEmpty()) {
+            db.collection("File201").document(driverId).get().addOnSuccessListener(dDoc -> {
+                if (isAdded() && dDoc.exists() && tvModalDriverName != null) {
+                    String fn = CryptoUtils.decrypt(getFieldString(dDoc, "first_name"), secretKey);
+                    String ln = CryptoUtils.decrypt(getFieldString(dDoc, "last_name"), secretKey);
+                    String name = ((fn != null ? fn : "") + " " + (ln != null ? ln : "")).trim();
+                    tvModalDriverName.setText(!name.isEmpty() ? name : "Unassigned");
+                }
+            }).addOnFailureListener(e -> {
+                if (isAdded() && tvModalDriverName != null) tvModalDriverName.setText("Unassigned");
+            });
+        } else if (tvModalDriverName != null) {
+            tvModalDriverName.setText("Unassigned");
+        }
+
+        // Fetch PAO Info
+        if (paoId != null && !paoId.isEmpty()) {
+            db.collection("File201").document(paoId).get().addOnSuccessListener(pDoc -> {
+                if (isAdded() && pDoc.exists() && tvModalPaoName != null) {
+                    String fn = CryptoUtils.decrypt(getFieldString(pDoc, "first_name"), secretKey);
+                    String ln = CryptoUtils.decrypt(getFieldString(pDoc, "last_name"), secretKey);
+                    String name = ((fn != null ? fn : "") + " " + (ln != null ? ln : "")).trim();
+                    tvModalPaoName.setText(!name.isEmpty() ? name : "Unassigned");
+                }
+            }).addOnFailureListener(e -> {
+                if (isAdded() && tvModalPaoName != null) tvModalPaoName.setText("Unassigned");
+            });
+        } else if (tvModalPaoName != null) {
+            tvModalPaoName.setText("Unassigned");
+        }
+
+        // Display as a centered dialog popup via dedicated method
+        showCenteredDialog(dialogView);
+    }
+
+    private void showCenteredDialog(View dialogView) {
+        Dialog dialog = new Dialog(getContext());
+        dialog.setContentView(dialogView);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
+            // Set explicit width to 90% of screen width to prevent squishing
+            int width = (int) (getResources().getDisplayMetrics().widthPixels * 0.9);
+            dialog.getWindow().setLayout(width, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
+        dialog.show();
     }
 
     private void updateDynamicGreeting() {

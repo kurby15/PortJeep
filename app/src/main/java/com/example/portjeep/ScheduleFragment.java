@@ -144,31 +144,36 @@ public class ScheduleFragment extends Fragment {
             String rawDay = getFieldString(doc, "day");
             String day = CryptoUtils.decrypt(rawDay, secretKey);
             String dayStr = schedDate != null ? dayFormat.format(schedDate) : (day != null && !day.isEmpty() ? day : "Scheduled");
-            
+
             String dateStr = schedDate != null ? dateFormat.format(schedDate) : "N/A";
-            
-            String rawStatus = getFieldString(doc, "status");
-            String status = CryptoUtils.decrypt(rawStatus, secretKey);
-            if (status == null || status.isEmpty()) status = "Assigned";
 
             String jeepId = getFieldString(doc, "jeep", "jeep_id", "jeepId");
             String driverId = getFieldString(doc, "driver", "driver_id", "driverId");
             String paoId = getFieldString(doc, "pao", "pao_id", "paoId");
 
-            ScheduleItem item = new ScheduleItem(dayStr, dateStr, status, "Loading Unit...", "Loading Driver...", "Loading PAO...");
+            String status;
+            ScheduleItem item;
 
             if (schedDate != null) {
                 Calendar schedCal = Calendar.getInstance();
                 schedCal.setTime(schedDate);
 
                 if (isSameDay(todayCal, schedCal)) {
+                    status = "Assigned";
+                    item = new ScheduleItem(dayStr, dateStr, status, "Loading Unit...", "Loading Driver...", "Loading PAO...");
                     todayList.add(item);
                 } else if (schedCal.after(todayCal)) {
+                    status = "Scheduled";
+                    item = new ScheduleItem(dayStr, dateStr, status, "Loading Unit...", "Loading Driver...", "Loading PAO...");
                     upcomingList.add(item);
                 } else {
+                    status = "Completed";
+                    item = new ScheduleItem(dayStr, dateStr, status, "Loading Unit...", "Loading Driver...", "Loading PAO...");
                     previousList.add(item);
                 }
             } else {
+                status = "Assigned";
+                item = new ScheduleItem(dayStr, dateStr, status, "Loading Unit...", "Loading Driver...", "Loading PAO...");
                 todayList.add(item);
             }
 
