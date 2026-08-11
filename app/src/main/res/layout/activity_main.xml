@@ -5,23 +5,45 @@
     android:layout_height="match_parent"
     android:background="#E8EDF7">
 
-    <!-- Screen Container -->
+    <!-- Full-screen Fragment Container -->
     <FrameLayout
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@id/bottom_navigation" />
+        android:layout_height="match_parent" />
 
-    <!-- Bottom Navigation Bar -->
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottom_navigation"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+    <!-- Compact Floating Bottom Navigation -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/nav_card_container"
+        android:layout_width="250dp"
+        android:layout_height="56dp"
         android:layout_alignParentBottom="true"
-        android:background="@android:color/white"
-        app:elevation="8dp"
-        app:itemIconTint="@color/bottom_nav_color_selector"
-        app:itemTextColor="@color/bottom_nav_color_selector"
-        app:menu="@menu/bottom_nav_menu" />
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="80dp"
+        app:cardCornerRadius="14dp"
+        app:cardElevation="6dp"
+        app:cardBackgroundColor="@android:color/black"
+        app:strokeWidth="0dp">
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottom_navigation"
+            android:layout_width="250dp"
+            android:layout_height="56dp"
+            android:background="@android:color/transparent"
+            android:minHeight="0dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            app:elevation="0dp"
+            app:labelVisibilityMode="unlabeled"
+            app:itemIconSize="@dimen/bottom_nav_icon_size"
+            app:itemIconTint="@color/bottom_nav_color_selector"
+            app:itemRippleColor="@android:color/transparent"
+            app:itemActiveIndicatorStyle="@style/NoBottomNavIndicator"
+            app:itemPaddingTop="0dp"
+            app:itemPaddingBottom="0dp"
+            app:menu="@menu/bottom_nav_menu" />
+
+    </com.google.android.material.card.MaterialCardView>
 
 </RelativeLayout>

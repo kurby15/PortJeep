@@ -15,4 +15,7 @@
     <!-- Card/Input Elements -->
     <dimen name="card_padding_standard">16dp</dimen>
     <dimen name="card_corner_radius_standard">16dp</dimen>
+
+    // bottom navigation
+    <dimen name="bottom_nav_icon_size">26dp</dimen>
 </resources>
