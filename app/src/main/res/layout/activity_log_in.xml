@@ -5,47 +5,67 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F0F4F8"
+    android:background="@color/color_background_primary"
     tools:context=".LogInActivity">
+
+    <!-- Copyright Watermark -->
+    <TextView
+        android:id="@+id/tvCopyright"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="24dp"
+        android:gravity="center"
+        android:text="© 2026 Sapang Palay Minuyan MultiPurpose Cooperative"
+        android:textColor="@color/color_text_muted"
+        android:textSize="11sp"
+        android:alpha="0.7" />
 
     <!-- Centered Form Card Container -->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_above="@id/tvCopyright"
         android:gravity="center"
         android:padding="24dp">
 
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardContainer"
-            android:layout_width="420dp"
+            android:layout_width="380dp"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            app:cardBackgroundColor="@android:color/white"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="8dp">
+            app:cardBackgroundColor="@color/color_surface"
+            app:cardCornerRadius="28dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="@color/color_divider">
 
             <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fillViewport="true">
+                android:fillViewport="true"
+                android:scrollbars="none">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:paddingHorizontal="36dp"
-                    android:paddingTop="36dp"
-                    android:paddingBottom="36dp">
+                    android:paddingHorizontal="28dp"
+                    android:paddingTop="32dp"
+                    android:paddingBottom="32dp">
 
-                    <!-- Logo Section -->
+                    <!-- Logo Section - Original size restored -->
                     <ImageView
-                        android:layout_width="300dp"
-                        android:layout_height="200dp"
+                        android:layout_width="160dp"
+                        android:layout_height="160dp"
                         android:layout_gravity="center_horizontal"
+                        android:layout_marginBottom="32dp"
                         android:adjustViewBounds="true"
                         android:scaleType="fitCenter"
                         android:contentDescription="PortJeep Logo"
-                        android:src="@drawable/icon1" />
+                        android:src="@drawable/icon1"
+                        app:tint="?attr/logoTint" />
 
                     <!-- Title Section -->
                     <TextView
@@ -53,66 +73,70 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
                         android:text="Welcome back"
-                        android:textColor="#1F2937"
-                        android:textSize="22sp"
-                        android:textStyle="bold" />
+                        android:textColor="@color/color_text_primary"
+                        android:textSize="24sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="-0.02" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
-                        android:layout_marginTop="4dp"
-                        android:layout_marginBottom="28dp"
+                        android:layout_marginTop="6dp"
+                        android:layout_marginBottom="24dp"
                         android:text="Sign in to continue to Port Jeep"
-                        android:textColor="#6B7280"
-                        android:textSize="14sp" />
+                        android:textColor="@color/color_text_secondary"
+                        android:textSize="14sp"
+                        android:alpha="0.8" />
 
                     <!-- Email Address Label & Input -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Email Address"
-                        android:textColor="#374151"
-                        android:textSize="13sp"
-                        android:textStyle="bold" />
+                        android:textColor="@color/color_text_primary"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:alpha="0.9" />
 
                     <EditText
                         android:id="@+id/etEmail"
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
-                        android:layout_marginTop="6dp"
+                        android:layout_marginTop="8dp"
                         android:layout_marginBottom="16dp"
                         android:background="@drawable/bg_pill_input"
-                        android:hint="Email address"
+                        android:hint="name@example.com"
                         android:inputType="textEmailAddress"
-                        android:paddingHorizontal="16dp"
-                        android:textColor="#111827"
-                        android:textColorHint="#9CA3AF"
-                        android:textSize="15sp" />
+                        android:paddingHorizontal="18dp"
+                        android:textColor="@color/color_text_primary"
+                        android:textColorHint="@color/color_text_muted"
+                        android:textSize="14sp" />
 
                     <!-- Password Label -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Password"
-                        android:textColor="#374151"
-                        android:textSize="13sp"
-                        android:textStyle="bold" />
+                        android:textColor="@color/color_text_primary"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:alpha="0.9" />
 
                     <!-- Password Input -->
                     <EditText
                         android:id="@+id/etPassword"
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
-                        android:layout_marginTop="6dp"
+                        android:layout_marginTop="8dp"
                         android:layout_marginBottom="8dp"
                         android:background="@drawable/bg_pill_input"
-                        android:hint="Enter your password"
+                        android:hint="••••••••"
                         android:inputType="textPassword"
-                        android:paddingHorizontal="16dp"
-                        android:textColor="#111827"
-                        android:textColorHint="#9CA3AF"
-                        android:textSize="15sp" />
+                        android:paddingHorizontal="18dp"
+                        android:textColor="@color/color_text_primary"
+                        android:textColorHint="@color/color_text_muted"
+                        android:textSize="14sp" />
 
                     <!-- Forgot Password Link -->
                     <TextView
@@ -123,10 +147,10 @@
                         android:layout_marginBottom="20dp"
                         android:clickable="true"
                         android:focusable="true"
-                        android:padding="2dp"
+                        android:padding="4dp"
                         android:text="Forgot Password?"
-                        android:textColor="#EF4444"
-                        android:textSize="13sp"
+                        android:textColor="@color/color_brand_accent"
+                        android:textSize="12sp"
                         android:textStyle="bold" />
 
                     <!-- Error Banner -->
@@ -137,43 +161,32 @@
                         android:layout_marginBottom="16dp"
                         android:background="@drawable/bg_error_banner"
                         android:drawableStart="@drawable/warning"
-                        android:drawablePadding="8dp"
-                        android:padding="12dp"
-                        android:textColor="#C62828"
-                        android:textSize="14sp"
+                        android:drawablePadding="10dp"
+                        app:drawableTint="@color/color_error_text"
+                        android:padding="14dp"
+                        android:textColor="@color/color_error_text"
+                        android:textSize="13sp"
                         android:visibility="gone"
-                        tools:text="Please enter both email and password"
+                        tools:text="Invalid credentials"
                         tools:visibility="visible" />
 
                     <!-- Sign In Button -->
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnLogin"
                         android:layout_width="match_parent"
                         android:layout_height="52dp"
-                        android:backgroundTint="#3B82F6"
                         android:text="Sign In"
                         android:textAllCaps="false"
-                        android:textColor="@android:color/white"
-                        android:textSize="16sp"
+                        android:textColor="@color/white"
+                        android:textSize="15sp"
                         android:textStyle="bold"
-                        android:elevation="2dp"
-                        app:cornerRadius="8dp" />
+                        app:backgroundTint="@color/color_brand_primary"
+                        app:cornerRadius="18dp"
+                        app:elevation="0dp" />
 
                 </LinearLayout>
             </ScrollView>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
     </RelativeLayout>
-
-    <!-- Copyright Watermark at Bottom -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="24dp"
-        android:gravity="center"
-        android:text="© 2026 Sapang Palay Minuyan MultiPurpose Cooperative"
-        android:textColor="#6B7280"
-        android:textSize="12sp" />
 
 </RelativeLayout>

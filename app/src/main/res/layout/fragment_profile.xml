@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F8FAFC"
+    android:background="@color/color_background_primary"
     android:clipChildren="false"
     android:clipToPadding="false"
     android:fillViewport="true"
@@ -21,7 +21,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#1D3557"
+            android:background="@color/color_brand_primary"
             android:orientation="vertical"
             android:paddingStart="22dp"
             android:paddingTop="30dp"
@@ -34,7 +34,8 @@
                 android:layout_height="wrap_content"
                 android:letterSpacing="0.08"
                 android:text="DRIVER ACCOUNT"
-                android:textColor="#AFC4DF"
+                android:textColor="@color/white"
+                android:alpha="0.7"
                 android:textSize="10sp"
                 android:textStyle="bold" />
 
@@ -45,7 +46,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="My Profile"
-                android:textColor="#FFFFFF"
+                android:textColor="@color/white"
                 android:textSize="28sp"
                 android:textStyle="bold" />
 
@@ -56,7 +57,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:text="View and manage your account details"
-                android:textColor="#DCE7F5"
+                android:textColor="@color/white"
+                android:alpha="0.8"
                 android:textSize="12sp" />
 
         </LinearLayout>
@@ -78,10 +80,10 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="#FFFFFF"
+                app:cardBackgroundColor="@color/color_surface"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="3dp"
-                app:strokeColor="#E8EDF3"
+                app:strokeColor="@color/color_divider"
                 app:strokeWidth="1dp">
 
                 <LinearLayout
@@ -96,10 +98,10 @@
                         android:layout_width="60dp"
                         android:layout_height="60dp"
                         android:background="@drawable/bg_circle_avatar"
-                        android:backgroundTint="#EFF6FF"
+                        android:backgroundTint="@color/color_background_secondary"
                         android:gravity="center"
                         android:text="RD"
-                        android:textColor="#1D3557"
+                        android:textColor="@color/color_brand_primary"
                         android:textSize="20sp"
                         android:textStyle="bold" />
 
@@ -115,7 +117,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Ricardo Dela Cruz"
-                            android:textColor="#0F172A"
+                            android:textColor="@color/color_text_primary"
                             android:textSize="18sp"
                             android:textStyle="bold" />
 
@@ -125,7 +127,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
                             android:text="EMP-2024-0042"
-                            android:textColor="#64748B"
+                            android:textColor="@color/color_text_secondary"
                             android:textSize="11sp" />
 
                         <TextView
@@ -154,17 +156,17 @@
                 android:layout_marginBottom="8dp"
                 android:letterSpacing="0.05"
                 android:text="PERSONAL INFORMATION"
-                android:textColor="#1D3557"
+                android:textColor="@color/color_brand_primary"
                 android:textSize="11sp"
                 android:textStyle="bold" />
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="#FFFFFF"
+                app:cardBackgroundColor="@color/color_surface"
                 app:cardCornerRadius="18dp"
                 app:cardElevation="2dp"
-                app:strokeColor="#E8EDF3"
+                app:strokeColor="@color/color_divider"
                 app:strokeWidth="1dp">
 
                 <LinearLayout
@@ -185,10 +187,10 @@
                             android:layout_width="38dp"
                             android:layout_height="38dp"
                             android:background="@drawable/bg_icon_blue_light"
-                            android:backgroundTint="#EFF6FF"
+                            android:backgroundTint="@color/color_background_secondary"
                             android:padding="10dp"
                             android:src="@drawable/work"
-                            app:tint="#1D3557" />
+                            app:tint="@color/color_brand_primary" />
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -200,7 +202,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="POSITION"
-                                android:textColor="#94A3B8"
+                                android:textColor="@color/color_text_muted"
                                 android:textSize="10sp"
                                 android:textStyle="bold" />
 
@@ -210,7 +212,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
                                 android:text="Driver"
-                                android:textColor="#0F172A"
+                                android:textColor="@color/color_text_primary"
                                 android:textSize="13sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
@@ -227,10 +229,10 @@
                             android:layout_width="38dp"
                             android:layout_height="38dp"
                             android:background="@drawable/bg_icon_blue_light"
-                            android:backgroundTint="#EFF6FF"
+                            android:backgroundTint="@color/color_background_secondary"
                             android:padding="10dp"
                             android:src="@drawable/calendar"
-                            app:tint="#1D3557" />
+                            app:tint="@color/color_brand_primary" />
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -242,7 +244,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="DATE HIRED"
-                                android:textColor="#94A3B8"
+                                android:textColor="@color/color_text_muted"
                                 android:textSize="10sp"
                                 android:textStyle="bold" />
 
@@ -252,7 +254,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
                                 android:text="June 1, 2021"
-                                android:textColor="#0F172A"
+                                android:textColor="@color/color_text_primary"
                                 android:textSize="13sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
@@ -269,10 +271,10 @@
                             android:layout_width="38dp"
                             android:layout_height="38dp"
                             android:background="@drawable/bg_icon_blue_light"
-                            android:backgroundTint="#EFF6FF"
+                            android:backgroundTint="@color/color_background_secondary"
                             android:padding="10dp"
                             android:src="@drawable/civil"
-                            app:tint="#1D3557" />
+                            app:tint="@color/color_brand_primary" />
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -284,7 +286,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="CIVIL STATUS"
-                                android:textColor="#94A3B8"
+                                android:textColor="@color/color_text_muted"
                                 android:textSize="10sp"
                                 android:textStyle="bold" />
 
@@ -294,7 +296,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
                                 android:text="Married"
-                                android:textColor="#0F172A"
+                                android:textColor="@color/color_text_primary"
                                 android:textSize="13sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
@@ -311,10 +313,10 @@
                             android:layout_width="38dp"
                             android:layout_height="38dp"
                             android:background="@drawable/bg_icon_blue_light"
-                            android:backgroundTint="#EFF6FF"
+                            android:backgroundTint="@color/color_background_secondary"
                             android:padding="10dp"
                             android:src="@drawable/sex"
-                            app:tint="#1D3557" />
+                            app:tint="@color/color_brand_primary" />
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -326,7 +328,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="SEX"
-                                android:textColor="#94A3B8"
+                                android:textColor="@color/color_text_muted"
                                 android:textSize="10sp"
                                 android:textStyle="bold" />
 
@@ -336,7 +338,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
                                 android:text="Male"
-                                android:textColor="#0F172A"
+                                android:textColor="@color/color_text_primary"
                                 android:textSize="13sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
@@ -353,17 +355,17 @@
                 android:layout_marginBottom="8dp"
                 android:letterSpacing="0.05"
                 android:text="CONTACT INFORMATION"
-                android:textColor="#1D3557"
+                android:textColor="@color/color_brand_primary"
                 android:textSize="11sp"
                 android:textStyle="bold" />
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="#FFFFFF"
+                app:cardBackgroundColor="@color/color_surface"
                 app:cardCornerRadius="18dp"
                 app:cardElevation="2dp"
-                app:strokeColor="#E8EDF3"
+                app:strokeColor="@color/color_divider"
                 app:strokeWidth="1dp">
 
                 <LinearLayout
@@ -384,10 +386,10 @@
                             android:layout_width="38dp"
                             android:layout_height="38dp"
                             android:background="@drawable/bg_icon_blue_light"
-                            android:backgroundTint="#EFF6FF"
+                            android:backgroundTint="@color/color_background_secondary"
                             android:padding="10dp"
                             android:src="@drawable/mail"
-                            app:tint="#1D3557" />
+                            app:tint="@color/color_brand_primary" />
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -399,7 +401,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="EMAIL"
-                                android:textColor="#94A3B8"
+                                android:textColor="@color/color_text_muted"
                                 android:textSize="10sp"
                                 android:textStyle="bold" />
 
@@ -409,7 +411,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
                                 android:text="r.delacruz@portjeep.ph"
-                                android:textColor="#0F172A"
+                                android:textColor="@color/color_text_primary"
                                 android:textSize="13sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
@@ -426,10 +428,10 @@
                             android:layout_width="38dp"
                             android:layout_height="38dp"
                             android:background="@drawable/bg_icon_blue_light"
-                            android:backgroundTint="#EFF6FF"
+                            android:backgroundTint="@color/color_background_secondary"
                             android:padding="10dp"
                             android:src="@drawable/phone"
-                            app:tint="#1D3557" />
+                            app:tint="@color/color_brand_primary" />
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -441,7 +443,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="CONTACT NO."
-                                android:textColor="#94A3B8"
+                                android:textColor="@color/color_text_muted"
                                 android:textSize="10sp"
                                 android:textStyle="bold" />
 
@@ -451,7 +453,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
                                 android:text="09171234567"
-                                android:textColor="#0F172A"
+                                android:textColor="@color/color_text_primary"
                                 android:textSize="13sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
@@ -468,10 +470,10 @@
                             android:layout_width="38dp"
                             android:layout_height="38dp"
                             android:background="@drawable/bg_icon_blue_light"
-                            android:backgroundTint="#EFF6FF"
+                            android:backgroundTint="@color/color_background_secondary"
                             android:padding="10dp"
                             android:src="@drawable/location"
-                            app:tint="#1D3557" />
+                            app:tint="@color/color_brand_primary" />
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -483,7 +485,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="ADDRESS"
-                                android:textColor="#94A3B8"
+                                android:textColor="@color/color_text_muted"
                                 android:textSize="10sp"
                                 android:textStyle="bold" />
 
@@ -493,7 +495,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
                                 android:text="Brgy. Balintawak, Caloocan City"
-                                android:textColor="#0F172A"
+                                android:textColor="@color/color_text_primary"
                                 android:textSize="13sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
@@ -510,11 +512,11 @@
                 android:layout_height="52dp"
                 android:layout_marginTop="26dp"
                 android:text="CHANGE PASSWORD"
-                android:textColor="#1D3557"
+                android:textColor="@color/color_brand_primary"
                 android:textSize="13sp"
                 android:textStyle="bold"
                 app:cornerRadius="14dp"
-                app:strokeColor="#1D3557"
+                app:strokeColor="@color/color_brand_primary"
                 app:strokeWidth="1.5dp" />
 
             <com.google.android.material.button.MaterialButton
@@ -523,15 +525,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:layout_marginTop="10dp"
-                android:backgroundTint="#FEF2F2"
+                android:backgroundTint="@color/color_background_secondary"
                 android:text="SIGN OUT"
-                android:textColor="#E63946"
+                android:textColor="@color/color_brand_accent"
                 android:textSize="13sp"
                 android:textStyle="bold"
                 app:cornerRadius="14dp"
                 app:icon="@drawable/logout"
                 app:iconGravity="textStart"
-                app:iconTint="#E63946" />
+                app:iconTint="@color/color_brand_accent" />
 
             <!-- Bottom spacing to prevent content from being hidden behind the navigation bar -->
             <View

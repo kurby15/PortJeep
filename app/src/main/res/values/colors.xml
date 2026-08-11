@@ -1,5 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Basic Colors -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Brand Colors -->
+    <color name="color_brand_primary">#1D3557</color>
+    <color name="color_brand_accent">#E63946</color>
+
+    <!-- Semantic Colors - Light Mode -->
+    <color name="color_background_primary">#F8FAFC</color>
+    <color name="color_background_secondary">#E8EDF7</color>
+    <color name="color_surface">#FFFFFF</color>
+    <color name="color_surface_variant">#F1F5F9</color>
+
+    <color name="color_text_primary">#0F172A</color>
+    <color name="color_text_secondary">#64748B</color>
+    <color name="color_text_muted">#94A3B8</color>
+
+    <color name="color_divider">#E2E8F0</color>
+
+    <color name="color_icon_primary">#1D3557</color>
+    <color name="color_icon_secondary">#64748B</color>
+
+    <!-- Logo Tint - Null in Light Mode to keep original colors -->
+    <color name="color_logo_tint">@android:color/transparent</color>
+
+    <!-- Status & Badges -->
+    <color name="color_status_active_bg">#E8F5E9</color>
+    <color name="color_status_active_text">#2E7D32</color>
+    <color name="color_status_assigned_bg">#E8EDF7</color>
+    <color name="color_status_assigned_text">#1D3557</color>
+
+    <!-- Light Mode Warning -->
+    <color name="color_error_bg">#FEF2F2</color>
+    <color name="color_error_text">#C62828</color>
+
+    <!-- Bottom Nav Specific - Black in Light Mode -->
+    <color name="color_bottom_nav_bg">#000000</color>
 </resources>

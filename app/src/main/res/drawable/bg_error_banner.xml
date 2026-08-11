@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Light red background -->
-    <solid android:color="#FEF2F2" />
+    <!-- Semantic red background -->
+    <solid android:color="@color/color_error_bg" />
 
-    <!-- Rounded corners matching the input fields -->
+    <!-- Rounded corners matching the design -->
     <corners android:radius="14dp" />
 
-    <!-- Subtle dark red border -->
+    <!-- Subtle border -->
     <stroke
         android:width="1dp"
-        android:color="#FEE2E2" />
+        android:color="@color/color_divider" />
 </shape>

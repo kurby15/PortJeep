@@ -1,13 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Selected icon color - White to contrast against the red circle indicator -->
+    <item android:color="@color/white" android:state_checked="true" />
 
-    <!-- Selected icon -->
-    <item
-        android:color="#2E7D32"
-        android:state_checked="true" />
-
-    <!-- Unselected icons -->
-    <item
-        android:color="#fff" />
-
+    <!-- Unselected icon color - Muted gray for both themes -->
+    <item android:color="@color/color_text_muted" />
 </selector>

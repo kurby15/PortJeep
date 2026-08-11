@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="@android:color/white" />
+    <!-- Uses themed error background (Soft red in Light, Deep red in Dark) -->
+    <solid android:color="@color/color_error_bg" />
+
+    <!-- Uses themed error text color for the stroke -->
     <stroke
         android:width="1.5dp"
-        android:color="#EF4444" />
-    <corners android:radius="8dp" />
+        android:color="@color/color_error_text" />
+
+    <!-- Consistent 18dp radius for the pill shape -->
+    <corners android:radius="18dp" />
 </shape>

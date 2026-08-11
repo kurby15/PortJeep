@@ -18,11 +18,11 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:background="@drawable/bg_circle_icon"
-        android:backgroundTint="#EFF6FF"
+        android:backgroundTint="@color/color_background_secondary"
         android:contentDescription="Schedule date"
         android:padding="10dp"
         android:src="@drawable/calendar"
-        app:tint="#1D3557" />
+        app:tint="@color/color_brand_primary" />
 
     <!-- Day & Date Information -->
     <LinearLayout
@@ -37,7 +37,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Friday"
-            android:textColor="#0F172A"
+            android:textColor="@color/color_text_primary"
             android:textSize="14sp"
             android:textStyle="bold" />
 
@@ -47,7 +47,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:text="August 14, 2026"
-            android:textColor="#64748B"
+            android:textColor="@color/color_text_secondary"
             android:textSize="11sp" />
 
     </LinearLayout>
@@ -64,7 +64,7 @@
         android:paddingEnd="10dp"
         android:paddingBottom="5dp"
         android:text="●  Assigned"
-        android:textColor="#1D3557"
+        android:textColor="@color/color_brand_primary"
         android:textSize="10sp"
         android:textStyle="bold" />
 
@@ -74,6 +74,6 @@
         android:layout_height="16dp"
         android:contentDescription="View details"
         android:src="@drawable/chevron"
-        app:tint="#94A3B8" />
+        app:tint="@color/color_text_muted" />
 
 </LinearLayout>

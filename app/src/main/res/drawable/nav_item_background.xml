@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Active / Checked state: Shows the centered 44dp x 44dp circle -->
+    <item android:state_checked="true">
+        <layer-list>
+            <item
+                android:gravity="center"
+                android:width="44dp"
+                android:height="44dp">
+                <shape android:shape="oval">
+                    <solid android:color="@color/color_brand_accent" />
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+
+
+</selector>

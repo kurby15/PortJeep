@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Basic Colors -->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- Brand Colors (Optimized for Dark Mode) -->
+    <color name="color_brand_primary">#3B82F6</color>
+    <color name="color_brand_accent">#EF4444</color>
+
+    <!-- Semantic Colors - Dark Mode (Progressive Depth) -->
+    <color name="color_background_primary">#0F172A</color>   <!-- Deep Navy Background -->
+    <color name="color_background_secondary">#1E293B</color> <!-- Slightly lighter background -->
+    <color name="color_surface">#1E293B</color>              <!-- Card Surface -->
+    <color name="color_surface_variant">#334155</color>      <!-- Nested Elements (e.g., inner pills) -->
+
+    <color name="color_text_primary">#F8FAFC</color>
+    <color name="color_text_secondary">#CBD5E1</color>
+    <color name="color_text_muted">#94A3B8</color>
+
+    <color name="color_divider">#334155</color>
+
+    <color name="color_icon_primary">#F8FAFC</color>
+    <color name="color_icon_secondary">#94A3B8</color>
+
+    <!-- Logo Tint - White in Dark Mode -->
+    <color name="color_logo_tint">#FFFFFF</color>
+
+    <!-- Status & Badges -->
+    <color name="color_status_active_bg">#064E3B</color>
+    <color name="color_status_active_text">#6EE7B7</color>
+    <color name="color_status_assigned_bg">#1E3A8A</color>
+    <color name="color_status_assigned_text">#DBEAFE</color>
+
+    <!-- Modern Dark Mode Warning - Softer Red -->
+    <color name="color_error_bg">#451A1A</color>
+    <color name="color_error_text">#FCA5A5</color>
+
+    <!-- Bottom Nav - Explicitly White in Dark Mode as requested -->
+    <color name="color_bottom_nav_bg">#FFFFFF</color>
+</resources>

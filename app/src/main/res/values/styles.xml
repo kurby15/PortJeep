@@ -1,6 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="NoBottomNavIndicator" parent="">
+    <!-- Custom Bottom Navigation Style -->
+    <style name="Widget.App.BottomNavigationView" parent="Widget.Material3.BottomNavigationView">
+        <!-- Use a transparent indicator style to hide the default M3 pill and avoid build errors -->
+        <item name="itemActiveIndicatorStyle">@style/App.Custom.Indicator</item>
+    </style>
+
+    <!-- Transparent Indicator Style -->
+    <style name="App.Custom.Indicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
         <item name="android:color">@android:color/transparent</item>
+        <item name="android:width">0dp</item>
+        <item name="android:height">0dp</item>
+    </style>
+
+    <!-- Style for the circular background behind active icon -->
+    <style name="BottomNavActiveIndicator" parent="">
+        <item name="android:color">@color/color_brand_accent</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.App.Circle</item>
+    </style>
+
+    <!-- Perfect Circular Shape Appearance -->
+    <style name="ShapeAppearance.App.Circle" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
     </style>
 </resources>
