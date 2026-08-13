@@ -10,7 +10,7 @@
     android:foreground="?attr/selectableItemBackground"
     app:cardBackgroundColor="@color/color_surface"
     app:cardCornerRadius="24dp"
-    app:cardElevation="0dp"
+    app:cardElevation="2dp"
     app:strokeColor="@color/color_divider"
     app:strokeWidth="1dp">
 
@@ -20,7 +20,7 @@
         android:orientation="vertical"
         android:padding="20dp">
 
-        <!-- Header: Date and Status -->
+        <!-- Card Header: Day, Date & Pill Status -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -39,7 +39,7 @@
                     android:layout_height="wrap_content"
                     android:text="Sunday"
                     android:textColor="@color/color_text_primary"
-                    android:textSize="18sp"
+                    android:textSize="22sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -49,7 +49,8 @@
                     android:layout_marginTop="2dp"
                     android:text="August 9, 2026"
                     android:textColor="@color/color_text_secondary"
-                    android:textSize="12sp" />
+                    android:textSize="13sp" />
+
             </LinearLayout>
 
             <TextView
@@ -57,51 +58,52 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_status_assigned"
-                android:paddingStart="12dp"
-                android:paddingTop="6dp"
-                android:paddingEnd="12dp"
-                android:paddingBottom="6dp"
-                android:text="● Assigned"
+                android:paddingStart="14dp"
+                android:paddingTop="8dp"
+                android:paddingEnd="14dp"
+                android:paddingBottom="8dp"
+                android:text="●  Assigned"
                 android:textColor="@color/color_status_assigned_text"
-                android:textSize="10sp"
+                android:textSize="11sp"
                 android:textStyle="bold" />
+
         </LinearLayout>
 
-        <!-- Vehicle Banner -->
+        <!-- Vehicle Info Card Banner -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:background="@drawable/bg_jeep_pill"
+            android:background="@drawable/bg_jeep_card"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:padding="14dp">
+            android:padding="16dp">
 
             <ImageView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
                 android:background="@drawable/bg_circle_icon"
                 android:backgroundTint="@color/color_surface"
                 android:contentDescription="Vehicle"
-                android:padding="10dp"
+                android:padding="12dp"
                 android:src="@drawable/car"
                 app:tint="@color/color_brand_primary" />
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="14dp"
+                android:layout_marginStart="16dp"
                 android:layout_weight="1"
                 android:orientation="vertical">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="E-JEEP"
+                    android:letterSpacing="0.1"
+                    android:text="E-JEEP ASSIGNED"
                     android:textColor="@color/color_text_secondary"
-                    android:textSize="10sp"
-                    android:textStyle="bold"
-                    android:letterSpacing="0.05" />
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/tv_jeep_unit"
@@ -110,35 +112,39 @@
                     android:layout_marginTop="2dp"
                     android:text="Unit 3 · EJP 1234"
                     android:textColor="@color/color_text_primary"
-                    android:textSize="15sp"
+                    android:textSize="18sp"
                     android:textStyle="bold" />
+
             </LinearLayout>
 
             <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
                 android:contentDescription="Details"
                 android:src="@drawable/chevron"
                 app:tint="@color/color_text_muted" />
+
         </LinearLayout>
 
-        <!-- Crew Section -->
+        <!-- Squad Header -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:text="SQUAD"
+            android:letterSpacing="0.1"
+            android:text="SQUAD CREW"
             android:textColor="@color/color_text_secondary"
-            android:textSize="10sp"
-            android:textStyle="bold"
-            android:letterSpacing="0.05" />
+            android:textSize="11sp"
+            android:textStyle="bold" />
 
+        <!-- Squad Grid -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:orientation="horizontal">
 
+            <!-- Driver Container -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -146,14 +152,14 @@
                 android:layout_weight="1"
                 android:background="@drawable/bg_jeep_pill"
                 android:orientation="vertical"
-                android:padding="12dp">
+                android:padding="14dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Driver"
-                    android:textColor="@color/color_text_muted"
-                    android:textSize="10sp" />
+                    android:textColor="@color/color_text_secondary"
+                    android:textSize="11sp" />
 
                 <TextView
                     android:id="@+id/tv_driver_name"
@@ -164,10 +170,12 @@
                     android:maxLines="1"
                     android:text="Ricardo Dela Cruz"
                     android:textColor="@color/color_text_primary"
-                    android:textSize="12sp"
+                    android:textSize="14sp"
                     android:textStyle="bold" />
+
             </LinearLayout>
 
+            <!-- PAO Container -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -175,14 +183,14 @@
                 android:layout_weight="1"
                 android:background="@drawable/bg_jeep_pill"
                 android:orientation="vertical"
-                android:padding="12dp">
+                android:padding="14dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="PAO"
-                    android:textColor="@color/color_text_muted"
-                    android:textSize="10sp" />
+                    android:textColor="@color/color_text_secondary"
+                    android:textSize="11sp" />
 
                 <TextView
                     android:id="@+id/tv_pao_name"
@@ -193,9 +201,13 @@
                     android:maxLines="1"
                     android:text="Maria Buenaventura"
                     android:textColor="@color/color_text_primary"
-                    android:textSize="12sp"
+                    android:textSize="14sp"
                     android:textStyle="bold" />
+
             </LinearLayout>
+
         </LinearLayout>
+
     </LinearLayout>
+
 </com.google.android.material.card.MaterialCardView>

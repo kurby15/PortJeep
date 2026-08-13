@@ -8,6 +8,7 @@ public class ScheduleItem {
     private String driverName;
     private String paoName;
 
+    // Constructor
     public ScheduleItem(String day, String date, String status, String jeepUnit, String driverName, String paoName) {
         this.day = day;
         this.date = date;
@@ -17,6 +18,7 @@ public class ScheduleItem {
         this.paoName = paoName;
     }
 
+    // Getters
     public String getDay() { return day; }
     public String getDate() { return date; }
     public String getStatus() { return status; }
@@ -24,6 +26,8 @@ public class ScheduleItem {
     public String getDriverName() { return driverName; }
     public String getPaoName() { return paoName; }
 
+    // Setters
+    public void setStatus(String status) { this.status = status; } // Added this
     public void setJeepUnit(String jeepUnit) { this.jeepUnit = jeepUnit; }
     public void setDriverName(String driverName) { this.driverName = driverName; }
     public void setPaoName(String paoName) { this.paoName = paoName; }

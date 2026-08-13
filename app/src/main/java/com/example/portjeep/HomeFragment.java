@@ -2,6 +2,9 @@ package com.example.portjeep;
 
 import android.app.Dialog;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,12 +21,19 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.card.MaterialCardView;
-import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -31,8 +41,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class HomeFragment extends Fragment {
+
+    private static final String TAG = "HomeFragment";
+    private static final String API_URL = "https://port-jeep.vercel.app/api/mobile/schedules";
 
     private TextView tvGreeting, tvDriverName, tvRoleBadge;
     private ImageView ivRobot;
@@ -43,6 +58,7 @@ public class HomeFragment extends Fragment {
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     public HomeFragment() {
         // Required empty public constructor
@@ -88,7 +104,8 @@ public class HomeFragment extends Fragment {
         }
 
         updateDynamicGreeting();
-        loadUserProfileAndSchedule();
+        loadUserProfile();
+        loadSchedulesFromApi();
 
         // Quick Access Handlers
         cardMySchedule.setOnClickListener(v -> {
@@ -118,15 +135,15 @@ public class HomeFragment extends Fragment {
         return view;
     }
 
-    private void loadUserProfileAndSchedule() {
+    // ==========================================
+    // 1. USER PROFILE LOADING
+    // ==========================================
+    private void loadUserProfile() {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null) return;
 
-        String uid = currentUser.getUid();
-
-        // 1. Load User Profile
         db.collection("File201")
-                .document(uid)
+                .document(currentUser.getUid())
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (isAdded() && documentSnapshot.exists()) {
@@ -138,10 +155,6 @@ public class HomeFragment extends Fragment {
                         Toast.makeText(getContext(), "Failed to load user info", Toast.LENGTH_SHORT).show();
                     }
                 });
-
-        // 2. Load Today's Assignment & Upcoming Schedules
-        loadTodaySchedule(uid);
-        loadUpcomingSchedules(uid);
     }
 
     private void updateUiWithUserData(DocumentSnapshot doc) {
@@ -224,153 +237,174 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    private void loadTodaySchedule(String uid) {
-        db.collection("Schedules")
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
+    // ==========================================
+    // 2. SCHEDULE FETCHING FROM API
+    // ==========================================
+    private void loadSchedulesFromApi() {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser == null) return;
+
+        currentUser.getIdToken(true)
+                .addOnSuccessListener(result -> {
                     if (!isAdded()) return;
-
-                    DocumentSnapshot todayDoc = null;
-                    Calendar calToday = Calendar.getInstance();
-
-                    for (DocumentSnapshot doc : queryDocumentSnapshots.getDocuments()) {
-                        String dId = getFieldString(doc, "driver", "driver_id", "driverId");
-                        String pId = getFieldString(doc, "pao", "pao_id", "paoId");
-
-                        if (uid.equals(dId) || uid.equals(pId)) {
-                            Object rawDate = doc.get("date");
-                            if (rawDate == null) rawDate = doc.get("schedule_date");
-
-                            if (rawDate instanceof Timestamp) {
-                                Date schedDate = ((Timestamp) rawDate).toDate();
-                                Calendar calSched = Calendar.getInstance();
-                                calSched.setTime(schedDate);
-
-                                if (calSched.get(Calendar.YEAR) == calToday.get(Calendar.YEAR) &&
-                                        calSched.get(Calendar.DAY_OF_YEAR) == calToday.get(Calendar.DAY_OF_YEAR)) {
-                                    todayDoc = doc;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-
-                    if (todayDoc != null) {
-                        processTodayScheduleDoc(todayDoc);
-                    } else {
-                        setNoAssignmentUI();
-                    }
+                    fetchSchedulesFromApi(result.getToken());
                 })
-                .addOnFailureListener(e -> setNoAssignmentUI());
-    }
-
-    private void processTodayScheduleDoc(DocumentSnapshot scheduleDoc) {
-        String secretKey = BuildConfig.CRYPTO_SECRET_KEY;
-
-        String jeepId = getFieldString(scheduleDoc, "jeep", "jeep_id", "jeepId");
-        String driverId = getFieldString(scheduleDoc, "driver", "driver_id", "driverId");
-        String paoId = getFieldString(scheduleDoc, "pao", "pao_id", "paoId");
-
-        // Status forced to Assigned for Today
-        if (tvAssignmentStatus != null) {
-            tvAssignmentStatus.setText("●  Assigned");
-        }
-
-        // Fetch Jeep Unit Details
-        if (jeepId != null && !jeepId.isEmpty()) {
-            db.collection("Jeeps").document(jeepId).get().addOnSuccessListener(jeepDoc -> {
-                if (isAdded() && jeepDoc.exists()) {
-                    String rawUnitNo = getFieldString(jeepDoc, "unit_number", "unit_no");
-                    String rawPlateNo = getFieldString(jeepDoc, "plate_number", "plate_no");
-                    String rawJeepStatus = getFieldString(jeepDoc, "status", "jeep_status");
-
-                    String unitNo = CryptoUtils.decrypt(rawUnitNo, secretKey);
-                    String plateNo = CryptoUtils.decrypt(rawPlateNo, secretKey);
-                    String jeepStatus = CryptoUtils.decrypt(rawJeepStatus, secretKey);
-
-                    tvUnitNo.setText(unitNo != null && !unitNo.isEmpty() ? "Unit " + unitNo : "Unit N/A");
-                    tvPlateNo.setText(plateNo != null && !plateNo.isEmpty() ? plateNo : "N/A");
-                    if (tvJeepStatus != null) {
-                        tvJeepStatus.setText("●  " + (jeepStatus != null && !jeepStatus.isEmpty() ? jeepStatus : "Active"));
-                    }
-                }
-            });
-        } else {
-            tvUnitNo.setText("No Unit");
-            tvPlateNo.setText("N/A");
-        }
-
-        // Fetch Assigned Driver Name
-        if (driverId != null && !driverId.isEmpty()) {
-            db.collection("File201").document(driverId).get().addOnSuccessListener(dDoc -> {
-                if (isAdded() && dDoc.exists()) {
-                    String fn = CryptoUtils.decrypt(getFieldString(dDoc, "first_name"), secretKey);
-                    String ln = CryptoUtils.decrypt(getFieldString(dDoc, "last_name"), secretKey);
-                    String name = ((fn != null ? fn : "") + " " + (ln != null ? ln : "")).trim();
-                    tvDriverFullName.setText(!name.isEmpty() ? name : "Assigned Driver");
-                }
-            });
-        } else {
-            tvDriverFullName.setText("Unassigned");
-        }
-
-        // Fetch Assigned PAO Name
-        if (paoId != null && !paoId.isEmpty()) {
-            db.collection("File201").document(paoId).get().addOnSuccessListener(pDoc -> {
-                if (isAdded() && pDoc.exists()) {
-                    String fn = CryptoUtils.decrypt(getFieldString(pDoc, "first_name"), secretKey);
-                    String ln = CryptoUtils.decrypt(getFieldString(pDoc, "last_name"), secretKey);
-                    String name = ((fn != null ? fn : "") + " " + (ln != null ? ln : "")).trim();
-                    tvPaoFullName.setText(!name.isEmpty() ? name : "Assigned PAO");
-                }
-            });
-        } else {
-            tvPaoFullName.setText("Unassigned");
-        }
-    }
-
-    private void setNoAssignmentUI() {
-        if (tvUnitNo != null) tvUnitNo.setText("No Unit");
-        if (tvPlateNo != null) tvPlateNo.setText("No Duty Today");
-    }
-
-    private void loadUpcomingSchedules(String uid) {
-        db.collection("Schedules")
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
+                .addOnFailureListener(e -> {
                     if (!isAdded()) return;
-
-                    List<DocumentSnapshot> upcomingDocs = new ArrayList<>();
-
-                    Calendar todayEnd = Calendar.getInstance();
-                    todayEnd.set(Calendar.HOUR_OF_DAY, 23);
-                    todayEnd.set(Calendar.MINUTE, 59);
-                    todayEnd.set(Calendar.SECOND, 59);
-                    todayEnd.set(Calendar.MILLISECOND, 999);
-
-                    for (DocumentSnapshot doc : queryDocumentSnapshots.getDocuments()) {
-                        String dId = getFieldString(doc, "driver", "driver_id", "driverId");
-                        String pId = getFieldString(doc, "pao", "pao_id", "paoId");
-
-                        if (uid.equals(dId) || uid.equals(pId)) {
-                            Object rawDate = doc.get("date");
-                            if (rawDate == null) rawDate = doc.get("schedule_date");
-
-                            if (rawDate instanceof Timestamp) {
-                                Date schedDate = ((Timestamp) rawDate).toDate();
-                                if (schedDate.after(todayEnd.getTime())) {
-                                    upcomingDocs.add(doc);
-                                }
-                            }
-                        }
-                    }
-
-                    LayoutInflater inflater = LayoutInflater.from(requireContext());
-                    renderUpcomingScheduleList(upcomingDocs, inflater);
+                    Log.e(TAG, "Failed to get ID Token: " + e.getMessage());
+                    setNoAssignmentUI();
                 });
     }
 
-    private void renderUpcomingScheduleList(List<DocumentSnapshot> docs, LayoutInflater inflater) {
+    private void fetchSchedulesFromApi(String idToken) {
+        Handler handler = new Handler(Looper.getMainLooper());
+
+        executor.execute(() -> {
+            HttpURLConnection connection = null;
+            try {
+                URL url = new URL(API_URL);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+                connection.setRequestProperty("Authorization", "Bearer " + idToken);
+                connection.setRequestProperty("Content-Type", "application/json");
+                connection.setConnectTimeout(10000);
+                connection.setReadTimeout(10000);
+
+                int responseCode = connection.getResponseCode();
+                InputStream inputStream = (responseCode == HttpURLConnection.HTTP_OK)
+                        ? connection.getInputStream()
+                        : connection.getErrorStream();
+
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                StringBuilder responseStr = new StringBuilder();
+                String line;
+
+                while ((line = reader.readLine()) != null) {
+                    responseStr.append(line);
+                }
+                reader.close();
+
+                String rawResult = responseStr.toString();
+
+                handler.post(() -> {
+                    if (!isAdded()) return;
+
+                    if (responseCode == HttpURLConnection.HTTP_OK) {
+                        parseAndDisplaySchedules(rawResult);
+                    } else {
+                        Log.e(TAG, "Server Error (" + responseCode + "): " + rawResult);
+                        setNoAssignmentUI();
+                    }
+                });
+
+            } catch (Exception e) {
+                Log.e(TAG, "Network Request Failed", e);
+                handler.post(() -> {
+                    if (isAdded()) setNoAssignmentUI();
+                });
+            } finally {
+                if (connection != null) connection.disconnect();
+            }
+        });
+    }
+
+    private void parseAndDisplaySchedules(String jsonResponse) {
+        try {
+            JSONObject root = new JSONObject(jsonResponse);
+            boolean success = root.optBoolean("success", false);
+
+            if (!success) {
+                setNoAssignmentUI();
+                return;
+            }
+
+            JSONArray schedules = root.optJSONArray("schedules");
+            if (schedules == null || schedules.length() == 0) {
+                setNoAssignmentUI();
+                renderUpcomingScheduleList(new ArrayList<>(), LayoutInflater.from(requireContext()));
+                return;
+            }
+
+            int todayIndex = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
+            JSONObject todayScheduleDoc = null;
+            List<JSONObject> upcomingScheduleDocs = new ArrayList<>();
+
+            for (int i = 0; i < schedules.length(); i++) {
+                JSONObject doc = schedules.getJSONObject(i);
+                String dayStr = doc.optString("day", "");
+                int schedIndex = getDayIndex(dayStr);
+
+                if (schedIndex != -1) {
+                    if (schedIndex == todayIndex) {
+                        todayScheduleDoc = doc;
+                    } else if (schedIndex > todayIndex) {
+                        upcomingScheduleDocs.add(doc);
+                    }
+                }
+            }
+
+            // Display Today's Duty
+            if (todayScheduleDoc != null) {
+                processTodaySchedule(todayScheduleDoc);
+            } else {
+                setNoAssignmentUI();
+            }
+
+            // Display Upcoming List
+            renderUpcomingScheduleList(upcomingScheduleDocs, LayoutInflater.from(requireContext()));
+
+        } catch (Exception e) {
+            Log.e(TAG, "JSON Parsing error", e);
+            setNoAssignmentUI();
+        }
+    }
+
+    // Format matching Picture 2 (Unit 3 on top, Plate below)
+    private void processTodaySchedule(JSONObject doc) {
+        String rawJeep = doc.optString("jeep", "N/A"); // Example from API: "AAA-0003 (Unit 4)"
+
+        // Parse Driver and PAO names
+        String driverName = parseName(doc, "driver", "Unassigned Driver");
+        String paoName = parseName(doc, "pao", "Unassigned PAO");
+
+        String unitDisplay = "Unit N/A";
+        String plateDisplay = "N/A";
+
+        if (!rawJeep.equals("N/A") && !rawJeep.isEmpty()) {
+            // Parse "PLATE (Unit X)" string pattern from API
+            if (rawJeep.contains("(") && rawJeep.contains(")")) {
+                try {
+                    int startParen = rawJeep.indexOf("(");
+                    int endParen = rawJeep.indexOf(")");
+
+                    // Extract Plate (Everything before '(') -> e.g., "AAA-0003"
+                    plateDisplay = rawJeep.substring(0, startParen).trim();
+
+                    // Extract Unit (Everything inside '(' and ')') -> e.g., "Unit 4"
+                    unitDisplay = rawJeep.substring(startParen + 1, endParen).trim();
+                } catch (Exception e) {
+                    unitDisplay = rawJeep;
+                    plateDisplay = "Active Duty Today";
+                }
+            } else {
+                // Fallback if backend format ever changes
+                unitDisplay = rawJeep;
+                plateDisplay = "Active Duty Today";
+            }
+        }
+
+        // Bind to UI (Matching Picture 2)
+        if (tvUnitNo != null) tvUnitNo.setText(unitDisplay);        // Top Line: "Unit 3"
+        if (tvPlateNo != null) tvPlateNo.setText(plateDisplay);     // Bottom Line: "AAA-0002"
+
+        if (tvAssignmentStatus != null) tvAssignmentStatus.setText("●  Assigned");
+        if (tvJeepStatus != null) tvJeepStatus.setText("●  Active");
+
+        if (tvDriverFullName != null) tvDriverFullName.setText(driverName);
+        if (tvPaoFullName != null) tvPaoFullName.setText(paoName);
+    }
+
+    private void renderUpcomingScheduleList(List<JSONObject> docs, LayoutInflater inflater) {
         containerUpcoming.removeAllViews();
 
         if (docs.isEmpty()) {
@@ -381,55 +415,65 @@ public class HomeFragment extends Fragment {
             return;
         }
 
-        String secretKey = BuildConfig.CRYPTO_SECRET_KEY;
-        SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE", Locale.US);
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy", Locale.US);
-
-        for (DocumentSnapshot doc : docs) {
+        for (JSONObject doc : docs) {
             View itemView = inflater.inflate(R.layout.item_upcoming_schedule, containerUpcoming, false);
 
             TextView tvScheduleDay = itemView.findViewById(R.id.tv_schedule_day);
             TextView tvScheduleDate = itemView.findViewById(R.id.tv_schedule_date);
             TextView tvScheduleStatus = itemView.findViewById(R.id.tv_schedule_status);
 
-            Object scheduleDateObj = doc.get("date");
-            if (scheduleDateObj == null) scheduleDateObj = doc.get("schedule_date");
-
-            final String dayText;
-            final String dateText;
-
-            if (scheduleDateObj instanceof Timestamp) {
-                Date date = ((Timestamp) scheduleDateObj).toDate();
-                dayText = dayFormat.format(date);
-                dateText = dateFormat.format(date);
-            } else {
-                String rawDay = getFieldString(doc, "day");
-                String day = CryptoUtils.decrypt(rawDay, secretKey);
-                dayText = (day != null && !day.isEmpty()) ? day : "Scheduled";
-                dateText = "Upcoming";
-            }
+            String dayText = doc.optString("day", "Scheduled");
+            String dateText = doc.optString("date", "N/A");
+            String jeepUnit = doc.optString("jeep", "Unassigned Unit");
+            String driverName = parseName(doc, "driver", "Unassigned Driver");
+            String paoName = parseName(doc, "pao", "Unassigned PAO");
 
             if (tvScheduleDay != null) tvScheduleDay.setText(dayText);
             if (tvScheduleDate != null) tvScheduleDate.setText(dateText);
 
             if (tvScheduleStatus != null) {
-                // Changed from Assigned to Scheduled for upcoming shifts
                 tvScheduleStatus.setText("●  Scheduled");
             }
 
-            // Click listener to trigger the schedule details modal
-            itemView.setOnClickListener(v -> showScheduleDetailsModal(doc, dayText, dateText));
+            itemView.setOnClickListener(v -> showScheduleDetailsModal(dayText, dateText, jeepUnit, driverName, paoName));
 
             containerUpcoming.addView(itemView);
         }
     }
 
-    private void showScheduleDetailsModal(DocumentSnapshot doc, String dayText, String dateText) {
+    private String parseName(JSONObject doc, String key, String fallback) {
+        if (!doc.has(key) || doc.isNull(key)) return fallback;
+        try {
+            Object obj = doc.get(key);
+            if (obj instanceof JSONObject) {
+                return ((JSONObject) obj).optString("name", fallback);
+            } else if (obj instanceof String) {
+                return (String) obj;
+            }
+        } catch (Exception ignored) {}
+        return fallback;
+    }
+
+    private int getDayIndex(String dayName) {
+        if (dayName == null || dayName.trim().isEmpty()) return -1;
+
+        switch (dayName.trim().toLowerCase(Locale.US)) {
+            case "sunday":    return Calendar.SUNDAY;    // 1
+            case "monday":    return Calendar.MONDAY;    // 2
+            case "tuesday":   return Calendar.TUESDAY;   // 3
+            case "wednesday": return Calendar.WEDNESDAY; // 4
+            case "thursday":  return Calendar.THURSDAY;  // 5
+            case "friday":    return Calendar.FRIDAY;    // 6
+            case "saturday":  return Calendar.SATURDAY;  // 7
+            default:          return -1;
+        }
+    }
+
+    private void showScheduleDetailsModal(String dayText, String dateText, String jeepUnit, String driverName, String paoName) {
         if (getContext() == null || !isAdded()) return;
 
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_schedule_details, null);
 
-        // Binding to exact IDs from item_upcoming_schedule.xml
         TextView tvModalDay = dialogView.findViewById(R.id.tv_schedule_day);
         TextView tvModalDate = dialogView.findViewById(R.id.tv_schedule_date);
         TextView tvModalStatus = dialogView.findViewById(R.id.tv_schedule_status);
@@ -439,69 +483,11 @@ public class HomeFragment extends Fragment {
 
         if (tvModalDay != null) tvModalDay.setText(dayText);
         if (tvModalDate != null) tvModalDate.setText(dateText);
-        if (tvModalStatus != null) {
-            // Also updated modal status for upcoming schedule details to Scheduled
-            tvModalStatus.setText("●  Scheduled");
-        }
-        if (tvModalJeepUnit != null) tvModalJeepUnit.setText("Loading Unit...");
-        if (tvModalDriverName != null) tvModalDriverName.setText("Loading Driver...");
-        if (tvModalPaoName != null) tvModalPaoName.setText("Loading PAO...");
+        if (tvModalStatus != null) tvModalStatus.setText("●  Scheduled");
+        if (tvModalJeepUnit != null) tvModalJeepUnit.setText(jeepUnit);
+        if (tvModalDriverName != null) tvModalDriverName.setText(driverName);
+        if (tvModalPaoName != null) tvModalPaoName.setText(paoName);
 
-        String secretKey = BuildConfig.CRYPTO_SECRET_KEY;
-        String jeepId = getFieldString(doc, "jeep", "jeep_id", "jeepId");
-        String driverId = getFieldString(doc, "driver", "driver_id", "driverId");
-        String paoId = getFieldString(doc, "pao", "pao_id", "paoId");
-
-        // Fetch Jeep Info
-        if (jeepId != null && !jeepId.isEmpty()) {
-            db.collection("Jeeps").document(jeepId).get().addOnSuccessListener(jeepDoc -> {
-                if (isAdded() && jeepDoc.exists() && tvModalJeepUnit != null) {
-                    String rawUnit = getFieldString(jeepDoc, "unit_number", "unit_no");
-                    String rawPlate = getFieldString(jeepDoc, "plate_number", "plate_no");
-                    String unit = CryptoUtils.decrypt(rawUnit, secretKey);
-                    String plate = CryptoUtils.decrypt(rawPlate, secretKey);
-                    tvModalJeepUnit.setText("Unit " + (unit != null && !unit.isEmpty() ? unit : "N/A") + " · " + (plate != null && !plate.isEmpty() ? plate : "N/A"));
-                }
-            }).addOnFailureListener(e -> {
-                if (isAdded() && tvModalJeepUnit != null) tvModalJeepUnit.setText("Unit N/A");
-            });
-        } else if (tvModalJeepUnit != null) {
-            tvModalJeepUnit.setText("Unassigned Unit");
-        }
-
-        // Fetch Driver Info
-        if (driverId != null && !driverId.isEmpty()) {
-            db.collection("File201").document(driverId).get().addOnSuccessListener(dDoc -> {
-                if (isAdded() && dDoc.exists() && tvModalDriverName != null) {
-                    String fn = CryptoUtils.decrypt(getFieldString(dDoc, "first_name"), secretKey);
-                    String ln = CryptoUtils.decrypt(getFieldString(dDoc, "last_name"), secretKey);
-                    String name = ((fn != null ? fn : "") + " " + (ln != null ? ln : "")).trim();
-                    tvModalDriverName.setText(!name.isEmpty() ? name : "Unassigned");
-                }
-            }).addOnFailureListener(e -> {
-                if (isAdded() && tvModalDriverName != null) tvModalDriverName.setText("Unassigned");
-            });
-        } else if (tvModalDriverName != null) {
-            tvModalDriverName.setText("Unassigned");
-        }
-
-        // Fetch PAO Info
-        if (paoId != null && !paoId.isEmpty()) {
-            db.collection("File201").document(paoId).get().addOnSuccessListener(pDoc -> {
-                if (isAdded() && pDoc.exists() && tvModalPaoName != null) {
-                    String fn = CryptoUtils.decrypt(getFieldString(pDoc, "first_name"), secretKey);
-                    String ln = CryptoUtils.decrypt(getFieldString(pDoc, "last_name"), secretKey);
-                    String name = ((fn != null ? fn : "") + " " + (ln != null ? ln : "")).trim();
-                    tvModalPaoName.setText(!name.isEmpty() ? name : "Unassigned");
-                }
-            }).addOnFailureListener(e -> {
-                if (isAdded() && tvModalPaoName != null) tvModalPaoName.setText("Unassigned");
-            });
-        } else if (tvModalPaoName != null) {
-            tvModalPaoName.setText("Unassigned");
-        }
-
-        // Display as a centered dialog popup via dedicated method
         showCenteredDialog(dialogView);
     }
 
@@ -511,24 +497,29 @@ public class HomeFragment extends Fragment {
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
 
-            // Set explicit width to 90% of screen width to prevent squishing
             int width = (int) (getResources().getDisplayMetrics().widthPixels * 0.9);
             dialog.getWindow().setLayout(width, ViewGroup.LayoutParams.WRAP_CONTENT);
         }
         dialog.show();
     }
 
+    private void setNoAssignmentUI() {
+        if (tvUnitNo != null) tvUnitNo.setText("No Unit");
+        if (tvPlateNo != null) tvPlateNo.setText("No Duty Today");
+        if (tvAssignmentStatus != null) tvAssignmentStatus.setText("●  Off Duty");
+    }
+
     private void updateDynamicGreeting() {
         int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
 
         if (hour >= 1 && hour < 5) {
-            tvGreeting.setText("Drive Safe,");
+            tvGreeting.setText("Drive Safe boss,");
         } else if (hour >= 5 && hour < 12) {
-            tvGreeting.setText("Good morning,");
+            tvGreeting.setText("Good morning boss,");
         } else if (hour >= 12 && hour < 18) {
-            tvGreeting.setText("Good afternoon,");
+            tvGreeting.setText("Good afternoon boss,");
         } else {
-            tvGreeting.setText("Good evening,");
+            tvGreeting.setText("Good evening boss,");
         }
     }
 
@@ -538,5 +529,11 @@ public class HomeFragment extends Fragment {
             if (val != null) return String.valueOf(val);
         }
         return null;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        executor.shutdown();
     }
 }

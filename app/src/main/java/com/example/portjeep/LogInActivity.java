@@ -2,6 +2,7 @@ package com.example.portjeep;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
@@ -67,7 +68,7 @@ public class LogInActivity extends AppCompatActivity {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
             setLoadingState(true);
-            validateUserRoleAndProceed(currentUser.getUid(), true);
+            validateUserRoleAndProceed(currentUser, true);
         }
     }
 
@@ -113,7 +114,7 @@ public class LogInActivity extends AppCompatActivity {
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful() && mAuth.getCurrentUser() != null) {
                         FirebaseUser user = mAuth.getCurrentUser();
-                        validateUserRoleAndProceed(user.getUid(), false);
+                        validateUserRoleAndProceed(user, false);
                     } else {
                         setLoadingState(false);
                         // Highlight both fields on general authentication failure
@@ -127,8 +128,37 @@ public class LogInActivity extends AppCompatActivity {
                 });
     }
 
-    private void validateUserRoleAndProceed(String uid, boolean isAutoLogin) {
-        // 2. Fetch profile from Firestore
+    private void validateUserRoleAndProceed(FirebaseUser user, boolean isAutoLogin) {
+        // First, check Firebase Auth Custom Claims as recommended by your friend
+        user.getIdToken(true)
+                .addOnSuccessListener(result -> {
+                    Map<String, Object> claims = result.getClaims();
+                    String role = claims.get("role") != null ? String.valueOf(claims.get("role")) : null;
+
+                    if (role != null && !role.trim().isEmpty()) {
+                        // Custom claim found, evaluate it directly
+                        if (isAuthorizedRole(role)) {
+                            setLoadingState(false);
+                            if (!isAutoLogin) {
+                                Toast.makeText(LogInActivity.this, "Login Successful!", Toast.LENGTH_SHORT).show();
+                            }
+                            navigateToMain(user.getUid());
+                        } else {
+                            denyAccess("Unauthorized Access\nPlease contact your administrator.");
+                        }
+                    } else {
+                        // Fallback: If custom claims aren't set up yet, fallback to checking Firestore
+                        Log.w("AuthWarning", "Custom claim 'role' not found. Falling back to Firestore lookup.");
+                        fallbackFirestoreRoleCheck(user.getUid(), isAutoLogin);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("AuthError", "Failed to fetch ID token, falling back to Firestore", e);
+                    fallbackFirestoreRoleCheck(user.getUid(), isAutoLogin);
+                });
+    }
+
+    private void fallbackFirestoreRoleCheck(String uid, boolean isAutoLogin) {
         db.collection("File201")
                 .document(uid)
                 .get()
@@ -138,7 +168,6 @@ public class LogInActivity extends AppCompatActivity {
                         return;
                     }
 
-                    // SAFE RETRIEVAL: Check if user has necessary role ID setup
                     Object posIdObj = documentSnapshot.get("position_id");
                     String positionId = posIdObj != null ? String.valueOf(posIdObj) : null;
 
@@ -147,7 +176,6 @@ public class LogInActivity extends AppCompatActivity {
                         return;
                     }
 
-                    // 3. Resolve role from 'Positions' collection
                     db.collection("Positions")
                             .document(positionId)
                             .get()
@@ -161,7 +189,6 @@ public class LogInActivity extends AppCompatActivity {
                                 Map<String, Object> data = posDoc.getData();
 
                                 if (data != null && !data.isEmpty()) {
-                                    // Try common role field keys
                                     String[] commonKeys = {"title", "name", "position", "position_name", "role", "description", "Title", "Name", "Position"};
                                     for (String key : commonKeys) {
                                         if (data.containsKey(key) && data.get(key) instanceof String) {
@@ -170,7 +197,6 @@ public class LogInActivity extends AppCompatActivity {
                                         }
                                     }
 
-                                    // Fallback to first non-empty string value in document
                                     if (rawTitle == null) {
                                         for (Object val : data.values()) {
                                             if (val instanceof String && !((String) val).trim().isEmpty()) {
@@ -189,7 +215,6 @@ public class LogInActivity extends AppCompatActivity {
                                 String secretKey = BuildConfig.CRYPTO_SECRET_KEY;
                                 String positionTitle = CryptoUtils.decrypt(rawTitle, secretKey);
 
-                                // 4. Validate authorized roles
                                 if (isAuthorizedRole(positionTitle)) {
                                     setLoadingState(false);
                                     if (!isAutoLogin) {
@@ -197,7 +222,7 @@ public class LogInActivity extends AppCompatActivity {
                                     }
                                     navigateToMain(uid);
                                 } else {
-                                    denyAccess("\t\t\t\t\t\tUnauthorized Access\nPlease Contact your administrator.");
+                                    denyAccess("Unauthorized Access\nPlease contact your administrator.");
                                 }
                             })
                             .addOnFailureListener(e -> denyAccess("Authentication Error: Unable to verify account permissions. Please try again later."));
@@ -205,13 +230,13 @@ public class LogInActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> denyAccess("Authentication Error: Unable to retrieve account profile. Please try again later."));
     }
 
-    private boolean isAuthorizedRole(String positionTitle) {
-        if (positionTitle == null || positionTitle.trim().isEmpty()) {
+    private boolean isAuthorizedRole(String roleTitle) {
+        if (roleTitle == null || roleTitle.trim().isEmpty()) {
             return false;
         }
 
-        String upper = positionTitle.toUpperCase().trim();
-        return upper.contains("DRIVER") || upper.contains("PUBLIC ASSISTANT") || upper.contains("PAO");
+        String upper = roleTitle.toUpperCase().trim();
+        return upper.contains("DRIVER") || upper.contains("PUBLIC ASSISTANT OFFICER") || upper.contains("PAO");
     }
 
     private void denyAccess(String message) {

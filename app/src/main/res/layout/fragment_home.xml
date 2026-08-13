@@ -23,9 +23,9 @@
             android:clipChildren="false"
             android:clipToPadding="false"
             android:paddingStart="24dp"
-            android:paddingTop="36dp"
+            android:paddingTop="40dp"
             android:paddingEnd="24dp"
-            android:paddingBottom="40dp">
+            android:paddingBottom="44dp">
 
             <!-- Driver Information -->
             <LinearLayout
@@ -38,7 +38,7 @@
                     android:id="@+id/tv_greeting"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:alpha="0.8"
+                    android:alpha="0.85"
                     android:text="Good morning,"
                     android:textColor="@color/white"
                     android:textSize="15sp" />
@@ -50,37 +50,37 @@
                     android:layout_marginTop="2dp"
                     android:text="Ricardo"
                     android:textColor="@color/white"
-                    android:textSize="32sp"
+                    android:textSize="34sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/tv_role_badge"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
+                    android:layout_marginTop="12dp"
                     android:background="@drawable/bg_badge_role"
                     android:backgroundTint="@color/color_brand_accent"
+                    android:letterSpacing="0.08"
                     android:paddingStart="14dp"
                     android:paddingTop="6dp"
                     android:paddingEnd="14dp"
                     android:paddingBottom="6dp"
                     android:text="DRIVER"
                     android:textColor="@color/white"
-                    android:textSize="10sp"
-                    android:textStyle="bold"
-                    android:letterSpacing="0.05" />
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
 
             </LinearLayout>
 
             <!-- Robot Image -->
             <ImageView
                 android:id="@+id/iv_robot"
-                android:layout_width="120dp"
-                android:layout_height="120dp"
+                android:layout_width="128dp"
+                android:layout_height="128dp"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentBottom="true"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="-10dp"
+                android:layout_marginEnd="4dp"
+                android:layout_marginBottom="-12dp"
                 android:contentDescription="Robot assistant"
                 android:scaleType="fitCenter" />
 
@@ -103,7 +103,7 @@
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="@color/color_surface"
                 app:cardCornerRadius="24dp"
-                app:cardElevation="0dp"
+                app:cardElevation="2dp"
                 app:strokeColor="@color/color_divider"
                 app:strokeWidth="1dp">
 
@@ -128,11 +128,11 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:letterSpacing="0.08"
                                 android:text="TODAY'S ASSIGNMENT"
                                 android:textColor="@color/color_brand_accent"
                                 android:textSize="11sp"
-                                android:textStyle="bold"
-                                android:letterSpacing="0.05" />
+                                android:textStyle="bold" />
 
                             <TextView
                                 android:layout_width="wrap_content"
@@ -140,7 +140,7 @@
                                 android:layout_marginTop="4dp"
                                 android:text="Your assigned vehicle"
                                 android:textColor="@color/color_text_secondary"
-                                android:textSize="12sp" />
+                                android:textSize="13sp" />
 
                         </LinearLayout>
 
@@ -171,8 +171,8 @@
                         android:padding="16dp">
 
                         <ImageView
-                            android:layout_width="52dp"
-                            android:layout_height="52dp"
+                            android:layout_width="56dp"
+                            android:layout_height="56dp"
                             android:background="@drawable/bg_circle_icon"
                             android:backgroundTint="@color/color_surface"
                             android:contentDescription="Vehicle"
@@ -190,11 +190,11 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:letterSpacing="0.08"
                                 android:text="E-JEEP"
                                 android:textColor="@color/color_text_secondary"
-                                android:textSize="10sp"
-                                android:textStyle="bold"
-                                android:letterSpacing="0.05" />
+                                android:textSize="11sp"
+                                android:textStyle="bold" />
 
                             <TextView
                                 android:id="@+id/tv_unit_no"
@@ -203,7 +203,7 @@
                                 android:layout_marginTop="2dp"
                                 android:text="Unit 3"
                                 android:textColor="@color/color_text_primary"
-                                android:textSize="20sp"
+                                android:textSize="22sp"
                                 android:textStyle="bold" />
 
                             <TextView
@@ -238,11 +238,11 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="22dp"
+                        android:letterSpacing="0.08"
                         android:text="SQUAD"
                         android:textColor="@color/color_text_secondary"
-                        android:textSize="10sp"
-                        android:textStyle="bold"
-                        android:letterSpacing="0.05" />
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -275,7 +275,7 @@
                                 android:maxLines="1"
                                 android:text="Ricardo Dela Cruz"
                                 android:textColor="@color/color_text_primary"
-                                android:textSize="13sp"
+                                android:textSize="14sp"
                                 android:textStyle="bold" />
 
                         </LinearLayout>
@@ -305,7 +305,7 @@
                                 android:maxLines="1"
                                 android:text="Maria Buenaventura"
                                 android:textColor="@color/color_text_primary"
-                                android:textSize="13sp"
+                                android:textSize="14sp"
                                 android:textStyle="bold" />
 
                         </LinearLayout>
@@ -326,7 +326,7 @@
                             android:layout_weight="1"
                             android:text="Assignment status"
                             android:textColor="@color/color_text_secondary"
-                            android:textSize="12sp" />
+                            android:textSize="13sp" />
 
                         <TextView
                             android:id="@+id/tv_assignment_status"
@@ -348,7 +348,7 @@
 
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Quick Access Section -->
+            <!-- Quick Access Header -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -358,11 +358,11 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:letterSpacing="0.08"
                     android:text="QUICK ACCESS"
                     android:textColor="@color/color_brand_primary"
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    android:letterSpacing="0.05" />
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -370,7 +370,7 @@
                     android:layout_marginTop="4dp"
                     android:text="Frequently used actions"
                     android:textColor="@color/color_text_muted"
-                    android:textSize="12sp" />
+                    android:textSize="13sp" />
 
             </LinearLayout>
 
@@ -381,10 +381,11 @@
                 android:layout_marginTop="12dp"
                 android:orientation="horizontal">
 
+                <!-- Schedule Quick Access Card -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/card_my_schedule"
                     android:layout_width="0dp"
-                    android:layout_height="110dp"
+                    android:layout_height="124dp"
                     android:layout_marginEnd="8dp"
                     android:layout_weight="1"
                     android:clickable="true"
@@ -392,7 +393,7 @@
                     android:foreground="?attr/selectableItemBackground"
                     app:cardBackgroundColor="@color/color_surface"
                     app:cardCornerRadius="20dp"
-                    app:cardElevation="0dp"
+                    app:cardElevation="1dp"
                     app:strokeColor="@color/color_divider"
                     app:strokeWidth="1dp">
 
@@ -404,8 +405,8 @@
                         android:padding="16dp">
 
                         <ImageView
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
+                            android:layout_width="58dp"
+                            android:layout_height="58dp"
                             android:background="@drawable/bg_quick_schedule"
                             android:backgroundTint="@color/color_background_secondary"
                             android:contentDescription="Schedule"
@@ -425,7 +426,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="Schedule"
                                 android:textColor="@color/color_text_primary"
-                                android:textSize="14sp"
+                                android:textSize="16sp"
                                 android:textStyle="bold" />
 
                             <TextView
@@ -434,7 +435,7 @@
                                 android:layout_marginTop="4dp"
                                 android:text="View shifts"
                                 android:textColor="@color/color_text_muted"
-                                android:textSize="11sp" />
+                                android:textSize="13sp" />
 
                         </LinearLayout>
 
@@ -442,10 +443,11 @@
 
                 </com.google.android.material.card.MaterialCardView>
 
+                <!-- Salary Quick Access Card -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/card_salary"
                     android:layout_width="0dp"
-                    android:layout_height="110dp"
+                    android:layout_height="124dp"
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
                     android:clickable="true"
@@ -453,7 +455,7 @@
                     android:foreground="?attr/selectableItemBackground"
                     app:cardBackgroundColor="@color/color_surface"
                     app:cardCornerRadius="20dp"
-                    app:cardElevation="0dp"
+                    app:cardElevation="1dp"
                     app:strokeColor="@color/color_divider"
                     app:strokeWidth="1dp">
 
@@ -465,8 +467,8 @@
                         android:padding="16dp">
 
                         <ImageView
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
+                            android:layout_width="58dp"
+                            android:layout_height="58dp"
                             android:background="@drawable/bg_quick_salary"
                             android:backgroundTint="@color/color_background_secondary"
                             android:contentDescription="Salary"
@@ -486,7 +488,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="Salary"
                                 android:textColor="@color/color_text_primary"
-                                android:textSize="14sp"
+                                android:textSize="16sp"
                                 android:textStyle="bold" />
 
                             <TextView
@@ -495,7 +497,7 @@
                                 android:layout_marginTop="4dp"
                                 android:text="Earnings"
                                 android:textColor="@color/color_text_muted"
-                                android:textSize="11sp" />
+                                android:textSize="13sp" />
 
                         </LinearLayout>
 
@@ -515,11 +517,11 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:letterSpacing="0.08"
                     android:text="UPCOMING SCHEDULES"
                     android:textColor="@color/color_brand_primary"
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    android:letterSpacing="0.05" />
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -527,7 +529,7 @@
                     android:layout_marginTop="4dp"
                     android:text="Your next assignments"
                     android:textColor="@color/color_text_muted"
-                    android:textSize="12sp" />
+                    android:textSize="13sp" />
 
             </LinearLayout>
 
@@ -537,7 +539,7 @@
                 android:layout_marginTop="12dp"
                 app:cardBackgroundColor="@color/color_surface"
                 app:cardCornerRadius="20dp"
-                app:cardElevation="0dp"
+                app:cardElevation="1dp"
                 app:strokeColor="@color/color_divider"
                 app:strokeWidth="1dp">
 
@@ -553,7 +555,7 @@
 
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Bottom spacing -->
+            <!-- Bottom Spacing -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="140dp" />
