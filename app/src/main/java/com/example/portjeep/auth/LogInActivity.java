@@ -1,12 +1,19 @@
-package com.example.portjeep;
+package com.example.portjeep.auth;
 
 import android.content.Intent;
+import android.graphics.Rect;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.InputType;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,6 +23,10 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.portjeep.BuildConfig;
+import com.example.portjeep.MainActivity;
+import com.example.portjeep.R;
+import com.example.portjeep.utils.CryptoUtils;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -23,12 +34,16 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.Map;
 
 public class LogInActivity extends AppCompatActivity {
+    private ScrollView scrollView;
     private EditText etEmail, etPassword;
+    private ImageView ivTogglePassword;
     private TextView tvError, tvForgotPassword;
     private Button btnLogin;
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
+
+    private boolean isPasswordVisible = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,17 +55,55 @@ public class LogInActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
-
+        scrollView = findViewById(R.id.main);
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
+        ivTogglePassword = findViewById(R.id.ivTogglePassword);
         tvError = findViewById(R.id.tvError);
         tvForgotPassword = findViewById(R.id.tvForgotPassword);
         btnLogin = findViewById(R.id.btnLogin);
+
+        // Set up listeners to reset error states whenever the user types or clicks input fields
+        setupInputErrorReset();
+
+        // Dynamically adjust padding for EdgeToEdge + IME (Keyboard)
+        ViewCompat.setOnApplyWindowInsetsListener(scrollView, (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            Insets ime = insets.getInsets(WindowInsetsCompat.Type.ime());
+
+            int bottomPadding = Math.max(systemBars.bottom, ime.bottom);
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, bottomPadding);
+            return insets;
+        });
+
+        // Automatically scroll to reveal active input & login button when keyboard pops up
+        scrollView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                Rect r = new Rect();
+                scrollView.getWindowVisibleDisplayFrame(r);
+                int screenHeight = scrollView.getRootView().getHeight();
+                int keypadHeight = screenHeight - r.bottom;
+
+                if (keypadHeight > screenHeight * 0.15) {
+                    scrollView.postDelayed(() -> scrollView.smoothScrollTo(0, btnLogin.getBottom()), 100);
+                }
+            }
+        });
+
+        // TOGGLE PASSWORD VISIBILITY
+        ivTogglePassword.setOnClickListener(view -> {
+            if (isPasswordVisible) {
+                etPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                ivTogglePassword.setImageResource(R.drawable.hide);
+                isPasswordVisible = false;
+            } else {
+                etPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+                ivTogglePassword.setImageResource(R.drawable.view);
+                isPasswordVisible = true;
+            }
+            etPassword.setSelection(etPassword.getText().length());
+        });
 
         // FORGOT PASSWORD BUTTON
         tvForgotPassword.setOnClickListener(view ->
@@ -61,10 +114,43 @@ public class LogInActivity extends AppCompatActivity {
         btnLogin.setOnClickListener(view -> handleLogin());
     }
 
+    private void setupInputErrorReset() {
+        TextWatcher errorClearWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                clearErrors();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        };
+
+        View.OnClickListener clickClearListener = v -> clearErrors();
+
+        // Clear error on type
+        etEmail.addTextChangedListener(errorClearWatcher);
+        etPassword.addTextChangedListener(errorClearWatcher);
+
+        // Clear error on click/focus
+        etEmail.setOnClickListener(clickClearListener);
+        etPassword.setOnClickListener(clickClearListener);
+    }
+
+    private void clearErrors() {
+        if (tvError.getVisibility() == View.VISIBLE) {
+            tvError.setVisibility(View.GONE);
+            tvError.setText("");
+            etEmail.setBackgroundResource(R.drawable.bg_pill_input);
+            etPassword.setBackgroundResource(R.drawable.bg_pill_input);
+        }
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
-        // Auto-login check with role validation
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
             setLoadingState(true);
@@ -76,12 +162,8 @@ public class LogInActivity extends AppCompatActivity {
         String email = etEmail.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
 
-        // Reset inputs to default border state first
-        etEmail.setBackgroundResource(R.drawable.bg_pill_input);
-        etPassword.setBackgroundResource(R.drawable.bg_pill_input);
-        tvError.setVisibility(View.GONE);
+        clearErrors();
 
-        // Separate field validation checks
         if (email.isEmpty() && password.isEmpty()) {
             etEmail.setBackgroundResource(R.drawable.bg_pill_input_error);
             etPassword.setBackgroundResource(R.drawable.bg_pill_input_error);
@@ -109,7 +191,6 @@ public class LogInActivity extends AppCompatActivity {
 
         setLoadingState(true);
 
-        // 1. Authenticate with Firebase Auth
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful() && mAuth.getCurrentUser() != null) {
@@ -117,7 +198,6 @@ public class LogInActivity extends AppCompatActivity {
                         validateUserRoleAndProceed(user, false);
                     } else {
                         setLoadingState(false);
-                        // Highlight both fields on general authentication failure
                         etEmail.setBackgroundResource(R.drawable.bg_pill_input_error);
                         etPassword.setBackgroundResource(R.drawable.bg_pill_input_error);
 
@@ -129,26 +209,18 @@ public class LogInActivity extends AppCompatActivity {
     }
 
     private void validateUserRoleAndProceed(FirebaseUser user, boolean isAutoLogin) {
-        // First, check Firebase Auth Custom Claims as recommended by your friend
         user.getIdToken(true)
                 .addOnSuccessListener(result -> {
                     Map<String, Object> claims = result.getClaims();
                     String role = claims.get("role") != null ? String.valueOf(claims.get("role")) : null;
 
-                    if (role != null && !role.trim().isEmpty()) {
-                        // Custom claim found, evaluate it directly
-                        if (isAuthorizedRole(role)) {
-                            setLoadingState(false);
-                            if (!isAutoLogin) {
-                                Toast.makeText(LogInActivity.this, "Login Successful!", Toast.LENGTH_SHORT).show();
-                            }
-                            navigateToMain(user.getUid());
-                        } else {
-                            denyAccess("Unauthorized Access\nPlease contact your administrator.");
+                    if (role != null && !role.trim().isEmpty() && isAuthorizedRole(role)) {
+                        setLoadingState(false);
+                        if (!isAutoLogin) {
+                            Toast.makeText(LogInActivity.this, "Login Successful!", Toast.LENGTH_SHORT).show();
                         }
+                        navigateToMain(user.getUid());
                     } else {
-                        // Fallback: If custom claims aren't set up yet, fallback to checking Firestore
-                        Log.w("AuthWarning", "Custom claim 'role' not found. Falling back to Firestore lookup.");
                         fallbackFirestoreRoleCheck(user.getUid(), isAutoLogin);
                     }
                 })
@@ -172,7 +244,7 @@ public class LogInActivity extends AppCompatActivity {
                     String positionId = posIdObj != null ? String.valueOf(posIdObj) : null;
 
                     if (positionId == null || positionId.trim().isEmpty()) {
-                        denyAccess("Access Denied: Your account setup is incomplete. Please contact support.");
+                        denyAccess("Access Denied: Your account setup is incomplete. Please contact administrator.");
                         return;
                     }
 
@@ -181,7 +253,7 @@ public class LogInActivity extends AppCompatActivity {
                             .get()
                             .addOnSuccessListener(posDoc -> {
                                 if (!posDoc.exists()) {
-                                    denyAccess("Access Denied: We could not verify your account permissions. Please contact support.");
+                                    denyAccess("Access Denied: We could not verify your account permissions. Please contact administrator.");
                                     return;
                                 }
 
@@ -189,20 +261,11 @@ public class LogInActivity extends AppCompatActivity {
                                 Map<String, Object> data = posDoc.getData();
 
                                 if (data != null && !data.isEmpty()) {
-                                    String[] commonKeys = {"title", "name", "position", "position_name", "role", "description", "Title", "Name", "Position"};
+                                    String[] commonKeys = {"title", "name", "position", "position_name", "role", "description"};
                                     for (String key : commonKeys) {
                                         if (data.containsKey(key) && data.get(key) instanceof String) {
                                             rawTitle = (String) data.get(key);
                                             break;
-                                        }
-                                    }
-
-                                    if (rawTitle == null) {
-                                        for (Object val : data.values()) {
-                                            if (val instanceof String && !((String) val).trim().isEmpty()) {
-                                                rawTitle = (String) val;
-                                                break;
-                                            }
                                         }
                                     }
                                 }
@@ -222,7 +285,7 @@ public class LogInActivity extends AppCompatActivity {
                                     }
                                     navigateToMain(uid);
                                 } else {
-                                    denyAccess("Unauthorized Access\nPlease contact your administrator.");
+                                    denyAccess("Unauthorized Access\nContact administrator for more information.");
                                 }
                             })
                             .addOnFailureListener(e -> denyAccess("Authentication Error: Unable to verify account permissions. Please try again later."));
@@ -236,11 +299,11 @@ public class LogInActivity extends AppCompatActivity {
         }
 
         String upper = roleTitle.toUpperCase().trim();
-        return upper.contains("DRIVER") || upper.contains("PUBLIC ASSISTANT OFFICER") || upper.contains("PAO");
+        return upper.contains("DRIVER") || upper.contains("PUBLIC ASSISTANT") || upper.contains("PAO");
     }
 
     private void denyAccess(String message) {
-        mAuth.signOut(); // Revoke session
+        mAuth.signOut();
         setLoadingState(false);
         showError(message);
     }

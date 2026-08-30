@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardBackgroundColor="@color/color_surface"
+    app:cardCornerRadius="24dp"
+    app:strokeColor="@color/color_divider"
+    app:strokeWidth="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <!-- Logout Warning Icon -->
+        <ImageView
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:background="@drawable/bg_circle_icon"
+            android:backgroundTint="@color/color_background_secondary"
+            android:contentDescription="Logout Alert"
+            android:padding="14dp"
+            android:src="@drawable/logout"
+            app:tint="@color/color_brand_accent" />
+
+        <!-- Title -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Sign Out"
+            android:textColor="@color/color_text_primary"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <!-- Message -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:text="Are you sure you want to log out of your account?"
+            android:textColor="@color/color_text_muted"
+            android:textSize="14sp" />
+
+        <!-- Action Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_cancel"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:text="Cancel"
+                android:textColor="@color/color_text_primary"
+                app:cornerRadius="12dp"
+                app:strokeColor="@color/color_divider" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_confirm_logout"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:backgroundTint="@color/color_brand_accent"
+                android:text="Log Out"
+                android:textColor="@color/white"
+                app:cornerRadius="12dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="4dp"
+    android:paddingTop="8dp"
+    android:paddingEnd="4dp"
+    android:paddingBottom="8dp">
+
+    <!-- Day Name (Aligned to Left) -->
+    <TextView
+        android:id="@+id/tv_unassigned_day_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textColor="@color/color_text_primary"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        tools:text="Monday" />
+
+    <!-- Unassigned Status Badge (Aligned to Right) -->
+    <TextView
+        android:id="@+id/tv_unassigned_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:letterSpacing="0.05"
+        android:paddingStart="8dp"
+        android:paddingTop="4dp"
+        android:paddingEnd="8dp"
+        android:paddingBottom="4dp"
+        android:textAllCaps="true"
+        android:textColor="@color/color_text_secondary"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        tools:text="UNASSIGNED" />
+
+</LinearLayout>

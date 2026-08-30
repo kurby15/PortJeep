@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/color_background_primary"
     android:clipChildren="false"
     android:clipToPadding="false"
     android:fillViewport="true"
-    android:overScrollMode="never">
+    android:overScrollMode="never"
+    tools:context="com.example.portjeep.home.HomeFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -39,19 +41,19 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:alpha="0.85"
-                    android:text="Good morning,"
                     android:textColor="@color/white"
-                    android:textSize="15sp" />
+                    android:textSize="15sp"
+                    tools:text="Good morning," />
 
                 <TextView
                     android:id="@+id/tv_driver_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:text="Ricardo"
                     android:textColor="@color/white"
                     android:textSize="34sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    tools:text="Ricardo" />
 
                 <TextView
                     android:id="@+id/tv_role_badge"
@@ -65,10 +67,10 @@
                     android:paddingTop="6dp"
                     android:paddingEnd="14dp"
                     android:paddingBottom="6dp"
-                    android:text="DRIVER"
                     android:textColor="@color/white"
                     android:textSize="11sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    tools:text="DRIVER" />
 
             </LinearLayout>
 
@@ -97,256 +99,291 @@
             android:paddingEnd="20dp"
             android:paddingBottom="40dp">
 
-            <!-- Today's Assignment Card -->
-            <com.google.android.material.card.MaterialCardView
+            <!-- Today's Assignment Container with Skeleton Shimmer -->
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardBackgroundColor="@color/color_surface"
-                app:cardCornerRadius="24dp"
-                app:cardElevation="2dp"
-                app:strokeColor="@color/color_divider"
-                app:strokeWidth="1dp">
+                android:layout_height="wrap_content">
 
-                <LinearLayout
+                <!-- Skeleton View (Visible while fetching data) -->
+                <com.facebook.shimmer.ShimmerFrameLayout
+                    android:id="@+id/shimmer_view_container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="22dp">
+                    app:shimmer_auto_start="true"
+                    app:shimmer_base_alpha="0.5"
+                    app:shimmer_duration="1000"
+                    app:shimmer_highlight_alpha="0.9">
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:cardBackgroundColor="@color/color_surface"
+                        app:cardCornerRadius="24dp"
+                        app:cardElevation="2dp"
+                        app:strokeColor="@color/color_divider"
+                        app:strokeWidth="1dp">
+
+                        <include layout="@layout/item_skeleton_home" />
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                </com.facebook.shimmer.ShimmerFrameLayout>
+
+                <!-- Actual Assignment Card (Hidden while loading) -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/card_today_assignment"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    app:cardBackgroundColor="@color/color_surface"
+                    app:cardCornerRadius="24dp"
+                    app:cardElevation="2dp"
+                    app:strokeColor="@color/color_divider"
+                    app:strokeWidth="1dp"
+                    tools:visibility="visible">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
+                        android:orientation="vertical"
+                        android:padding="22dp">
 
                         <LinearLayout
-                            android:layout_width="0dp"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:letterSpacing="0.08"
+                                    android:text="TODAY'S ASSIGNMENT"
+                                    android:textColor="@color/color_brand_accent"
+                                    android:textSize="11sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:text="Your assigned vehicle"
+                                    android:textColor="@color/color_text_secondary"
+                                    android:textSize="13sp" />
+
+                            </LinearLayout>
 
                             <TextView
+                                android:id="@+id/tv_today_date"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:letterSpacing="0.08"
-                                android:text="TODAY'S ASSIGNMENT"
-                                android:textColor="@color/color_brand_accent"
+                                android:background="@drawable/bg_status_assigned"
+                                android:paddingStart="12dp"
+                                android:paddingTop="8dp"
+                                android:paddingEnd="12dp"
+                                android:paddingBottom="8dp"
+                                android:textColor="@color/color_status_assigned_text"
                                 android:textSize="11sp"
-                                android:textStyle="bold" />
+                                android:textStyle="bold"
+                                tools:text="August 9, 2026" />
+
+                        </LinearLayout>
+
+                        <!-- Vehicle Information -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="20dp"
+                            android:background="@drawable/bg_jeep_card"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:padding="16dp">
+
+                            <ImageView
+                                android:layout_width="56dp"
+                                android:layout_height="56dp"
+                                android:background="@drawable/bg_circle_icon"
+                                android:backgroundTint="@color/color_surface"
+                                android:contentDescription="Vehicle"
+                                android:padding="12dp"
+                                android:src="@drawable/car"
+                                app:tint="@color/color_brand_primary" />
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="16dp"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:letterSpacing="0.08"
+                                    android:text="E-JEEP"
+                                    android:textColor="@color/color_text_secondary"
+                                    android:textSize="11sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:id="@+id/tv_unit_no"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:textColor="@color/color_text_primary"
+                                    android:textSize="22sp"
+                                    android:textStyle="bold"
+                                    tools:text="Unit 3" />
+
+                                <TextView
+                                    android:id="@+id/tv_plate_no"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:textColor="@color/color_text_secondary"
+                                    android:textSize="12sp"
+                                    tools:text="EJP 1234" />
+
+                            </LinearLayout>
 
                             <TextView
+                                android:id="@+id/tv_jeep_status"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                android:text="Your assigned vehicle"
+                                android:background="@drawable/bg_status_active"
+                                android:paddingStart="12dp"
+                                android:paddingTop="8dp"
+                                android:paddingEnd="12dp"
+                                android:paddingBottom="8dp"
+                                android:textColor="@color/color_status_active_text"
+                                android:textSize="11sp"
+                                android:textStyle="bold"
+                                tools:text="● Active" />
+
+                        </LinearLayout>
+
+                        <!-- Crew Section -->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="22dp"
+                            android:letterSpacing="0.08"
+                            android:text="SQUAD"
+                            android:textColor="@color/color_text_secondary"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:orientation="horizontal">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="6dp"
+                                android:layout_weight="1"
+                                android:background="@drawable/bg_jeep_pill"
+                                android:orientation="vertical"
+                                android:padding="14dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Driver"
+                                    android:textColor="@color/color_text_secondary"
+                                    android:textSize="11sp" />
+
+                                <TextView
+                                    android:id="@+id/tv_driver_fullname"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:ellipsize="end"
+                                    android:maxLines="1"
+                                    android:textColor="@color/color_text_primary"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold"
+                                    tools:text="Ricardo Dela Cruz" />
+
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="6dp"
+                                android:layout_weight="1"
+                                android:background="@drawable/bg_jeep_pill"
+                                android:orientation="vertical"
+                                android:padding="14dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="PAO"
+                                    android:textColor="@color/color_text_secondary"
+                                    android:textSize="11sp" />
+
+                                <TextView
+                                    android:id="@+id/tv_pao_fullname"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:ellipsize="end"
+                                    android:maxLines="1"
+                                    android:textColor="@color/color_text_primary"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold"
+                                    tools:text="Maria Buenaventura" />
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                        <!-- Assignment Status -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="20dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Assignment status"
                                 android:textColor="@color/color_text_secondary"
                                 android:textSize="13sp" />
 
-                        </LinearLayout>
-
-                        <TextView
-                            android:id="@+id/tv_today_date"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="@drawable/bg_status_assigned"
-                            android:paddingStart="12dp"
-                            android:paddingTop="8dp"
-                            android:paddingEnd="12dp"
-                            android:paddingBottom="8dp"
-                            android:text="August 9, 2026"
-                            android:textColor="@color/color_status_assigned_text"
-                            android:textSize="11sp"
-                            android:textStyle="bold" />
-
-                    </LinearLayout>
-
-                    <!-- Vehicle Information -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="20dp"
-                        android:background="@drawable/bg_jeep_card"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:padding="16dp">
-
-                        <ImageView
-                            android:layout_width="56dp"
-                            android:layout_height="56dp"
-                            android:background="@drawable/bg_circle_icon"
-                            android:backgroundTint="@color/color_surface"
-                            android:contentDescription="Vehicle"
-                            android:padding="12dp"
-                            android:src="@drawable/car"
-                            app:tint="@color/color_brand_primary" />
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="16dp"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-
                             <TextView
+                                android:id="@+id/tv_assignment_status"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:letterSpacing="0.08"
-                                android:text="E-JEEP"
-                                android:textColor="@color/color_text_secondary"
+                                android:background="@drawable/bg_status_assigned"
+                                android:paddingStart="12dp"
+                                android:paddingTop="8dp"
+                                android:paddingEnd="12dp"
+                                android:paddingBottom="8dp"
+                                android:textColor="@color/color_status_assigned_text"
                                 android:textSize="11sp"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:id="@+id/tv_unit_no"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="Unit 3"
-                                android:textColor="@color/color_text_primary"
-                                android:textSize="22sp"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:id="@+id/tv_plate_no"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="EJP 1234"
-                                android:textColor="@color/color_text_secondary"
-                                android:textSize="12sp" />
-
-                        </LinearLayout>
-
-                        <TextView
-                            android:id="@+id/tv_jeep_status"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="@drawable/bg_status_active"
-                            android:paddingStart="12dp"
-                            android:paddingTop="8dp"
-                            android:paddingEnd="12dp"
-                            android:paddingBottom="8dp"
-                            android:text="●  Active"
-                            android:textColor="@color/color_status_active_text"
-                            android:textSize="11sp"
-                            android:textStyle="bold" />
-
-                    </LinearLayout>
-
-                    <!-- Crew Section -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="22dp"
-                        android:letterSpacing="0.08"
-                        android:text="SQUAD"
-                        android:textColor="@color/color_text_secondary"
-                        android:textSize="11sp"
-                        android:textStyle="bold" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:orientation="horizontal">
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginEnd="6dp"
-                            android:layout_weight="1"
-                            android:background="@drawable/bg_jeep_pill"
-                            android:orientation="vertical"
-                            android:padding="14dp">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Driver"
-                                android:textColor="@color/color_text_secondary"
-                                android:textSize="11sp" />
-
-                            <TextView
-                                android:id="@+id/tv_driver_fullname"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                android:ellipsize="end"
-                                android:maxLines="1"
-                                android:text="Ricardo Dela Cruz"
-                                android:textColor="@color/color_text_primary"
-                                android:textSize="14sp"
-                                android:textStyle="bold" />
-
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="6dp"
-                            android:layout_weight="1"
-                            android:background="@drawable/bg_jeep_pill"
-                            android:orientation="vertical"
-                            android:padding="14dp">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="PAO"
-                                android:textColor="@color/color_text_secondary"
-                                android:textSize="11sp" />
-
-                            <TextView
-                                android:id="@+id/tv_pao_fullname"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                android:ellipsize="end"
-                                android:maxLines="1"
-                                android:text="Maria Buenaventura"
-                                android:textColor="@color/color_text_primary"
-                                android:textSize="14sp"
-                                android:textStyle="bold" />
+                                android:textStyle="bold"
+                                tools:text="● Assigned" />
 
                         </LinearLayout>
 
                     </LinearLayout>
 
-                    <!-- Assignment Status -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="20dp"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
+                </com.google.android.material.card.MaterialCardView>
 
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Assignment status"
-                            android:textColor="@color/color_text_secondary"
-                            android:textSize="13sp" />
-
-                        <TextView
-                            android:id="@+id/tv_assignment_status"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="@drawable/bg_status_assigned"
-                            android:paddingStart="12dp"
-                            android:paddingTop="8dp"
-                            android:paddingEnd="12dp"
-                            android:paddingBottom="8dp"
-                            android:text="●  Assigned"
-                            android:textColor="@color/color_status_assigned_text"
-                            android:textSize="11sp"
-                            android:textStyle="bold" />
-
-                    </LinearLayout>
-
-                </LinearLayout>
-
-            </com.google.android.material.card.MaterialCardView>
+            </FrameLayout>
 
             <!-- Quick Access Header -->
             <LinearLayout
@@ -381,7 +418,6 @@
                 android:layout_marginTop="12dp"
                 android:orientation="horizontal">
 
-                <!-- Schedule Quick Access Card -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/card_my_schedule"
                     android:layout_width="0dp"
@@ -443,7 +479,6 @@
 
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Salary Quick Access Card -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/card_salary"
                     android:layout_width="0dp"
@@ -507,6 +542,215 @@
 
             </LinearLayout>
 
+            <!-- REST DAY BANNER -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_rest_day_banner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:visibility="gone"
+                app:cardBackgroundColor="@color/color_surface"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="1dp"
+                app:strokeColor="@color/color_divider"
+                app:strokeWidth="1dp"
+                tools:visibility="visible">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <!-- Rest Day Icon Circle -->
+                        <ImageView
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:background="@drawable/bg_circle_icon"
+                            android:backgroundTint="@color/color_background_secondary"
+                            android:contentDescription="Rest Day"
+                            android:padding="12dp"
+                            android:src="@drawable/calendar"
+                            app:tint="@color/color_brand_accent" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="14dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/tv_rest_day_title"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/color_text_primary"
+                                android:textSize="15sp"
+                                android:textStyle="bold"
+                                tools:text="Scheduled Rest Day" />
+
+                            <TextView
+                                android:id="@+id/tv_rest_day_desc"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:textColor="@color/color_text_muted"
+                                android:textSize="12sp"
+                                tools:text="Your assigned rest day schedule:" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <!-- Table Column Headers: Rest Day -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginBottom="4dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="270dp"
+                            android:layout_height="wrap_content"
+                            android:letterSpacing="0.08"
+                            android:text="\tDAY"
+                            android:textColor="@color/color_text_muted"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:letterSpacing="0.08"
+                            android:text="STATUS"
+                            android:textColor="@color/color_text_muted"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
+
+                    <!-- Container for Left/Right Aligned Rest Days -->
+                    <LinearLayout
+                        android:id="@+id/container_rest_days_list"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- UNASSIGNED BANNER -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_unassigned_banner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:visibility="gone"
+                app:cardBackgroundColor="@color/color_surface"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="1dp"
+                app:strokeColor="@color/color_divider"
+                app:strokeWidth="1dp"
+                tools:visibility="visible">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:background="@drawable/bg_circle_icon"
+                            android:backgroundTint="@color/color_background_secondary"
+                            android:contentDescription="Unassigned Status"
+                            android:padding="12dp"
+                            android:src="@drawable/calendar"
+                            app:tint="@color/color_text_muted" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="14dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/tv_unassigned_title"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/color_text_primary"
+                                android:textSize="15sp"
+                                android:textStyle="bold"
+                                tools:text="Unassigned Status" />
+
+                            <TextView
+                                android:id="@+id/tv_unassigned_desc"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:textColor="@color/color_text_muted"
+                                android:textSize="12sp"
+                                tools:text="You currently have no assignment scheduled." />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <!-- Table Column Headers: Unassigned -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginBottom="4dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="250dp"
+                            android:layout_height="wrap_content"
+                            android:letterSpacing="0.08"
+                            android:text="\tDAY"
+                            android:textColor="@color/color_text_muted"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:letterSpacing="0.08"
+                            android:text="STATUS"
+                            android:textColor="@color/color_text_muted"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
+
+                    <!-- Container for Unassigned Rows -->
+                    <LinearLayout
+                        android:id="@+id/container_unassigned_list"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
             <!-- Upcoming Schedules Section -->
             <LinearLayout
                 android:layout_width="match_parent"
@@ -558,7 +802,7 @@
             <!-- Bottom Spacing -->
             <View
                 android:layout_width="match_parent"
-                android:layout_height="140dp" />
+                android:layout_height="160dp" />
 
         </LinearLayout>
 

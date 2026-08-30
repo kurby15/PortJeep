@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/color_background_primary"
     android:clipToPadding="false"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:context="com.example.portjeep.schedule.ScheduleFragment">
 
     <!-- Header Section -->
     <LinearLayout
@@ -17,16 +19,6 @@
         android:paddingTop="36dp"
         android:paddingEnd="24dp"
         android:paddingBottom="28dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:alpha="0.8"
-            android:letterSpacing="0.08"
-            android:text="DRIVER SCHEDULE"
-            android:textColor="@color/white"
-            android:textSize="11sp"
-            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tv_title"
@@ -142,17 +134,75 @@
 
     </LinearLayout>
 
-    <!-- Schedule RecyclerView -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_schedule_list"
+    <!-- Content Area with Skeleton Shimmer -->
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="12dp"
-        android:layout_weight="1"
-        android:clipToPadding="false"
-        android:paddingStart="20dp"
-        android:paddingTop="4dp"
-        android:paddingEnd="20dp"
-        android:paddingBottom="140dp" />
+        android:layout_weight="1">
+
+        <!-- Skeleton View Container -->
+        <com.facebook.shimmer.ShimmerFrameLayout
+            android:id="@+id/shimmer_schedule_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            app:shimmer_auto_start="true"
+            app:shimmer_base_alpha="0.5"
+            app:shimmer_duration="1000"
+            app:shimmer_highlight_alpha="0.9">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    app:cardBackgroundColor="@color/color_surface"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="1dp"
+                    app:strokeColor="@color/color_divider"
+                    app:strokeWidth="1dp">
+
+                    <include layout="@layout/item_skeleton_home" />
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    app:cardBackgroundColor="@color/color_surface"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="1dp"
+                    app:strokeColor="@color/color_divider"
+                    app:strokeWidth="1dp">
+
+                    <include layout="@layout/item_skeleton_home" />
+
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+
+        </com.facebook.shimmer.ShimmerFrameLayout>
+
+        <!-- Schedule RecyclerView -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_schedule_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingStart="20dp"
+            android:paddingTop="4dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="160dp"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+    </FrameLayout>
 
 </LinearLayout>

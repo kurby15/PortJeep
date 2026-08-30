@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingStart="4dp"
+    android:paddingTop="8dp"
+    android:paddingEnd="4dp"
+    android:paddingBottom="8dp">
+
+    <!-- Day Name (Aligned to Left) -->
+    <!-- color_text_primary automatically adapts: Dark Navy in Light Mode, White/Soft Gray in Dark Mode -->
+    <TextView
+        android:id="@+id/tv_rest_day_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textColor="@color/color_text_primary"
+        android:textSize="15sp"
+        android:textStyle="bold" />
+
+    <!-- Rest Day Status (Aligned to Right) -->
+    <!-- color_brand_accent automatically adapts: Bright Red in Light Mode, Softer Red in Dark Mode -->
+    <TextView
+        android:id="@+id/tv_rest_day_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/color_brand_accent"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:letterSpacing="0.05"
+        android:textAllCaps="true" />
+
+</LinearLayout>

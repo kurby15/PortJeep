@@ -1,9 +1,8 @@
-package com.example.portjeep;
+package com.example.portjeep.splash;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,8 +10,11 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.portjeep.R;
+import com.example.portjeep.auth.LogInActivity;
+
 public class SplashLoading extends AppCompatActivity {
-    private Handler handler = new Handler();
+    private final Handler handler = new Handler();
     private Runnable runnable;
 
     @Override
@@ -37,6 +39,8 @@ public class SplashLoading extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        handler.removeCallbacks(runnable);
+        if (runnable != null) {
+            handler.removeCallbacks(runnable);
+        }
     }
 }

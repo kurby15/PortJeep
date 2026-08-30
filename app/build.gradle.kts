@@ -69,6 +69,9 @@ dependencies {
     //glide
     implementation("com.github.bumptech.glide:glide:4.16.0")
 
+    // loading
+    implementation("com.facebook.shimmer:shimmer:0.5.0")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

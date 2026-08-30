@@ -1,35 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/color_background_primary"
-    tools:context=".LogInActivity">
+    android:fillViewport="true"
+    android:scrollbars="none"
+    tools:context="com.example.portjeep.auth.LogInActivity">
 
-    <!-- Copyright Watermark -->
-    <TextView
-        android:id="@+id/tvCopyright"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="24dp"
-        android:gravity="center"
-        android:text="© 2026 Sapang Palay Minuyan MultiPurpose Cooperative"
-        android:textColor="@color/color_text_muted"
-        android:textSize="11sp"
-        android:alpha="0.7" />
-
-    <!-- Centered Form Card Container -->
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@id/tvCopyright"
-        android:gravity="center"
+        android:layout_height="wrap_content"
         android:padding="24dp">
 
+        <!-- Centered Form Card Container -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardContainer"
             android:layout_width="380dp"
@@ -38,155 +24,180 @@
             app:cardBackgroundColor="@color/color_surface"
             app:cardCornerRadius="28dp"
             app:cardElevation="0dp"
-            app:strokeWidth="1dp"
-            app:strokeColor="@color/color_divider">
+            app:strokeColor="@color/color_divider"
+            app:strokeWidth="1dp">
 
-            <ScrollView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fillViewport="true"
-                android:scrollbars="none">
+                android:orientation="vertical"
+                android:paddingHorizontal="28dp"
+                android:paddingTop="32dp"
+                android:paddingBottom="32dp">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <!-- Logo Section -->
+                <ImageView
+                    android:layout_width="160dp"
+                    android:layout_height="160dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="32dp"
+                    android:adjustViewBounds="true"
+                    android:contentDescription="PortJeep Logo"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/icon1"
+                    app:tint="?attr/logoTint" />
+
+                <!-- Title Section -->
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:paddingHorizontal="28dp"
-                    android:paddingTop="32dp"
-                    android:paddingBottom="32dp">
+                    android:layout_gravity="center_horizontal"
+                    android:letterSpacing="-0.02"
+                    android:text="Welcome back"
+                    android:textColor="@color/color_text_primary"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
 
-                    <!-- Logo Section - Original size restored -->
-                    <ImageView
-                        android:layout_width="160dp"
-                        android:layout_height="160dp"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_marginBottom="32dp"
-                        android:adjustViewBounds="true"
-                        android:scaleType="fitCenter"
-                        android:contentDescription="PortJeep Logo"
-                        android:src="@drawable/icon1"
-                        app:tint="?attr/logoTint" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="6dp"
+                    android:layout_marginBottom="24dp"
+                    android:alpha="0.8"
+                    android:text="Sign in to continue to Port Jeep"
+                    android:textColor="@color/color_text_secondary"
+                    android:textSize="14sp" />
 
-                    <!-- Title Section -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:text="Welcome back"
-                        android:textColor="@color/color_text_primary"
-                        android:textSize="24sp"
-                        android:textStyle="bold"
-                        android:letterSpacing="-0.02" />
+                <!-- Email Address Label & Input -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:alpha="0.9"
+                    android:text="Email Address"
+                    android:textColor="@color/color_text_primary"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_marginTop="6dp"
-                        android:layout_marginBottom="24dp"
-                        android:text="Sign in to continue to Port Jeep"
-                        android:textColor="@color/color_text_secondary"
-                        android:textSize="14sp"
-                        android:alpha="0.8" />
+                <EditText
+                    android:id="@+id/etEmail"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="@drawable/bg_pill_input"
+                    android:hint="name@example.com"
+                    android:inputType="textEmailAddress"
+                    android:paddingHorizontal="18dp"
+                    android:textColor="@color/color_text_primary"
+                    android:textColorHint="@color/color_text_muted"
+                    android:textSize="14sp" />
 
-                    <!-- Email Address Label & Input -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Email Address"
-                        android:textColor="@color/color_text_primary"
-                        android:textSize="12sp"
-                        android:textStyle="bold"
-                        android:alpha="0.9" />
+                <!-- Password Label -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:alpha="0.9"
+                    android:text="Password"
+                    android:textColor="@color/color_text_primary"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
 
-                    <EditText
-                        android:id="@+id/etEmail"
-                        android:layout_width="match_parent"
-                        android:layout_height="50dp"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginBottom="16dp"
-                        android:background="@drawable/bg_pill_input"
-                        android:hint="name@example.com"
-                        android:inputType="textEmailAddress"
-                        android:paddingHorizontal="18dp"
-                        android:textColor="@color/color_text_primary"
-                        android:textColorHint="@color/color_text_muted"
-                        android:textSize="14sp" />
+                <!-- Password Container with View/Hide Toggle -->
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp">
 
-                    <!-- Password Label -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Password"
-                        android:textColor="@color/color_text_primary"
-                        android:textSize="12sp"
-                        android:textStyle="bold"
-                        android:alpha="0.9" />
-
-                    <!-- Password Input -->
                     <EditText
                         android:id="@+id/etPassword"
                         android:layout_width="match_parent"
-                        android:layout_height="50dp"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginBottom="8dp"
+                        android:layout_height="match_parent"
                         android:background="@drawable/bg_pill_input"
                         android:hint="••••••••"
                         android:inputType="textPassword"
-                        android:paddingHorizontal="18dp"
+                        android:paddingStart="18dp"
+                        android:paddingEnd="48dp"
                         android:textColor="@color/color_text_primary"
                         android:textColorHint="@color/color_text_muted"
                         android:textSize="14sp" />
 
-                    <!-- Forgot Password Link -->
-                    <TextView
-                        android:id="@+id/tvForgotPassword"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="end"
-                        android:layout_marginBottom="20dp"
+                    <ImageView
+                        android:id="@+id/ivTogglePassword"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="end|center_vertical"
+                        android:layout_marginEnd="14dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
                         android:clickable="true"
+                        android:contentDescription="Toggle Password Visibility"
                         android:focusable="true"
-                        android:padding="4dp"
-                        android:text="Forgot Password?"
-                        android:textColor="@color/color_brand_accent"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
+                        android:src="@drawable/hide"
+                        app:tint="@color/color_text_muted" />
+                </FrameLayout>
 
-                    <!-- Error Banner -->
-                    <TextView
-                        android:id="@+id/tvError"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="16dp"
-                        android:background="@drawable/bg_error_banner"
-                        android:drawableStart="@drawable/warning"
-                        android:drawablePadding="10dp"
-                        app:drawableTint="@color/color_error_text"
-                        android:padding="14dp"
-                        android:textColor="@color/color_error_text"
-                        android:textSize="13sp"
-                        android:visibility="gone"
-                        tools:text="Invalid credentials"
-                        tools:visibility="visible" />
+                <!-- Forgot Password Link -->
+                <TextView
+                    android:id="@+id/tvForgotPassword"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_marginBottom="20dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="4dp"
+                    android:text="Forgot Password?"
+                    android:textColor="@color/color_brand_accent"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
 
-                    <!-- Sign In Button -->
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnLogin"
-                        android:layout_width="match_parent"
-                        android:layout_height="52dp"
-                        android:text="Sign In"
-                        android:textAllCaps="false"
-                        android:textColor="@color/white"
-                        android:textSize="15sp"
-                        android:textStyle="bold"
-                        app:backgroundTint="@color/color_brand_primary"
-                        app:cornerRadius="18dp"
-                        app:elevation="0dp" />
+                <!-- Error Banner -->
+                <TextView
+                    android:id="@+id/tvError"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:background="@drawable/bg_error_banner"
+                    android:drawableStart="@drawable/warning"
+                    android:drawablePadding="10dp"
+                    android:padding="14dp"
+                    android:textColor="@color/color_error_text"
+                    android:textSize="13sp"
+                    android:visibility="gone"
+                    tools:text="Invalid credentials"
+                    tools:visibility="visible" />
 
-                </LinearLayout>
-            </ScrollView>
+                <!-- Sign In Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnLogin"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:text="Sign In"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    app:backgroundTint="@color/color_brand_primary"
+                    app:cornerRadius="18dp"
+                    app:elevation="0dp" />
+
+            </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
-    </RelativeLayout>
 
-</RelativeLayout>
+        <!-- Copyright Watermark -->
+        <TextView
+            android:id="@+id/tvCopyright"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/cardContainer"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="24dp"
+            android:alpha="0.7"
+            android:gravity="center"
+            android:text="© 2026 Sapang Palay Minuyan MultiPurpose Cooperative"
+            android:textColor="@color/color_text_muted"
+            android:textSize="11sp" />
+
+    </RelativeLayout>
+</ScrollView>

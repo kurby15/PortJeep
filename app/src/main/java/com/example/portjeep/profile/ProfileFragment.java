@@ -1,7 +1,8 @@
-package com.example.portjeep;
+package com.example.portjeep.profile;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,9 +11,17 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
+import com.example.portjeep.BuildConfig;
+import com.example.portjeep.R;
+import com.example.portjeep.auth.LogInActivity;
+import com.example.portjeep.utils.CryptoUtils;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -32,6 +41,7 @@ public class ProfileFragment extends Fragment {
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
+    private String userEmail = "";
 
     public ProfileFragment() {}
 
@@ -64,21 +74,137 @@ public class ProfileFragment extends Fragment {
         // Load profile from Firestore
         loadUserProfile();
 
-        // Change Password Handler
-        btnChangePassword.setOnClickListener(v -> sendPasswordResetEmail());
+        // Change Password Handler with Dialog Prompt
+        btnChangePassword.setOnClickListener(v -> showResetPasswordDialog());
 
         // Sign Out Handler
-        btnSignOut.setOnClickListener(v -> {
-            mAuth.signOut();
-            Toast.makeText(getContext(), "Signed Out", Toast.LENGTH_SHORT).show();
-
-            Intent intent = new Intent(requireActivity(), LogInActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            requireActivity().finish();
-        });
+        btnSignOut.setOnClickListener(v -> showLogoutConfirmationDialog());
 
         return view;
+    }
+
+    private void showResetPasswordDialog() {
+        if (getContext() == null) return;
+
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_reset_password, null);
+
+        AlertDialog dialog = new MaterialAlertDialogBuilder(requireContext(), com.google.android.material.R.style.ThemeOverlay_MaterialComponents_MaterialAlertDialog)
+                .setView(dialogView)
+                .setCancelable(true)
+                .create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
+
+        com.google.android.material.card.MaterialCardView cardView = (com.google.android.material.card.MaterialCardView) dialogView;
+        TextInputLayout tilEmail = dialogView.findViewById(R.id.til_reset_email);
+        TextInputEditText etEmail = dialogView.findViewById(R.id.et_reset_email);
+        MaterialButton btnCancel = dialogView.findViewById(R.id.btn_cancel_reset);
+        MaterialButton btnSend = dialogView.findViewById(R.id.btn_send_reset);
+
+        // Pre-fill user's email if available
+        if (etEmail != null && !userEmail.isEmpty()) {
+            etEmail.setText(userEmail);
+        }
+
+        // Dynamic Theme Change Watcher (Changes dialog background without closing)
+        if (etEmail != null) {
+            etEmail.addTextChangedListener(new android.text.TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    String input = s.toString().trim();
+
+                    // 1. Toggle preset theme themes based on keywords
+                    if (input.equalsIgnoreCase("dark")) {
+                        cardView.setCardBackgroundColor(android.graphics.Color.parseColor("#1E1E1E"));
+                    } else if (input.equalsIgnoreCase("light")) {
+                        cardView.setCardBackgroundColor(android.graphics.Color.parseColor("#FFFFFF"));
+                    }
+                    // 2. Custom Hex Color code live change (e.g., #2196F3 or #000000)
+                    else if (input.matches("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{8})$")) {
+                        try {
+                            cardView.setCardBackgroundColor(android.graphics.Color.parseColor(input));
+                        } catch (IllegalArgumentException ignored) {}
+                    }
+                }
+
+                @Override
+                public void afterTextChanged(android.text.Editable s) {}
+            });
+        }
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        btnSend.setOnClickListener(v -> {
+            String inputEmail = etEmail != null && etEmail.getText() != null ? etEmail.getText().toString().trim() : "";
+
+            if (inputEmail.isEmpty()) {
+                tilEmail.setError("Email address is required");
+                return;
+            }
+
+            if (!Patterns.EMAIL_ADDRESS.matcher(inputEmail).matches()) {
+                tilEmail.setError("Please enter a valid email address");
+                return;
+            }
+
+            tilEmail.setError(null);
+            dialog.dismiss();
+            sendPasswordResetEmail(inputEmail);
+        });
+
+        dialog.show();
+    }
+
+    private void sendPasswordResetEmail(String email) {
+        mAuth.sendPasswordResetEmail(email)
+                .addOnSuccessListener(aVoid ->
+                        Toast.makeText(getContext(), "Password reset link sent to " + email, Toast.LENGTH_LONG).show()
+                )
+                .addOnFailureListener(e ->
+                        Toast.makeText(getContext(), "Failed: " + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show()
+                );
+    }
+
+    private void showLogoutConfirmationDialog() {
+        if (getContext() == null) return;
+
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_logout_confirmation, null);
+
+        AlertDialog dialog = new MaterialAlertDialogBuilder(requireContext(), com.google.android.material.R.style.ThemeOverlay_MaterialComponents_MaterialAlertDialog)
+                .setView(dialogView)
+                .setCancelable(true)
+                .create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
+
+        MaterialButton btnCancel = dialogView.findViewById(R.id.btn_cancel);
+        MaterialButton btnConfirm = dialogView.findViewById(R.id.btn_confirm_logout);
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        btnConfirm.setOnClickListener(v -> {
+            dialog.dismiss();
+            performLogout();
+        });
+
+        dialog.show();
+    }
+
+    private void performLogout() {
+        mAuth.signOut();
+        Toast.makeText(getContext(), "Signed Out", Toast.LENGTH_SHORT).show();
+
+        Intent intent = new Intent(requireActivity(), LogInActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        requireActivity().finish();
     }
 
     private void loadUserProfile() {
@@ -105,7 +231,6 @@ public class ProfileFragment extends Fragment {
     private void updateUiWithProfileData(DocumentSnapshot doc) {
         String secretKey = BuildConfig.CRYPTO_SECRET_KEY;
 
-        // 1. Fetch raw fields
         String rawFirstName = doc.getString("first_name");
         String rawLastName = doc.getString("last_name");
         String rawEmail = doc.getString("email");
@@ -118,23 +243,21 @@ public class ProfileFragment extends Fragment {
         String sex = doc.getString("sex");
         String positionId = doc.getString("position_id");
 
-        // 2. Decrypt encrypted fields
         String firstName = CryptoUtils.decrypt(rawFirstName, secretKey);
         String lastName = CryptoUtils.decrypt(rawLastName, secretKey);
         String email = CryptoUtils.decrypt(rawEmail, secretKey);
         String phone = CryptoUtils.decrypt(rawPhone, secretKey);
         String address = CryptoUtils.decrypt(rawStreet, secretKey);
 
-        // Fallback for email from Firebase Auth if not in Firestore
         if ((email == null || email.isEmpty()) && mAuth.getCurrentUser() != null) {
             email = mAuth.getCurrentUser().getEmail();
         }
 
-        // 3. Set Header & Personal Info
+        userEmail = email != null ? email : "";
+
         String fullName = ((firstName != null ? firstName : "") + " " + (lastName != null ? lastName : "")).trim();
         tvProfileName.setText(!fullName.isEmpty() ? fullName : "User Profile");
 
-        // Dynamic Avatar Initials (e.g. "GK" for Gustavo Koch)
         String initials = "";
         if (firstName != null && !firstName.isEmpty()) initials += firstName.toUpperCase().charAt(0);
         if (lastName != null && !lastName.isEmpty()) initials += lastName.toUpperCase().charAt(0);
@@ -144,7 +267,6 @@ public class ProfileFragment extends Fragment {
         tvCivilStatus.setText(civilStatus != null ? civilStatus : "N/A");
         tvSex.setText(sex != null ? sex : "N/A");
 
-        // 4. Format Date Hired
         Object dateHiredObj = doc.get("date_hired");
         if (dateHiredObj instanceof Timestamp) {
             SimpleDateFormat sdf = new SimpleDateFormat("MMMM d, yyyy", Locale.US);
@@ -155,12 +277,10 @@ public class ProfileFragment extends Fragment {
             tvDateHired.setText("N/A");
         }
 
-        // 5. Contact Info
         tvEmail.setText(email != null ? email : "N/A");
         tvPhone.setText(phone != null ? phone : "N/A");
         tvAddress.setText(address != null && !address.isEmpty() ? address : "San Jose del Monte, Bulacan");
 
-        // 6. Dynamic Position Lookup from 'Positions' collection
         if (positionId != null && !positionId.trim().isEmpty()) {
             db.collection("Positions")
                     .document(positionId)
@@ -196,21 +316,6 @@ public class ProfileFragment extends Fragment {
                     .addOnFailureListener(e -> {
                         if (isAdded()) tvPosition.setText("Driver / PAO");
                     });
-        }
-    }
-
-    private void sendPasswordResetEmail() {
-        FirebaseUser user = mAuth.getCurrentUser();
-        if (user != null && user.getEmail() != null) {
-            mAuth.sendPasswordResetEmail(user.getEmail())
-                    .addOnSuccessListener(aVoid ->
-                            Toast.makeText(getContext(), "Password reset link sent to your email.", Toast.LENGTH_LONG).show()
-                    )
-                    .addOnFailureListener(e ->
-                            Toast.makeText(getContext(), "Failed: " + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show()
-                    );
-        } else {
-            Toast.makeText(getContext(), "No email address found for password reset.", Toast.LENGTH_SHORT).show();
         }
     }
 }
