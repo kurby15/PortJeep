@@ -36,7 +36,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:alpha="0.85"
-            android:text="View and manage your assigned trips"
+            android:text="View your assigned trips"
             android:textColor="@color/white"
             android:textSize="13sp" />
 
@@ -190,16 +190,43 @@
 
         </com.facebook.shimmer.ShimmerFrameLayout>
 
-        <!-- Schedule RecyclerView -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_schedule_list"
+        <!-- Empty State Container -->
+        <LinearLayout
+            android:id="@+id/layout_empty_state"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="-55dp"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="24dp"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/iv_empty_icon"
+                android:layout_width="128dp"
+                android:layout_height="128dp"
+                android:layout_marginBottom="12dp"
+                android:contentDescription="No schedules"
+                android:src="@drawable/no_schedule"
+                app:tint="@color/color_text_muted" />
+
+            <TextView
+                android:id="@+id/tv_empty_state"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="All schedules are currently assigned."
+                android:textColor="@color/color_text_muted"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+
+        <!-- Replaced RecyclerView with ViewPager2 for swipe & click binding -->
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/view_pager_schedule"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:clipToPadding="false"
-            android:paddingStart="20dp"
-            android:paddingTop="4dp"
-            android:paddingEnd="20dp"
-            android:paddingBottom="160dp"
             android:visibility="gone"
             tools:visibility="visible" />
 

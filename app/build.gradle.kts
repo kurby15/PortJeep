@@ -72,6 +72,9 @@ dependencies {
     // loading
     implementation("com.facebook.shimmer:shimmer:0.5.0")
 
+    //swipe
+    implementation("androidx.viewpager2:viewpager2:1.1.0")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

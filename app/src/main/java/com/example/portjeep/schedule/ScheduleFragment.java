@@ -8,14 +8,16 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.portjeep.BuildConfig;
 import com.example.portjeep.R;
@@ -49,20 +51,17 @@ public class ScheduleFragment extends Fragment {
     private static final String API_URL = "https://port-jeep.vercel.app/api/mobile/schedules";
 
     private ShimmerFrameLayout shimmerContainer;
-    private RecyclerView rvScheduleList;
+    private ViewPager2 viewPagerSchedule;
+    private LinearLayout layoutEmptyState;
+    private TextView tvEmptyState;
 
     private TextView tabToday, tabUpcoming, tabPrevious;
-    private ScheduleAdapter adapter;
+    private SchedulePagerAdapter pagerAdapter;
+    private ScheduleViewModel viewModel;
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
     private ExecutorService executor;
-
-    private final List<ScheduleItem> todayList = new ArrayList<>();
-    private final List<ScheduleItem> upcomingList = new ArrayList<>();
-    private final List<ScheduleItem> previousList = new ArrayList<>();
-
-    private int activeTab = 0; // 0 = Today, 1 = Upcoming, 2 = Previous
 
     public ScheduleFragment() {}
 
@@ -72,28 +71,77 @@ public class ScheduleFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_schedule, container, false);
 
         executor = Executors.newSingleThreadExecutor();
+        // Initialize ViewModel scoped to this fragment so it's shared with child fragments
+        viewModel = new ViewModelProvider(this).get(ScheduleViewModel.class);
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
         shimmerContainer = view.findViewById(R.id.shimmer_schedule_container);
+        layoutEmptyState = view.findViewById(R.id.layout_empty_state);
+        tvEmptyState = view.findViewById(R.id.tv_empty_state);
         tabToday = view.findViewById(R.id.tab_today);
         tabUpcoming = view.findViewById(R.id.tab_upcoming);
         tabPrevious = view.findViewById(R.id.tab_previous);
-        rvScheduleList = view.findViewById(R.id.rv_schedule_list);
+        viewPagerSchedule = view.findViewById(R.id.view_pager_schedule);
 
-        rvScheduleList.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new ScheduleAdapter(new ArrayList<>());
-        rvScheduleList.setAdapter(adapter);
+        pagerAdapter = new SchedulePagerAdapter(this);
+        viewPagerSchedule.setAdapter(pagerAdapter);
 
-        tabToday.setOnClickListener(v -> selectTab(0, tabToday, todayList));
-        tabUpcoming.setOnClickListener(v -> selectTab(1, tabUpcoming, upcomingList));
-        tabPrevious.setOnClickListener(v -> selectTab(2, tabPrevious, previousList));
+        tabToday.setOnClickListener(v -> viewPagerSchedule.setCurrentItem(0, true));
+        tabUpcoming.setOnClickListener(v -> viewPagerSchedule.setCurrentItem(1, true));
+        tabPrevious.setOnClickListener(v -> viewPagerSchedule.setCurrentItem(2, true));
 
-        showLoadingSkeleton();
-        loadUserSchedules();
+        viewPagerSchedule.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                viewModel.setActiveTab(position);
+                updateTabsUi(position);
+            }
+        });
+
+        setupObservers();
+
+        if (!viewModel.hasData()) {
+            loadUserSchedules();
+        } else {
+            // Restore active tab from ViewModel state
+            int savedTab = viewModel.getActiveTab().getValue() != null ? viewModel.getActiveTab().getValue() : 0;
+            viewPagerSchedule.setCurrentItem(savedTab, false);
+            updateTabsUi(savedTab);
+            hideLoadingSkeleton();
+        }
 
         return view;
+    }
+
+    private void setupObservers() {
+        viewModel.getIsLoading().observe(getViewLifecycleOwner(), loading -> {
+            if (loading) showLoadingSkeleton();
+            else hideLoadingSkeleton();
+        });
+
+        viewModel.getActiveTab().observe(getViewLifecycleOwner(), tabIndex -> {
+            updateEmptyStateVisibility(getActiveTabList(tabIndex));
+        });
+
+        // Observe data changes to refresh empty state for the current tab
+        viewModel.getTodayList().observe(getViewLifecycleOwner(), list -> {
+            if (viewModel.getActiveTab().getValue() != null && viewModel.getActiveTab().getValue() == 0) {
+                updateEmptyStateVisibility(list);
+            }
+        });
+        viewModel.getUpcomingList().observe(getViewLifecycleOwner(), list -> {
+            if (viewModel.getActiveTab().getValue() != null && viewModel.getActiveTab().getValue() == 1) {
+                updateEmptyStateVisibility(list);
+            }
+        });
+        viewModel.getPreviousList().observe(getViewLifecycleOwner(), list -> {
+            if (viewModel.getActiveTab().getValue() != null && viewModel.getActiveTab().getValue() == 2) {
+                updateEmptyStateVisibility(list);
+            }
+        });
     }
 
     private void showLoadingSkeleton() {
@@ -101,9 +149,8 @@ public class ScheduleFragment extends Fragment {
             shimmerContainer.startShimmer();
             shimmerContainer.setVisibility(View.VISIBLE);
         }
-        if (rvScheduleList != null) {
-            rvScheduleList.setVisibility(View.GONE);
-        }
+        if (viewPagerSchedule != null) viewPagerSchedule.setVisibility(View.GONE);
+        if (layoutEmptyState != null) layoutEmptyState.setVisibility(View.GONE);
     }
 
     private void hideLoadingSkeleton() {
@@ -111,68 +158,108 @@ public class ScheduleFragment extends Fragment {
             shimmerContainer.stopShimmer();
             shimmerContainer.setVisibility(View.GONE);
         }
-        if (rvScheduleList != null) {
-            rvScheduleList.setVisibility(View.VISIBLE);
+        
+        // Decide what to show based on the current list's content
+        int currentTab = viewModel.getActiveTab().getValue() != null ? viewModel.getActiveTab().getValue() : 0;
+        updateEmptyStateVisibility(getActiveTabList(currentTab));
+    }
+
+    private void updateEmptyStateVisibility(List<ScheduleItem> currentList) {
+        // Prevent showing empty state while loading is in progress
+        Boolean loading = viewModel.getIsLoading().getValue();
+        if (loading != null && loading) {
+            if (layoutEmptyState != null) layoutEmptyState.setVisibility(View.GONE);
+            if (viewPagerSchedule != null) viewPagerSchedule.setVisibility(View.GONE);
+            return;
+        }
+
+        if (currentList == null || currentList.isEmpty()) {
+            if (viewPagerSchedule != null) viewPagerSchedule.setVisibility(View.GONE);
+            if (layoutEmptyState != null) {
+                layoutEmptyState.setVisibility(View.VISIBLE);
+            }
+            if (tvEmptyState != null) {
+                Integer activeTab = viewModel.getActiveTab().getValue();
+                String message = "All schedules are currently assigned.";
+                if (activeTab != null) {
+                    if (activeTab == 0) {
+                        message = "You have no schedules for today.";
+                    } else if (activeTab == 1) {
+                        message = "There are no upcoming schedules.";
+                    } else if (activeTab == 2) {
+                        message = "No completed schedules in your history.";
+                    }
+                }
+                tvEmptyState.setText(message);
+            }
+        } else {
+            if (layoutEmptyState != null) layoutEmptyState.setVisibility(View.GONE);
+            if (viewPagerSchedule != null) viewPagerSchedule.setVisibility(View.VISIBLE);
         }
     }
 
-    private void selectTab(int tabIndex, TextView selected, List<ScheduleItem> data) {
-        this.activeTab = tabIndex;
+    private void updateTabsUi(int tabIndex) {
+        TextView[] tabs = {tabToday, tabUpcoming, tabPrevious};
+        for (int i = 0; i < tabs.length; i++) {
+            if (tabs[i] != null) {
+                if (i == tabIndex) {
+                    tabs[i].setBackgroundResource(R.drawable.bg_tab_selected);
+                    tabs[i].setTextColor(Color.WHITE);
+                } else {
+                    tabs[i].setBackgroundResource(R.drawable.bg_tab_unselected);
+                    tabs[i].setTextColor(Color.parseColor("#546E7A"));
+                }
+            }
+        }
+    }
 
-        if (tabToday != null) {
-            tabToday.setBackgroundResource(R.drawable.bg_tab_unselected);
-            tabToday.setTextColor(Color.parseColor("#546E7A"));
+    private List<ScheduleItem> getActiveTabList(int tabIndex) {
+        if (viewModel == null) return new ArrayList<>();
+        if (tabIndex == 0) return viewModel.getTodayList().getValue();
+        if (tabIndex == 1) return viewModel.getUpcomingList().getValue();
+        return viewModel.getPreviousList().getValue();
+    }
+
+    private static class SchedulePagerAdapter extends FragmentStateAdapter {
+        public SchedulePagerAdapter(@NonNull Fragment fragment) {
+            super(fragment);
         }
 
-        if (tabUpcoming != null) {
-            tabUpcoming.setBackgroundResource(R.drawable.bg_tab_unselected);
-            tabUpcoming.setTextColor(Color.parseColor("#546E7A"));
+        @NonNull
+        @Override
+        public Fragment createFragment(int position) {
+            return SchedulePageFragment.newInstance(position);
         }
 
-        if (tabPrevious != null) {
-            tabPrevious.setBackgroundResource(R.drawable.bg_tab_unselected);
-            tabPrevious.setTextColor(Color.parseColor("#546E7A"));
-        }
-
-        if (selected != null) {
-            selected.setBackgroundResource(R.drawable.bg_tab_selected);
-            selected.setTextColor(Color.WHITE);
-        }
-
-        if (adapter != null) {
-            adapter.updateList(data);
+        @Override
+        public int getItemCount() {
+            return 3;
         }
     }
 
     private void loadUserSchedules() {
         FirebaseUser currentUser = mAuth.getCurrentUser();
-
         if (currentUser == null) {
-            if (getContext() != null) {
-                Toast.makeText(getContext(), "Please log in first.", Toast.LENGTH_SHORT).show();
-            }
-            hideLoadingSkeleton();
+            if (getContext() != null) Toast.makeText(getContext(), "Please log in first.", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        viewModel.setLoading(true);
         currentUser.getIdToken(true)
                 .addOnSuccessListener(result -> {
                     if (!isAdded()) return;
-                    String idToken = result.getToken();
-                    fetchSchedulesFromApi(idToken);
+                    fetchSchedulesFromApi(result.getToken());
                 })
                 .addOnFailureListener(e -> {
-                    if (!isAdded()) return;
-                    if (getContext() != null) {
+                    if (isAdded() && getContext() != null) {
                         Toast.makeText(getContext(), "Auth Error: " + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
                     }
-                    hideLoadingSkeleton();
+                    viewModel.setLoading(false);
                 });
     }
 
     private void fetchSchedulesFromApi(String idToken) {
         if (executor == null || executor.isShutdown()) return;
-
         Handler handler = new Handler(Looper.getMainLooper());
 
         executor.execute(() -> {
@@ -182,97 +269,71 @@ public class ScheduleFragment extends Fragment {
                 connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("GET");
                 connection.setRequestProperty("Authorization", "Bearer " + idToken);
-                connection.setRequestProperty("Content-Type", "application/json");
                 connection.setConnectTimeout(10000);
                 connection.setReadTimeout(10000);
 
                 int responseCode = connection.getResponseCode();
-
-                InputStream inputStream = (responseCode == HttpURLConnection.HTTP_OK)
-                        ? connection.getInputStream()
-                        : connection.getErrorStream();
-
+                InputStream inputStream = (responseCode == HttpURLConnection.HTTP_OK) ? connection.getInputStream() : connection.getErrorStream();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
                 StringBuilder responseStr = new StringBuilder();
                 String line;
-
-                while ((line = reader.readLine()) != null) {
-                    responseStr.append(line);
-                }
+                while ((line = reader.readLine()) != null) responseStr.append(line);
                 reader.close();
 
                 String rawResult = responseStr.toString();
-
                 handler.post(() -> {
-                    if (!isAdded() || getContext() == null) return;
-
+                    if (!isAdded()) return;
                     if (responseCode == HttpURLConnection.HTTP_OK) {
                         parseAndDisplaySchedules(rawResult);
                     } else {
-                        Toast.makeText(getContext(), "Server Error (" + responseCode + "): " + rawResult, Toast.LENGTH_LONG).show();
-                        hideLoadingSkeleton();
+                        Toast.makeText(getContext(), "Server Error (" + responseCode + ")", Toast.LENGTH_LONG).show();
+                        viewModel.setLoading(false);
                     }
                 });
-
             } catch (Exception e) {
-                Log.e(TAG, "Network Request Failed", e);
+                Log.e(TAG, "Network Error", e);
                 handler.post(() -> {
-                    if (isAdded() && getContext() != null) {
-                        Toast.makeText(getContext(), "Connection failed: " + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
-                        hideLoadingSkeleton();
+                    if (isAdded()) {
+                        Toast.makeText(getContext(), "Connection failed: " + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                        viewModel.setLoading(false);
                     }
                 });
             } finally {
-                if (connection != null) {
-                    connection.disconnect();
-                }
+                if (connection != null) connection.disconnect();
             }
         });
     }
 
     private void parseAndDisplaySchedules(String jsonResponse) {
-        if (!isAdded() || getContext() == null) return;
-
         try {
             JSONObject root = new JSONObject(jsonResponse);
-            boolean success = root.optBoolean("success", false);
-
-            if (!success) {
-                String errMsg = root.optString("error", "Unknown server error");
-                if (getContext() != null) {
-                    Toast.makeText(getContext(), "Error: " + errMsg, Toast.LENGTH_SHORT).show();
-                }
-                hideLoadingSkeleton();
+            if (!root.optBoolean("success", false)) {
+                String error = root.optString("error", "Unknown error");
+                if (getContext() != null) Toast.makeText(getContext(), "Error: " + error, Toast.LENGTH_SHORT).show();
+                viewModel.setLoading(false);
                 return;
             }
 
-            todayList.clear();
-            upcomingList.clear();
-            previousList.clear();
+            List<ScheduleItem> today = new ArrayList<>();
+            List<ScheduleItem> upcoming = new ArrayList<>();
+            List<ScheduleItem> previous = new ArrayList<>();
 
             JSONArray schedules = root.optJSONArray("schedules");
-
             if (schedules == null || schedules.length() == 0) {
-                todayList.add(new ScheduleItem("Today", "N/A", "Rest Day", "No Unit Assigned", "Rest Day", "Rest Day"));
-                upcomingList.add(new ScheduleItem("Upcoming", "N/A", "Unassigned", "No Unit Assigned", "Unassigned Driver", "Unassigned PAO"));
-                selectTab(activeTab, getActiveTabTextView(), getActiveTabList());
-                hideLoadingSkeleton();
+                viewModel.setSchedules(today, upcoming, previous);
+                viewModel.setLoading(false);
                 return;
             }
 
-            // Get current date normalized to midnight
             Calendar todayCal = Calendar.getInstance();
-            todayCal.set(Calendar.HOUR_OF_DAY, 0);
-            todayCal.set(Calendar.MINUTE, 0);
-            todayCal.set(Calendar.SECOND, 0);
-            todayCal.set(Calendar.MILLISECOND, 0);
-            Date todayAtMidnight = todayCal.getTime();
-
+            todayCal.set(Calendar.HOUR_OF_DAY, 0); todayCal.set(Calendar.MINUTE, 0);
+            todayCal.set(Calendar.SECOND, 0); todayCal.set(Calendar.MILLISECOND, 0);
+            Date todayMidnight = todayCal.getTime();
             int currentYear = todayCal.get(Calendar.YEAR);
             String secretKey = BuildConfig.CRYPTO_SECRET_KEY;
 
-            // Expanded date patterns covering common API outputs
-            String[] patterns = new String[]{
+            // Restored full list of patterns
+            String[] patterns = {
                     "yyyy-MM-dd",
                     "MM/dd/yyyy",
                     "dd/MM/yyyy",
@@ -286,149 +347,105 @@ public class ScheduleFragment extends Fragment {
 
             for (int i = 0; i < schedules.length(); i++) {
                 JSONObject doc = schedules.getJSONObject(i);
-
                 String rawDate = doc.optString("date", "N/A");
                 String dayStr = doc.optString("day", "Scheduled");
                 String rawStatus = doc.optString("status", "").toLowerCase(Locale.US);
-                String rawJeep = doc.optString("jeep", "Unassigned Unit");
-                String jeepFormatted = formatJeepUnit(rawJeep);
+                String jeep = formatJeepUnit(doc.optString("jeep", "Unassigned Unit"));
 
                 // Driver Parsing
-                String driverName = "Unassigned Driver";
-                String driverEmail = "";
-                String driverContact = "";
+                String driverName = "Unassigned Driver", driverEmail = "", driverContact = "";
                 String driverId = doc.optString("driver_id", doc.optString("driverId", ""));
 
                 if (doc.has("driver") && !doc.isNull("driver")) {
                     Object dObj = doc.get("driver");
                     if (dObj instanceof JSONObject) {
                         JSONObject dJson = (JSONObject) dObj;
-                        if (driverId.isEmpty()) {
-                            driverId = dJson.optString("uid",
-                                    dJson.optString("id",
-                                            dJson.optString("_id",
-                                                    dJson.optString("driver_id",
-                                                            dJson.optString("user_id", "")))));
-                        }
-
+                        if (driverId.isEmpty()) driverId = dJson.optString("uid", dJson.optString("id", ""));
                         driverName = dJson.optString("name", dJson.optString("full_name", "Unassigned Driver"));
                         driverEmail = CryptoUtils.decrypt(dJson.optString("email", ""), secretKey);
                         driverContact = CryptoUtils.decrypt(dJson.optString("contact_no", dJson.optString("contact", "")), secretKey);
                     } else if (dObj instanceof String) {
                         String strVal = (String) dObj;
-                        if (!strVal.contains(" ") && strVal.length() > 15) {
-                            driverId = strVal;
-                        } else {
-                            driverName = strVal;
-                        }
+                        if (!strVal.contains(" ") && strVal.length() > 15) driverId = strVal;
+                        else driverName = strVal;
                     }
                 }
-
                 driverName = CryptoUtils.decrypt(driverName, secretKey);
-
-                if (driverName == null || driverName.trim().isEmpty() || driverName.equalsIgnoreCase("null")) {
-                    driverName = "Unassigned Driver";
-                } else if (driverName.equalsIgnoreCase("off") || driverName.equalsIgnoreCase("rest")) {
-                    driverName = "Rest Day";
-                }
+                if (driverName == null || driverName.isEmpty() || driverName.equalsIgnoreCase("null")) driverName = "Unassigned Driver";
+                else if (driverName.equalsIgnoreCase("off") || driverName.equalsIgnoreCase("rest")) driverName = "Rest Day";
 
                 // PAO Parsing
-                String paoName = "Unassigned PAO";
-                String paoEmail = "";
-                String paoContact = "";
+                String paoName = "Unassigned PAO", paoEmail = "", paoContact = "";
                 String paoId = doc.optString("pao_id", doc.optString("paoId", ""));
 
                 if (doc.has("pao") && !doc.isNull("pao")) {
                     Object pObj = doc.get("pao");
                     if (pObj instanceof JSONObject) {
                         JSONObject pJson = (JSONObject) pObj;
-                        if (paoId.isEmpty()) {
-                            paoId = pJson.optString("uid",
-                                    pJson.optString("id",
-                                            pJson.optString("_id",
-                                                    pJson.optString("pao_id",
-                                                            pJson.optString("user_id", "")))));
-                        }
-
+                        if (paoId.isEmpty()) paoId = pJson.optString("uid", pJson.optString("id", ""));
                         paoName = pJson.optString("name", pJson.optString("full_name", "Unassigned PAO"));
                         paoEmail = CryptoUtils.decrypt(pJson.optString("email", ""), secretKey);
                         paoContact = CryptoUtils.decrypt(pJson.optString("contact_no", pJson.optString("contact", "")), secretKey);
                     } else if (pObj instanceof String) {
                         String strVal = (String) pObj;
-                        if (!strVal.contains(" ") && strVal.length() > 15) {
-                            paoId = strVal;
-                        } else {
-                            paoName = strVal;
-                        }
+                        if (!strVal.contains(" ") && strVal.length() > 15) paoId = strVal;
+                        else paoName = strVal;
                     }
                 }
-
                 paoName = CryptoUtils.decrypt(paoName, secretKey);
-
-                if (paoName == null || paoName.trim().isEmpty() || paoName.equalsIgnoreCase("null")) {
-                    paoName = "Unassigned PAO";
-                } else if (paoName.equalsIgnoreCase("off") || paoName.equalsIgnoreCase("rest")) {
-                    paoName = "Rest Day";
-                }
+                if (paoName == null || paoName.isEmpty() || paoName.equalsIgnoreCase("null")) paoName = "Unassigned PAO";
+                else if (paoName.equalsIgnoreCase("off") || paoName.equalsIgnoreCase("rest")) paoName = "Rest Day";
 
                 boolean isRestDay = "Rest Day".equalsIgnoreCase(driverName) || "Rest Day".equalsIgnoreCase(paoName);
                 boolean isUnassigned = "Unassigned Driver".equalsIgnoreCase(driverName) || "Unassigned PAO".equalsIgnoreCase(paoName);
 
-                // Parse rawDate into exact java.util.Date object
                 Date parsedDate = parseDateString(rawDate, patterns, currentYear);
-
                 String status;
                 ScheduleItem item;
 
-                // Priority 1: Check explicit backend status string if provided
                 if ("completed".equalsIgnoreCase(rawStatus) || "done".equalsIgnoreCase(rawStatus) || "finished".equalsIgnoreCase(rawStatus)) {
                     status = "Completed";
-                    item = new ScheduleItem(dayStr, rawDate, status, jeepFormatted, driverName, driverEmail, driverContact, paoName, paoEmail, paoContact);
-                    previousList.add(item);
-                }
-                // Priority 2: Precise calendar date comparison
-                else if (parsedDate != null) {
+                    item = new ScheduleItem(dayStr, rawDate, status, jeep, driverName, driverEmail, driverContact, paoName, paoEmail, paoContact);
+                    previous.add(item);
+                } else if (parsedDate != null) {
                     Calendar parsedCal = Calendar.getInstance();
                     parsedCal.setTime(parsedDate);
-                    parsedCal.set(Calendar.HOUR_OF_DAY, 0);
-                    parsedCal.set(Calendar.MINUTE, 0);
-                    parsedCal.set(Calendar.SECOND, 0);
-                    parsedCal.set(Calendar.MILLISECOND, 0);
-                    Date itemDateAtMidnight = parsedCal.getTime();
+                    parsedCal.set(Calendar.HOUR_OF_DAY, 0); parsedCal.set(Calendar.MINUTE, 0);
+                    parsedCal.set(Calendar.SECOND, 0); parsedCal.set(Calendar.MILLISECOND, 0);
+                    Date itemDate = parsedCal.getTime();
 
-                    if (itemDateAtMidnight.equals(todayAtMidnight)) {
+                    if (itemDate.equals(todayMidnight)) {
                         status = isRestDay ? "Rest Day" : (isUnassigned ? "Unassigned" : "Assigned");
-                        item = new ScheduleItem(dayStr, rawDate, status, jeepFormatted, driverName, driverEmail, driverContact, paoName, paoEmail, paoContact);
-                        todayList.add(item);
-                    } else if (itemDateAtMidnight.after(todayAtMidnight)) {
+                        item = new ScheduleItem(dayStr, rawDate, status, jeep, driverName, driverEmail, driverContact, paoName, paoEmail, paoContact);
+                        today.add(item);
+                    } else if (itemDate.after(todayMidnight)) {
                         status = isRestDay ? "Rest Day" : (isUnassigned ? "Unassigned" : "Scheduled");
-                        item = new ScheduleItem(dayStr, rawDate, status, jeepFormatted, driverName, driverEmail, driverContact, paoName, paoEmail, paoContact);
-                        upcomingList.add(item);
+                        item = new ScheduleItem(dayStr, rawDate, status, jeep, driverName, driverEmail, driverContact, paoName, paoEmail, paoContact);
+                        upcoming.add(item);
                     } else {
                         status = "Completed";
-                        item = new ScheduleItem(dayStr, rawDate, status, jeepFormatted, driverName, driverEmail, driverContact, paoName, paoEmail, paoContact);
-                        previousList.add(item);
+                        item = new ScheduleItem(dayStr, rawDate, status, jeep, driverName, driverEmail, driverContact, paoName, paoEmail, paoContact);
+                        previous.add(item);
                     }
-                }
-                // Priority 3: Absolute fallback if no dates can be parsed
-                else {
+                } else {
+                    // Fallback to day of week comparison if date parsing fails
                     int todayIndex = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
                     int schedIndex = getDayIndex(dayStr);
-
                     if (schedIndex != -1) {
                         if (schedIndex == todayIndex) {
                             status = isRestDay ? "Rest Day" : (isUnassigned ? "Unassigned" : "Assigned");
-                            item = new ScheduleItem(dayStr, rawDate, status, jeepFormatted, driverName, driverEmail, driverContact, paoName, paoEmail, paoContact);
-                            todayList.add(item);
+                            item = new ScheduleItem(dayStr, rawDate, status, jeep, driverName, driverEmail, driverContact, paoName, paoEmail, paoContact);
+                            today.add(item);
                         } else {
+                            // Assume completed if day index passed this week or something? Simplified fallback.
                             status = "Completed";
-                            item = new ScheduleItem(dayStr, rawDate, status, jeepFormatted, driverName, driverEmail, driverContact, paoName, paoEmail, paoContact);
-                            previousList.add(item);
+                            item = new ScheduleItem(dayStr, rawDate, status, jeep, driverName, driverEmail, driverContact, paoName, paoEmail, paoContact);
+                            previous.add(item);
                         }
                     } else {
                         status = isRestDay ? "Rest Day" : (isUnassigned ? "Unassigned" : "Scheduled");
-                        item = new ScheduleItem(dayStr, rawDate, status, jeepFormatted, driverName, driverEmail, driverContact, paoName, paoEmail, paoContact);
-                        upcomingList.add(item);
+                        item = new ScheduleItem(dayStr, rawDate, status, jeep, driverName, driverEmail, driverContact, paoName, paoEmail, paoContact);
+                        upcoming.add(item);
                     }
                 }
 
@@ -436,141 +453,53 @@ public class ScheduleFragment extends Fragment {
                 fetchMissingProfileDetails(paoId, item, false);
             }
 
-            if (todayList.isEmpty()) {
-                todayList.add(new ScheduleItem("Today", "N/A", "Rest Day", "No Unit Assigned", "Rest Day", "Rest Day"));
-            }
-
-            if (upcomingList.isEmpty()) {
-                upcomingList.add(new ScheduleItem("Upcoming", "N/A", "Unassigned", "No Unit Assigned", "Unassigned Driver", "Unassigned PAO"));
-            }
-
-            selectTab(activeTab, getActiveTabTextView(), getActiveTabList());
-            hideLoadingSkeleton();
-
+            viewModel.setSchedules(today, upcoming, previous);
+            viewModel.setLoading(false);
         } catch (Exception e) {
-            Log.e(TAG, "JSON Parsing error", e);
-            if (getContext() != null) {
-                Toast.makeText(getContext(), "Data Parsing Error: " + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-            }
-            hideLoadingSkeleton();
+            Log.e(TAG, "Parsing Error", e);
+            viewModel.setLoading(false);
         }
     }
 
-    // Robust multi-format date parser helper
     private Date parseDateString(String rawDate, String[] patterns, int currentYear) {
-        if (rawDate == null || rawDate.trim().isEmpty() || "N/A".equalsIgnoreCase(rawDate)) {
-            return null;
-        }
-
+        if (rawDate == null || rawDate.isEmpty() || "N/A".equalsIgnoreCase(rawDate)) return null;
         String cleanDate = rawDate.trim();
-
         for (String pattern : patterns) {
             try {
                 SimpleDateFormat sdf = new SimpleDateFormat(pattern, Locale.US);
                 sdf.setLenient(false);
-                Date parsed = sdf.parse(cleanDate);
-
-                if (parsed != null) {
-                    if (!pattern.contains("yyyy") && !pattern.contains("yy")) {
-                        Calendar cal = Calendar.getInstance();
-                        cal.setTime(parsed);
-                        cal.set(Calendar.YEAR, currentYear);
-                        return cal.getTime();
+                Date d = sdf.parse(cleanDate);
+                if (d != null) {
+                    if (!pattern.contains("yyyy")) {
+                        Calendar c = Calendar.getInstance(); c.setTime(d);
+                        c.set(Calendar.YEAR, currentYear);
+                        return c.getTime();
                     }
-                    return parsed;
+                    return d;
                 }
-            } catch (Exception ignored) {
-            }
+            } catch (Exception ignored) {}
         }
         return null;
     }
 
-    private boolean isDayUpcoming(int todayIndex, int targetIndex) {
-        int diff = targetIndex - todayIndex;
-        if (diff < 0) {
-            diff += 7;
-        }
-        return diff > 0 && diff <= 3;
-    }
-
     private void fetchMissingProfileDetails(String userId, ScheduleItem item, boolean isDriver) {
-        if (userId == null || userId.trim().isEmpty()) return;
-
-        db.collection("File201")
-                .document(userId)
-                .get()
-                .addOnSuccessListener(doc -> {
-                    if (doc.exists() && isAdded()) {
-                        String secretKey = BuildConfig.CRYPTO_SECRET_KEY;
-
-                        String rawFirstName = doc.getString("first_name");
-                        String rawLastName = doc.getString("last_name");
-                        String rawEmail = doc.getString("email");
-                        String rawContact = doc.getString("contact_no");
-
-                        String firstName = CryptoUtils.decrypt(rawFirstName, secretKey);
-                        String lastName = CryptoUtils.decrypt(rawLastName, secretKey);
-                        String email = CryptoUtils.decrypt(rawEmail, secretKey);
-                        String contact = CryptoUtils.decrypt(rawContact, secretKey);
-
-                        String fullName = ((firstName != null ? firstName : "") + " " + (lastName != null ? lastName : "")).trim();
-
-                        if (isDriver) {
-                            if (!fullName.isEmpty() && ("Unassigned Driver".equals(item.getDriverName()) || item.getDriverName().length() > 20)) {
-                                item.setDriverName(fullName);
-                            }
-                            if (email != null && !email.trim().isEmpty()) {
-                                item.setDriverEmail(email);
-                            }
-                            if (contact != null && !contact.trim().isEmpty()) {
-                                item.setDriverContact(contact);
-                            }
-                        } else {
-                            if (!fullName.isEmpty() && ("Unassigned PAO".equals(item.getPaoName()) || item.getPaoName().length() > 20)) {
-                                item.setPaoName(fullName);
-                            }
-                            if (email != null && !email.trim().isEmpty()) {
-                                item.setPaoEmail(email);
-                            }
-                            if (contact != null && !contact.trim().isEmpty()) {
-                                item.setPaoContact(contact);
-                            }
-                        }
-
-                        if (getActivity() != null && !getActivity().isFinishing()) {
-                            getActivity().runOnUiThread(() -> {
-                                if (adapter != null) {
-                                    adapter.notifyDataSetChanged();
-                                }
-                            });
-                        }
-                    }
-                })
-                .addOnFailureListener(e -> Log.e(TAG, "Error fetching user profile for ID: " + userId, e));
-    }
-
-    private String formatJeepUnit(String rawJeep) {
-        if (rawJeep.contains("(") && rawJeep.contains(")")) {
-            try {
-                int startParen = rawJeep.indexOf("(");
-                int endParen = rawJeep.indexOf(")");
-
-                String plate = rawJeep.substring(0, startParen).trim();
-                String unit = rawJeep.substring(startParen + 1, endParen).trim();
-
-                return unit + " · " + plate;
-            } catch (Exception e) {
-                return rawJeep;
+        if (userId == null || userId.isEmpty()) return;
+        db.collection("File201").document(userId).get().addOnSuccessListener(doc -> {
+            if (doc.exists() && isAdded()) {
+                String secretKey = BuildConfig.CRYPTO_SECRET_KEY;
+                String first = CryptoUtils.decrypt(doc.getString("first_name"), secretKey);
+                String last = CryptoUtils.decrypt(doc.getString("last_name"), secretKey);
+                String full = ((first != null ? first : "") + " " + (last != null ? last : "")).trim();
+                if (!full.isEmpty()) {
+                    if (isDriver) item.setDriverName(full); else item.setPaoName(full);
+                    viewModel.notifyDataChanged();
+                }
             }
-        } else if (rawJeep.trim().isEmpty() || rawJeep.equalsIgnoreCase("null")) {
-            return "Unassigned Unit";
-        }
-        return rawJeep;
+        });
     }
 
     private int getDayIndex(String dayName) {
-        if (dayName == null || dayName.trim().isEmpty()) return -1;
-
+        if (dayName == null) return -1;
         switch (dayName.trim().toLowerCase(Locale.US)) {
             case "sunday":    return Calendar.SUNDAY;
             case "monday":    return Calendar.MONDAY;
@@ -583,26 +512,18 @@ public class ScheduleFragment extends Fragment {
         }
     }
 
-    private TextView getActiveTabTextView() {
-        if (activeTab == 0) return tabToday;
-        if (activeTab == 1) return tabUpcoming;
-        return tabPrevious;
-    }
-
-    private List<ScheduleItem> getActiveTabList() {
-        if (activeTab == 0) return todayList;
-        if (activeTab == 1) return upcomingList;
-        return previousList;
+    private String formatJeepUnit(String rawJeep) {
+        if (rawJeep.contains("(") && rawJeep.contains(")")) {
+            int s = rawJeep.indexOf("("), e = rawJeep.indexOf(")");
+            return rawJeep.substring(s + 1, e).trim() + " · " + rawJeep.substring(0, s).trim();
+        }
+        return rawJeep;
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if (shimmerContainer != null) {
-            shimmerContainer.stopShimmer();
-        }
-        if (executor != null && !executor.isShutdown()) {
-            executor.shutdownNow();
-        }
+        if (shimmerContainer != null) shimmerContainer.stopShimmer();
+        if (executor != null) executor.shutdownNow();
     }
 }

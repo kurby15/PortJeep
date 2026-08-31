@@ -1,6 +1,8 @@
 package com.example.portjeep.schedule;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,10 +40,49 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ViewHo
 
         if (holder.tvDay != null) holder.tvDay.setText(item.getDay());
         if (holder.tvDate != null) holder.tvDate.setText(item.getDate());
-        if (holder.tvStatus != null) holder.tvStatus.setText("●  " + item.getStatus());
         if (holder.tvJeepUnit != null) holder.tvJeepUnit.setText(item.getJeepUnit());
         if (holder.tvDriverName != null) holder.tvDriverName.setText(item.getDriverName());
         if (holder.tvPaoName != null) holder.tvPaoName.setText(item.getPaoName());
+
+        // Dynamic Banner Pill Background, Text Color & Dot Color
+        if (holder.tvStatus != null) {
+            String status = item.getStatus();
+            if (status == null || status.trim().isEmpty()) {
+                status = "Assigned";
+            }
+
+            int bgColor;
+            int textColor;
+
+            if ("Assigned".equalsIgnoreCase(status)) {
+                bgColor = Color.parseColor("#1B3B6F");   // Deep Blue Fill
+                textColor = Color.parseColor("#70A1FF"); // Bright Blue Text & Dot
+            } else if ("Scheduled".equalsIgnoreCase(status)) {
+                bgColor = Color.parseColor("#0F3854");   // Deep Cyan Fill
+                textColor = Color.parseColor("#00D2D3"); // Bright Cyan Text & Dot
+            } else if ("Completed".equalsIgnoreCase(status)) {
+                bgColor = Color.parseColor("#2C3A47");   // Dark Slate Fill
+                textColor = Color.parseColor("#CAD3C8"); // Soft Grey Text & Dot
+            } else if ("Unassigned".equalsIgnoreCase(status) || "Rest Day".equalsIgnoreCase(status)) {
+                bgColor = Color.parseColor("#4A2810");   // Dark Amber/Orange Fill
+                textColor = Color.parseColor("#FF9F43"); // Bright Orange Text & Dot
+            } else {
+                bgColor = Color.parseColor("#2C3A47");
+                textColor = Color.parseColor("#CAD3C8");
+            }
+
+            // Apply Solid Fill to the Pill Background
+            holder.tvStatus.setBackgroundResource(R.drawable.bg_status_pill);
+            holder.tvStatus.setBackgroundTintList(android.content.res.ColorStateList.valueOf(bgColor));
+
+            // Apply Matching Text Color
+            holder.tvStatus.setTextColor(textColor);
+
+            // Render Dot & Status Text with HTML
+            String hexTextColor = String.format("#%06X", (0xFFFFFF & textColor));
+            String formattedHtml = "<font color='" + hexTextColor + "'>●</font>&nbsp;&nbsp;" + status;
+            holder.tvStatus.setText(Html.fromHtml(formattedHtml, Html.FROM_HTML_MODE_LEGACY));
+        }
 
         // Driver Card Click Listener
         if (holder.cardDriver != null) {

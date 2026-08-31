@@ -1,6 +1,8 @@
 package com.example.portjeep.data.model;
 
-public class ScheduleItem {
+import java.io.Serializable;
+
+public class ScheduleItem implements Serializable {
     private String day;
     private String date;
     private String status;
