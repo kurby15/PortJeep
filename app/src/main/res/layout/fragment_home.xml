@@ -220,7 +220,8 @@
                                     android:letterSpacing="0.08"
                                     android:text="E-JEEP"
                                     android:textColor="@color/color_text_secondary"
-                                    android:textSize="11sp"                                    android:textStyle="bold" />
+                                    android:textSize="11sp"
+                                    android:textStyle="bold" />
 
                                 <TextView
                                     android:id="@+id/tv_unit_no"
@@ -276,11 +277,15 @@
                             android:orientation="horizontal">
 
                             <LinearLayout
+                                android:id="@+id/container_driver_pill"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_marginEnd="6dp"
                                 android:layout_weight="1"
                                 android:background="@drawable/bg_jeep_pill"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:foreground="?attr/selectableItemBackground"
                                 android:orientation="vertical"
                                 android:padding="14dp">
 
@@ -306,11 +311,15 @@
                             </LinearLayout>
 
                             <LinearLayout
+                                android:id="@+id/container_pao_pill"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="6dp"
                                 android:layout_weight="1"
                                 android:background="@drawable/bg_jeep_pill"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:foreground="?attr/selectableItemBackground"
                                 android:orientation="vertical"
                                 android:padding="14dp">
 

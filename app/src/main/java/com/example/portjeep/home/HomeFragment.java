@@ -26,6 +26,7 @@ import com.example.portjeep.salary.SalaryFragment;
 import com.example.portjeep.utils.CryptoUtils;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.card.MaterialCardView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -74,6 +75,7 @@ public class HomeFragment extends Fragment {
     private TextView tvTodayDate, tvJeepStatus, tvAssignmentStatus;
     private MaterialCardView cardMySchedule, cardSalary;
     private LinearLayout containerUpcoming;
+    private LinearLayout containerDriverPill, containerPaoPill;
 
     // Firebase & Background Thread
     private FirebaseAuth mAuth;
@@ -126,6 +128,8 @@ public class HomeFragment extends Fragment {
         tvAssignmentStatus = view.findViewById(R.id.tv_assignment_status);
         tvDriverFullName = view.findViewById(R.id.tv_driver_fullname);
         tvPaoFullName = view.findViewById(R.id.tv_pao_fullname);
+        containerDriverPill = view.findViewById(R.id.container_driver_pill);
+        containerPaoPill = view.findViewById(R.id.container_pao_pill);
         cardMySchedule = view.findViewById(R.id.card_my_schedule);
         cardSalary = view.findViewById(R.id.card_salary);
         containerUpcoming = view.findViewById(R.id.container_upcoming);
@@ -715,9 +719,41 @@ public class HomeFragment extends Fragment {
         if (!isAdded()) return;
 
         String rawJeep = doc.optString("jeep", "N/A");
+        String secretKey = BuildConfig.CRYPTO_SECRET_KEY;
 
-        String driverName = parseName(doc, "driver", "Unassigned Driver");
-        String paoName = parseName(doc, "pao", "Unassigned PAO");
+        // Driver details extraction
+        String driverName = "Unassigned Driver", driverEmail = "", driverContact = "";
+        if (doc.has("driver") && !doc.isNull("driver")) {
+            Object obj = doc.opt("driver");
+            if (obj instanceof JSONObject) {
+                JSONObject dJson = (JSONObject) obj;
+                driverName = dJson.optString("name", "Unassigned Driver");
+                driverEmail = CryptoUtils.decrypt(dJson.optString("email", ""), secretKey);
+                driverContact = CryptoUtils.decrypt(dJson.optString("contact_no", dJson.optString("contact", "")), secretKey);
+            } else if (obj instanceof String) {
+                driverName = (String) obj;
+            }
+        }
+        driverName = CryptoUtils.decrypt(driverName, secretKey);
+        if (driverName == null || driverName.isEmpty() || driverName.equalsIgnoreCase("null")) driverName = "Unassigned Driver";
+        else if (driverName.equalsIgnoreCase("off") || driverName.equalsIgnoreCase("rest")) driverName = "Rest Day";
+
+        // PAO details extraction
+        String paoName = "Unassigned PAO", paoEmail = "", paoContact = "";
+        if (doc.has("pao") && !doc.isNull("pao")) {
+            Object obj = doc.opt("pao");
+            if (obj instanceof JSONObject) {
+                JSONObject pJson = (JSONObject) obj;
+                paoName = pJson.optString("name", "Unassigned PAO");
+                paoEmail = CryptoUtils.decrypt(pJson.optString("email", ""), secretKey);
+                paoContact = CryptoUtils.decrypt(pJson.optString("contact_no", pJson.optString("contact", "")), secretKey);
+            } else if (obj instanceof String) {
+                paoName = (String) obj;
+            }
+        }
+        paoName = CryptoUtils.decrypt(paoName, secretKey);
+        if (paoName == null || paoName.isEmpty() || paoName.equalsIgnoreCase("null")) paoName = "Unassigned PAO";
+        else if (paoName.equalsIgnoreCase("off") || paoName.equalsIgnoreCase("rest")) paoName = "Rest Day";
 
         String unitDisplay = "Unit N/A";
         String plateDisplay = "N/A";
@@ -748,6 +784,28 @@ public class HomeFragment extends Fragment {
 
         if (tvDriverFullName != null) tvDriverFullName.setText(driverName);
         if (tvPaoFullName != null) tvPaoFullName.setText(paoName);
+
+        final String finalDriverName = driverName;
+        final String finalDriverEmail = driverEmail;
+        final String finalDriverContact = driverContact;
+        if (containerDriverPill != null) {
+            containerDriverPill.setOnClickListener(v -> {
+                if (!finalDriverName.equals("Unassigned Driver") && !finalDriverName.equals("Rest Day")) {
+                    showBottomSheet("DRIVER DETAILS", finalDriverName, finalDriverEmail, finalDriverContact);
+                }
+            });
+        }
+
+        final String finalPaoName = paoName;
+        final String finalPaoEmail = paoEmail;
+        final String finalPaoContact = paoContact;
+        if (containerPaoPill != null) {
+            containerPaoPill.setOnClickListener(v -> {
+                if (!finalPaoName.equals("Unassigned PAO") && !finalPaoName.equals("Rest Day")) {
+                    showBottomSheet("PAO DETAILS", finalPaoName, finalPaoEmail, finalPaoContact);
+                }
+            });
+        }
     }
 
     private void renderUpcomingScheduleList(List<JSONObject> docs) {
@@ -876,6 +934,37 @@ public class HomeFragment extends Fragment {
         dialog.show();
     }
 
+    private void showBottomSheet(String role, String name, String email, String contact) {
+        Context context = getContext();
+        if (context == null || !isAdded()) return;
+
+        try {
+            BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(context);
+            View sheetView = LayoutInflater.from(context).inflate(R.layout.bottom_sheet_user_info, null, false);
+
+            TextView tvRole = sheetView.findViewById(R.id.tv_dialog_role);
+            TextView tvName = sheetView.findViewById(R.id.tv_dialog_name);
+            TextView tvEmail = sheetView.findViewById(R.id.tv_dialog_email);
+            TextView tvContact = sheetView.findViewById(R.id.tv_dialog_contact);
+
+            if (tvRole != null) tvRole.setText(role);
+            if (tvName != null) tvName.setText(name);
+
+            if (tvEmail != null) {
+                tvEmail.setText((email != null && !email.trim().isEmpty() && !email.equalsIgnoreCase("null")) ? email : "N/A");
+            }
+
+            if (tvContact != null) {
+                tvContact.setText((contact != null && !contact.trim().isEmpty() && !contact.equalsIgnoreCase("null")) ? contact : "N/A");
+            }
+
+            bottomSheetDialog.setContentView(sheetView);
+            bottomSheetDialog.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private void setNoAssignmentUI() {
         if (tvUnitNo != null) tvUnitNo.setText("No Unit");
         if (tvPlateNo != null) tvPlateNo.setText("No Duty Today");
@@ -883,6 +972,9 @@ public class HomeFragment extends Fragment {
         if (tvAssignmentStatus != null) tvAssignmentStatus.setText("●  Off Duty");
         if (tvDriverFullName != null) tvDriverFullName.setText("Rest Day / Unassigned");
         if (tvPaoFullName != null) tvPaoFullName.setText("Rest Day / Unassigned");
+
+        if (containerDriverPill != null) containerDriverPill.setOnClickListener(null);
+        if (containerPaoPill != null) containerPaoPill.setOnClickListener(null);
 
         refreshStatusCarousel();
     }
