@@ -139,9 +139,15 @@ public class MainActivity extends AppCompatActivity {
         }
 
         String tag = fragment.getClass().getName();
+
+        // If navigating back to Home, clear the backstack so pressing back exits properly
+        if (fragment instanceof HomeFragment) {
+            fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        }
+
         FragmentTransaction transaction = fm.beginTransaction().replace(R.id.fragment_container, fragment, tag);
 
-        if (addToBackStack) {
+        if (addToBackStack && !(fragment instanceof HomeFragment)) {
             transaction.addToBackStack(tag);
         }
         transaction.commit();

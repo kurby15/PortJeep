@@ -1,35 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
     android:gravity="center_vertical"
-    android:paddingStart="4dp"
+    android:orientation="horizontal"
     android:paddingTop="8dp"
-    android:paddingEnd="4dp"
     android:paddingBottom="8dp">
 
-    <!-- Day Name (Aligned to Left) -->
-    <!-- color_text_primary automatically adapts: Dark Navy in Light Mode, White/Soft Gray in Dark Mode -->
+    <!-- Day Name (Aligned to Left 55% column) -->
     <TextView
         android:id="@+id/tv_rest_day_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
+        android:layout_weight="0.55"
         android:textColor="@color/color_text_primary"
         android:textSize="15sp"
-        android:textStyle="bold" />
-
-    <!-- Rest Day Status (Aligned to Right) -->
-    <!-- color_brand_accent automatically adapts: Bright Red in Light Mode, Softer Red in Dark Mode -->
-    <TextView
-        android:id="@+id/tv_rest_day_status"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/color_brand_accent"
-        android:textSize="12sp"
         android:textStyle="bold"
-        android:letterSpacing="0.05"
-        android:textAllCaps="true" />
+        tools:text="Sunday" />
+
+    <!-- Rest Day Status Column (Remaining 45%) -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.45"
+        android:gravity="start|center_vertical"
+        android:paddingStart="16dp">
+
+        <TextView
+            android:id="@+id/tv_rest_day_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_status_rest"
+            android:letterSpacing="0.05"
+            android:paddingStart="12dp"
+            android:paddingTop="6dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="6dp"
+            android:textAllCaps="true"
+            android:textColor="@color/color_status_assigned_text"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            tools:text="●  REST DAY" />
+
+    </LinearLayout>
 
 </LinearLayout>

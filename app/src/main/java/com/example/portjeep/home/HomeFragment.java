@@ -17,6 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.bumptech.glide.Glide;
 import com.example.portjeep.BuildConfig;
@@ -60,15 +61,11 @@ public class HomeFragment extends Fragment {
     private ShimmerFrameLayout shimmerContainer;
     private MaterialCardView cardTodayAssignment;
 
-    // Rest Day Card References
-    private MaterialCardView cardRestDayBanner;
-    private TextView tvRestDayTitle, tvRestDayDesc;
-    private LinearLayout containerRestDaysList;
-
-    // Unassigned Card References
-    private MaterialCardView cardUnassignedBanner;
-    private TextView tvUnassignedTitle, tvUnassignedDesc;
-    private LinearLayout containerUnassignedList;
+    // ViewPager2 Status Carousel References
+    private ViewPager2 vpStatusCarousel;
+    private LinearLayout containerDotsIndicator;
+    private StatusBannerAdapter bannerAdapter;
+    private final List<StatusBannerAdapter.BannerItem> bannerItems = new ArrayList<>();
 
     // View References
     private TextView tvGreeting, tvDriverName, tvRoleBadge;
@@ -105,27 +102,19 @@ public class HomeFragment extends Fragment {
         shimmerContainer = view.findViewById(R.id.shimmer_view_container);
         cardTodayAssignment = view.findViewById(R.id.card_today_assignment);
 
-        // Bind Rest Day Card Views
-        cardRestDayBanner = view.findViewById(R.id.card_rest_day_banner);
-        tvRestDayTitle = view.findViewById(R.id.tv_rest_day_title);
-        tvRestDayDesc = view.findViewById(R.id.tv_rest_day_desc);
-        containerRestDaysList = view.findViewById(R.id.container_rest_days_list);
-
-        // Bind Unassigned Card Views
-        cardUnassignedBanner = view.findViewById(R.id.card_unassigned_banner);
-        tvUnassignedTitle = view.findViewById(R.id.tv_unassigned_title);
-        tvUnassignedDesc = view.findViewById(R.id.tv_unassigned_desc);
-        containerUnassignedList = view.findViewById(R.id.container_unassigned_list);
+        // Bind ViewPager2 Carousel Views
+        vpStatusCarousel = view.findViewById(R.id.vp_status_carousel);
+        containerDotsIndicator = view.findViewById(R.id.container_dots_indicator);
 
         // Bind Main Views
         tvGreeting = view.findViewById(R.id.tv_greeting);
         tvDriverName = view.findViewById(R.id.tv_driver_name);
         tvRoleBadge = view.findViewById(R.id.tv_role_badge);
 
-        // Robot GIF
+        // Robot GIF (Safely loaded)
         ivRobot = view.findViewById(R.id.iv_robot);
-        if (ivRobot != null && isAdded()) {
-            Glide.with(this)
+        if (ivRobot != null && isAdded() && getContext() != null) {
+            Glide.with(requireContext())
                     .asGif()
                     .load(R.drawable.robot2)
                     .into(ivRobot);
@@ -148,6 +137,7 @@ public class HomeFragment extends Fragment {
             tvTodayDate.setText(dateFormat.format(new Date()));
         }
 
+        setupStatusCarousel();
         resetDynamicUI();
         showLoadingSkeleton();
 
@@ -158,6 +148,164 @@ public class HomeFragment extends Fragment {
         setupClickListeners();
 
         return view;
+    }
+
+    private void setupStatusCarousel() {
+        if (vpStatusCarousel == null) return;
+
+        bannerAdapter = new StatusBannerAdapter(getContext(), bannerItems);
+        vpStatusCarousel.setAdapter(bannerAdapter);
+
+        vpStatusCarousel.setOffscreenPageLimit(3);
+        vpStatusCarousel.setClipToPadding(false);
+        vpStatusCarousel.setClipChildren(false);
+
+        // Optimized padding for a "peek" effect on the stack
+        int paddingHorizontal = (int) (24 * getResources().getDisplayMetrics().density);
+        vpStatusCarousel.setPadding(paddingHorizontal, 0, paddingHorizontal, 0);
+
+        vpStatusCarousel.setPageTransformer((page, position) -> {
+            float density = getResources().getDisplayMetrics().density;
+
+            if (position <= -1f) {
+                // Completely off-screen to the left
+                page.setAlpha(0f);
+                page.setTranslationX(0f);
+            } else if (position < 0f) {
+                // Card swiping left - smooth fade and slight upward lift
+                float factor = Math.abs(position);
+                page.setAlpha(1f - factor);
+                page.setTranslationY(-factor * 60f * density);
+                page.setRotation(position * 8f);
+                page.setScaleX(1f);
+                page.setScaleY(1f);
+                page.setTranslationX(0f);
+                page.setTranslationZ((1f - factor) * 10f);
+            } else if (position <= 3f) {
+                // Stacked background cards on the right
+                page.setAlpha(Math.max(0.6f, 1f - (position * 0.15f)));
+                page.setTranslationY(0f);
+                page.setRotation(0f);
+
+                // Subtle scale down for background cards
+                float scale = 1f - (position * 0.04f);
+                page.setScaleX(scale);
+                page.setScaleY(scale);
+
+                // Advanced stack pinning: perfectly aligns cards to the peek offset
+                float peekOffset = 20 * density;
+                float translationX = -position * page.getWidth() + (position * peekOffset);
+                page.setTranslationX(translationX);
+
+                // Ensure Z-index layers cards correctly (front card is top)
+                page.setTranslationZ(-position * 10f);
+            } else {
+                // Completely off-screen to the right
+                page.setAlpha(0f);
+            }
+        });
+
+        vpStatusCarousel.setOnTouchListener((v, event) -> {
+            v.getParent().requestDisallowInterceptTouchEvent(true);
+            return false;
+        });
+
+        vpStatusCarousel.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                updateDotsIndicator(position);
+            }
+        });
+    }
+
+    private void refreshStatusCarousel() {
+        if (!isAdded() || getContext() == null) return;
+
+        bannerItems.clear();
+
+        // 1. Rest Day Item - Red/Accent Themed
+        bannerItems.add(new StatusBannerAdapter.BannerItem(
+                StatusBannerAdapter.BannerItem.TYPE_REST_DAY,
+                "Rest Day Schedule",
+                "Your upcoming rest day assignments:",
+                userRestDays,
+                null
+        ));
+
+        // 2. Unassigned Item - Blue/Brand Themed (Matches "Work" feel)
+        String unassignedDesc = unassignedSchedulesList.isEmpty()
+                ? "Perfect! All your shifts are successfully assigned."
+                : "Heads up! These shifts currently have no unit assigned:";
+
+        bannerItems.add(new StatusBannerAdapter.BannerItem(
+                StatusBannerAdapter.BannerItem.TYPE_UNASSIGNED,
+                "Unassigned Log",
+                unassignedDesc,
+                null,
+                unassignedSchedulesList
+        ));
+
+        if (vpStatusCarousel != null && bannerAdapter != null) {
+            vpStatusCarousel.post(() -> {
+                if (isAdded() && bannerAdapter != null) {
+                    bannerAdapter.notifyDataSetChanged();
+                    setupDotsIndicator(bannerItems.size());
+                }
+            });
+        }
+    }
+
+    private void setupDotsIndicator(int count) {
+        if (containerDotsIndicator == null || getContext() == null) return;
+        containerDotsIndicator.removeAllViews();
+
+        ImageView[] dots = new ImageView[count];
+
+        // Convert dp to pixels for proper density scaling
+        float density = getResources().getDisplayMetrics().density;
+        int dotSizePx = (int) (10 * density); // Slightly smaller dot diameter (10dp)
+        int marginPx = (int) (5 * density);   // 5dp spacing between dots
+
+        for (int i = 0; i < count; i++) {
+            dots[i] = new ImageView(getContext());
+            dots[i].setImageResource(R.drawable.bg_circle_icon);
+
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dotSizePx, dotSizePx);
+            params.setMargins(marginPx, 0, marginPx, 0);
+            dots[i].setLayoutParams(params);
+
+            containerDotsIndicator.addView(dots[i]);
+        }
+        updateDotsIndicator(0);
+    }
+
+    private void updateDotsIndicator(int position) {
+        if (containerDotsIndicator == null || getContext() == null) return;
+
+        // Define active and inactive colors
+        int activeColor = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.color_brand_primary);
+        int inactiveColor = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.color_divider);
+
+        int childCount = containerDotsIndicator.getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            ImageView dot = (ImageView) containerDotsIndicator.getChildAt(i);
+            if (dot != null) {
+                if (i == position) {
+                    // Active dot style: brand color, full opacity
+                    dot.setImageTintList(android.content.res.ColorStateList.valueOf(activeColor));
+                    dot.setAlpha(1.0f);
+                    dot.setScaleX(1.0f);
+                    dot.setScaleY(1.0f);
+                } else {
+                    // Inactive dot style: muted color, subtle scale down
+                    dot.setImageTintList(android.content.res.ColorStateList.valueOf(inactiveColor));
+                    dot.setAlpha(0.6f);
+                    dot.setScaleX(0.85f);
+                    dot.setScaleY(0.85f);
+                }
+            }
+        }
     }
 
     private void setupClickListeners() {
@@ -295,7 +443,7 @@ public class HomeFragment extends Fragment {
                     .addOnFailureListener(e -> Log.e(TAG, "Error fetching position title", e));
         }
 
-        checkTodayRestDay();
+        refreshStatusCarousel();
     }
 
     private void applyRoleBadgeUI(String positionTitle) {
@@ -314,111 +462,6 @@ public class HomeFragment extends Fragment {
         if (tvRoleBadge != null && !userRole.isEmpty()) {
             tvRoleBadge.setText(userRole);
             tvRoleBadge.setVisibility(View.VISIBLE);
-        }
-    }
-
-    private boolean checkTodayRestDay() {
-        if (!isAdded()) return false;
-
-        SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE", Locale.US);
-        String currentDayName = dayFormat.format(new Date());
-
-        boolean isRestDayToday = false;
-        for (String restDay : userRestDays) {
-            if (restDay.equalsIgnoreCase(currentDayName)) {
-                isRestDayToday = true;
-                break;
-            }
-        }
-
-        if (cardRestDayBanner != null) {
-            if (isRestDayToday) {
-                cardRestDayBanner.setVisibility(View.VISIBLE);
-                if (tvRestDayTitle != null) tvRestDayTitle.setText("Scheduled Rest Day");
-                if (tvRestDayDesc != null) tvRestDayDesc.setText("Your assigned rest day schedule:");
-                renderRestDaysList();
-            } else {
-                cardRestDayBanner.setVisibility(View.GONE);
-            }
-        }
-
-        return isRestDayToday;
-    }
-
-    private void renderRestDaysList() {
-        Context context = getContext();
-        if (!isAdded() || context == null || containerRestDaysList == null) return;
-
-        containerRestDaysList.removeAllViews();
-        LayoutInflater inflater = LayoutInflater.from(context);
-
-        SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE", Locale.US);
-        String currentDayName = dayFormat.format(new Date());
-
-        if (userRestDays.isEmpty()) {
-            View rowView = inflater.inflate(R.layout.item_rest_day_row, containerRestDaysList, false);
-
-            TextView tvDayName = rowView.findViewById(R.id.tv_rest_day_name);
-            TextView tvStatus = rowView.findViewById(R.id.tv_rest_day_status);
-
-            if (tvDayName != null) tvDayName.setText(currentDayName);
-            if (tvStatus != null) tvStatus.setText("REST DAY");
-
-            containerRestDaysList.addView(rowView);
-            return;
-        }
-
-        for (String day : userRestDays) {
-            View rowView = inflater.inflate(R.layout.item_rest_day_row, containerRestDaysList, false);
-
-            TextView tvDayName = rowView.findViewById(R.id.tv_rest_day_name);
-            TextView tvStatus = rowView.findViewById(R.id.tv_rest_day_status);
-
-            if (tvDayName != null) tvDayName.setText(day);
-            if (tvStatus != null) tvStatus.setText("REST DAY");
-
-            containerRestDaysList.addView(rowView);
-        }
-    }
-
-    private void renderUnassignedList() {
-        Context context = getContext();
-        if (!isAdded() || context == null || containerUnassignedList == null) return;
-
-        containerUnassignedList.removeAllViews();
-        LayoutInflater inflater = LayoutInflater.from(context);
-
-        if (unassignedSchedulesList.isEmpty()) {
-            SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE", Locale.US);
-            String currentDayName = dayFormat.format(new Date());
-
-            View rowView = inflater.inflate(R.layout.item_unassigned_row, containerUnassignedList, false);
-
-            TextView tvDayName = rowView.findViewById(R.id.tv_unassigned_day_name);
-            TextView tvStatus = rowView.findViewById(R.id.tv_unassigned_status);
-
-            if (tvDayName != null) tvDayName.setText(currentDayName);
-            if (tvStatus != null) tvStatus.setText("UNASSIGNED");
-
-            containerUnassignedList.addView(rowView);
-            return;
-        }
-
-        for (JSONObject doc : unassignedSchedulesList) {
-            View rowView = inflater.inflate(R.layout.item_unassigned_row, containerUnassignedList, false);
-
-            TextView tvDayName = rowView.findViewById(R.id.tv_unassigned_day_name);
-            TextView tvStatus = rowView.findViewById(R.id.tv_unassigned_status);
-
-            String dayText = doc.optString("day", "");
-            if (dayText.isEmpty()) {
-                dayText = doc.optString("date", "Unassigned");
-            }
-
-            if (tvDayName != null) tvDayName.setText(dayText);
-            if (tvStatus != null) tvStatus.setText("UNASSIGNED");
-
-            containerUnassignedList.addView(rowView);
         }
     }
 
@@ -514,7 +557,6 @@ public class HomeFragment extends Fragment {
                 return;
             }
 
-            // Midnight-normalized Calendar for accurate date checking
             Calendar todayCal = Calendar.getInstance();
             todayCal.set(Calendar.HOUR_OF_DAY, 0);
             todayCal.set(Calendar.MINUTE, 0);
@@ -566,11 +608,10 @@ public class HomeFragment extends Fragment {
                     unassignedSchedulesList.add(doc);
                 }
 
-                // Explicitly check status string first
                 boolean isExplicitlyCompleted = "completed".equals(rawStatus) || "done".equals(rawStatus) || "finished".equals(rawStatus);
 
                 if (isExplicitlyCompleted) {
-                    continue; // Skip past/completed schedules
+                    continue;
                 }
 
                 Date parsedDate = parseDateString(rawDate, datePatterns, currentYear);
@@ -601,7 +642,6 @@ public class HomeFragment extends Fragment {
                 }
             }
 
-            // Mark missing days of the week as unassigned
             String[] weekDays = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
             for (String dayName : weekDays) {
                 if (!scheduledDays.contains(dayName.toLowerCase(Locale.US))) {
@@ -628,6 +668,7 @@ public class HomeFragment extends Fragment {
             }
 
             renderUpcomingScheduleList(upcomingScheduleDocs);
+            refreshStatusCarousel();
 
         } catch (Exception e) {
             setNoAssignmentUI();
@@ -678,9 +719,6 @@ public class HomeFragment extends Fragment {
         String driverName = parseName(doc, "driver", "Unassigned Driver");
         String paoName = parseName(doc, "pao", "Unassigned PAO");
 
-        boolean isUnassignedDriver = "Unassigned Driver".equalsIgnoreCase(driverName);
-        boolean isUnassignedPao = "Unassigned PAO".equalsIgnoreCase(paoName);
-
         String unitDisplay = "Unit N/A";
         String plateDisplay = "N/A";
 
@@ -710,59 +748,6 @@ public class HomeFragment extends Fragment {
 
         if (tvDriverFullName != null) tvDriverFullName.setText(driverName);
         if (tvPaoFullName != null) tvPaoFullName.setText(paoName);
-
-        updateRestDayBanner(driverName, paoName);
-        updateUnassignedBanner(isUnassignedDriver, isUnassignedPao);
-    }
-
-    private void updateRestDayBanner(String driverName, String paoName) {
-        if (!isAdded() || cardRestDayBanner == null) return;
-
-        boolean isDriverRest = "Rest Day".equalsIgnoreCase(driverName);
-        boolean isPaoRest = "Rest Day".equalsIgnoreCase(paoName);
-
-        if (isDriverRest || isPaoRest) {
-            cardRestDayBanner.setVisibility(View.VISIBLE);
-
-            if (isDriverRest && isPaoRest) {
-                if (tvRestDayTitle != null) tvRestDayTitle.setText("Squad Rest Day");
-                if (tvRestDayDesc != null) tvRestDayDesc.setText("Both Driver and PAO are off-duty today.");
-            } else if ("PAO".equalsIgnoreCase(userRole) && isPaoRest) {
-                if (tvRestDayTitle != null) tvRestDayTitle.setText("Scheduled Rest Day");
-                if (tvRestDayDesc != null) tvRestDayDesc.setText("You are on your scheduled rest day today.");
-            } else if ("DRIVER".equalsIgnoreCase(userRole) && isDriverRest) {
-                if (tvRestDayTitle != null) tvRestDayTitle.setText("Scheduled Rest Day");
-                if (tvRestDayDesc != null) tvRestDayDesc.setText("You are on your scheduled rest day today.");
-            }
-            renderRestDaysList();
-        } else {
-            cardRestDayBanner.setVisibility(View.GONE);
-        }
-    }
-
-    private void updateUnassignedBanner(boolean isUnassignedDriver, boolean isUnassignedPao) {
-        if (!isAdded() || cardUnassignedBanner == null) return;
-
-        if (isUnassignedDriver || isUnassignedPao || !unassignedSchedulesList.isEmpty()) {
-            cardUnassignedBanner.setVisibility(View.VISIBLE);
-
-            if (isUnassignedDriver && isUnassignedPao) {
-                if (tvUnassignedTitle != null) tvUnassignedTitle.setText("Unassigned Squad");
-                if (tvUnassignedDesc != null) tvUnassignedDesc.setText("No Driver and PAO assigned for this unit today.");
-            } else if ("PAO".equalsIgnoreCase(userRole) && isUnassignedPao) {
-                if (tvUnassignedTitle != null) tvUnassignedTitle.setText("Unassigned PAO");
-                if (tvUnassignedDesc != null) tvUnassignedDesc.setText("You have no assigned route/shift today.");
-            } else if ("DRIVER".equalsIgnoreCase(userRole) && isUnassignedDriver) {
-                if (tvUnassignedTitle != null) tvUnassignedTitle.setText("Unassigned Driver");
-                if (tvUnassignedDesc != null) tvUnassignedDesc.setText("You have no assigned route/shift today.");
-            } else {
-                if (tvUnassignedTitle != null) tvUnassignedTitle.setText("Unassigned Status");
-                if (tvUnassignedDesc != null) tvUnassignedDesc.setText("Current schedule has unassigned slot(s).");
-            }
-            renderUnassignedList();
-        } else {
-            cardUnassignedBanner.setVisibility(View.GONE);
-        }
     }
 
     private void renderUpcomingScheduleList(List<JSONObject> docs) {
@@ -775,7 +760,21 @@ public class HomeFragment extends Fragment {
         if (docs.isEmpty()) {
             TextView tvEmpty = new TextView(context);
             tvEmpty.setText("No upcoming schedules found.");
-            tvEmpty.setPadding(16, 16, 16, 16);
+
+            tvEmpty.setGravity(android.view.Gravity.CENTER);
+            tvEmpty.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+            tvEmpty.setTextColor(getResources().getColor(R.color.color_text_muted, context.getTheme()));
+            tvEmpty.setTextSize(14);
+
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+            );
+            tvEmpty.setLayoutParams(params);
+
+            int verticalPadding = (int) (20 * getResources().getDisplayMetrics().density);
+            tvEmpty.setPadding(0, verticalPadding, 0, verticalPadding);
+
             containerUpcoming.addView(tvEmpty);
             return;
         }
@@ -885,18 +884,7 @@ public class HomeFragment extends Fragment {
         if (tvDriverFullName != null) tvDriverFullName.setText("Rest Day / Unassigned");
         if (tvPaoFullName != null) tvPaoFullName.setText("Rest Day / Unassigned");
 
-        checkTodayRestDay();
-
-        if (cardUnassignedBanner != null) {
-            if (!unassignedSchedulesList.isEmpty()) {
-                cardUnassignedBanner.setVisibility(View.VISIBLE);
-                if (tvUnassignedTitle != null) tvUnassignedTitle.setText("Unassigned Shift");
-                if (tvUnassignedDesc != null) tvUnassignedDesc.setText("You have unassigned route or vehicle slots.");
-                renderUnassignedList();
-            } else {
-                cardUnassignedBanner.setVisibility(View.GONE);
-            }
-        }
+        refreshStatusCarousel();
     }
 
     private void updateDynamicGreeting() {

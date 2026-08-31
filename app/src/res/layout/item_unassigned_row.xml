@@ -8,24 +8,24 @@
     android:paddingTop="8dp"
     android:paddingBottom="8dp">
 
-    <!-- Day Name (Aligned to Left 55% column) -->
+    <!-- Day Name (Aligned to Left 60% column) -->
     <TextView
         android:id="@+id/tv_unassigned_day_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="0.55"
+        android:layout_weight="0.6"
         android:textColor="@color/color_text_primary"
         android:textSize="15sp"
         android:textStyle="bold"
         tools:text="Monday" />
 
-    <!-- Unassigned Status Column (Remaining 45%) -->
+    <!-- Unassigned Status Column (Remaining 40%) -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="0.45"
+        android:layout_weight="0.4"
         android:gravity="start|center_vertical"
-        android:paddingStart="16dp">
+        android:paddingStart="14dp">
 
         <TextView
             android:id="@+id/tv_unassigned_status"

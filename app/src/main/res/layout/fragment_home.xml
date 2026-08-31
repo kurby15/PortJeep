@@ -17,7 +17,6 @@
         android:clipChildren="false"
         android:orientation="vertical">
 
-        <!-- Header Section -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -29,7 +28,6 @@
             android:paddingEnd="24dp"
             android:paddingBottom="44dp">
 
-            <!-- Driver Information -->
             <LinearLayout
                 android:id="@+id/ll_greeting"
                 android:layout_width="wrap_content"
@@ -74,7 +72,6 @@
 
             </LinearLayout>
 
-            <!-- Robot Image -->
             <ImageView
                 android:id="@+id/iv_robot"
                 android:layout_width="128dp"
@@ -88,7 +85,6 @@
 
         </RelativeLayout>
 
-        <!-- Main Content Section -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -99,12 +95,10 @@
             android:paddingEnd="20dp"
             android:paddingBottom="40dp">
 
-            <!-- Today's Assignment Container with Skeleton Shimmer -->
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <!-- Skeleton View (Visible while fetching data) -->
                 <com.facebook.shimmer.ShimmerFrameLayout
                     android:id="@+id/shimmer_view_container"
                     android:layout_width="match_parent"
@@ -129,7 +123,6 @@
 
                 </com.facebook.shimmer.ShimmerFrameLayout>
 
-                <!-- Actual Assignment Card (Hidden while loading) -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/card_today_assignment"
                     android:layout_width="match_parent"
@@ -195,7 +188,6 @@
 
                         </LinearLayout>
 
-                        <!-- Vehicle Information -->
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -228,8 +220,7 @@
                                     android:letterSpacing="0.08"
                                     android:text="E-JEEP"
                                     android:textColor="@color/color_text_secondary"
-                                    android:textSize="11sp"
-                                    android:textStyle="bold" />
+                                    android:textSize="11sp"                                    android:textStyle="bold" />
 
                                 <TextView
                                     android:id="@+id/tv_unit_no"
@@ -268,7 +259,6 @@
 
                         </LinearLayout>
 
-                        <!-- Crew Section -->
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -347,7 +337,6 @@
 
                         </LinearLayout>
 
-                        <!-- Assignment Status -->
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -385,7 +374,6 @@
 
             </FrameLayout>
 
-            <!-- Quick Access Header -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -411,7 +399,6 @@
 
             </LinearLayout>
 
-            <!-- Quick Access Cards -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -542,216 +529,32 @@
 
             </LinearLayout>
 
-            <!-- REST DAY BANNER -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/card_rest_day_banner"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
-                android:visibility="gone"
-                app:cardBackgroundColor="@color/color_surface"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="1dp"
-                app:strokeColor="@color/color_divider"
-                app:strokeWidth="1dp"
-                tools:visibility="visible">
+                android:layout_marginTop="24dp"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:orientation="vertical">
+
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/vp_status_carousel"
+                    android:layout_width="match_parent"
+                    android:layout_height="280dp"
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
+                    android:overScrollMode="never" />
 
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:id="@+id/container_dots_indicator"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="12dp"
+                    android:orientation="horizontal" />
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
+            </LinearLayout>
 
-                        <!-- Rest Day Icon Circle -->
-                        <ImageView
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
-                            android:background="@drawable/bg_circle_icon"
-                            android:backgroundTint="@color/color_background_secondary"
-                            android:contentDescription="Rest Day"
-                            android:padding="12dp"
-                            android:src="@drawable/calendar"
-                            app:tint="@color/color_brand_accent" />
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="14dp"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:id="@+id/tv_rest_day_title"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textColor="@color/color_text_primary"
-                                android:textSize="15sp"
-                                android:textStyle="bold"
-                                tools:text="Scheduled Rest Day" />
-
-                            <TextView
-                                android:id="@+id/tv_rest_day_desc"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:textColor="@color/color_text_muted"
-                                android:textSize="12sp"
-                                tools:text="Your assigned rest day schedule:" />
-
-                        </LinearLayout>
-
-                    </LinearLayout>
-
-                    <!-- Table Column Headers: Rest Day -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:layout_marginBottom="4dp"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:layout_width="270dp"
-                            android:layout_height="wrap_content"
-                            android:letterSpacing="0.08"
-                            android:text="\tDAY"
-                            android:textColor="@color/color_text_muted"
-                            android:textSize="15sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:letterSpacing="0.08"
-                            android:text="STATUS"
-                            android:textColor="@color/color_text_muted"
-                            android:textSize="15sp"
-                            android:textStyle="bold" />
-
-                    </LinearLayout>
-
-                    <!-- Container for Left/Right Aligned Rest Days -->
-                    <LinearLayout
-                        android:id="@+id/container_rest_days_list"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical" />
-
-                </LinearLayout>
-
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- UNASSIGNED BANNER -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/card_unassigned_banner"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:visibility="gone"
-                app:cardBackgroundColor="@color/color_surface"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="1dp"
-                app:strokeColor="@color/color_divider"
-                app:strokeWidth="1dp"
-                tools:visibility="visible">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
-
-                        <ImageView
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
-                            android:background="@drawable/bg_circle_icon"
-                            android:backgroundTint="@color/color_background_secondary"
-                            android:contentDescription="Unassigned Status"
-                            android:padding="12dp"
-                            android:src="@drawable/calendar"
-                            app:tint="@color/color_text_muted" />
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="14dp"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:id="@+id/tv_unassigned_title"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textColor="@color/color_text_primary"
-                                android:textSize="15sp"
-                                android:textStyle="bold"
-                                tools:text="Unassigned Status" />
-
-                            <TextView
-                                android:id="@+id/tv_unassigned_desc"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:textColor="@color/color_text_muted"
-                                android:textSize="12sp"
-                                tools:text="You currently have no assignment scheduled." />
-
-                        </LinearLayout>
-
-                    </LinearLayout>
-
-                    <!-- Table Column Headers: Unassigned -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:layout_marginBottom="4dp"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:layout_width="250dp"
-                            android:layout_height="wrap_content"
-                            android:letterSpacing="0.08"
-                            android:text="\tDAY"
-                            android:textColor="@color/color_text_muted"
-                            android:textSize="15sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:letterSpacing="0.08"
-                            android:text="STATUS"
-                            android:textColor="@color/color_text_muted"
-                            android:textSize="15sp"
-                            android:textStyle="bold" />
-
-                    </LinearLayout>
-
-                    <!-- Container for Unassigned Rows -->
-                    <LinearLayout
-                        android:id="@+id/container_unassigned_list"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical" />
-
-                </LinearLayout>
-
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Upcoming Schedules Section -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -799,7 +602,6 @@
 
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Bottom Spacing -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="160dp" />
