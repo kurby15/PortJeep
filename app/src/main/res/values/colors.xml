@@ -23,6 +23,9 @@
     <color name="color_icon_primary">#1D3557</color>
     <color name="color_icon_secondary">#64748B</color>
 
+    <!-- Quick Access Adaptive Fill -->
+    <color name="color_quick_access_fill">#E8EDF7</color>
+
     <!-- Logo Tint - Null in Light Mode to keep original colors -->
     <color name="color_logo_tint">@android:color/transparent</color>
 

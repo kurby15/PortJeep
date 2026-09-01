@@ -419,161 +419,219 @@
 
             </LinearLayout>
 
-            <LinearLayout
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:orientation="horizontal">
+                android:layout_marginTop="12dp">
 
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/card_my_schedule"
-                    android:layout_width="0dp"
-                    android:layout_height="124dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_weight="1"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:foreground="?attr/selectableItemBackground"
-                    app:cardBackgroundColor="@color/color_surface"
-                    app:cardCornerRadius="20dp"
-                    app:cardElevation="1dp"
-                    app:strokeColor="@color/color_divider"
-                    app:strokeWidth="1dp">
+                <com.facebook.shimmer.ShimmerFrameLayout
+                    android:id="@+id/shimmer_quick_access"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:shimmer_auto_start="true"
+                    app:shimmer_base_alpha="0.5"
+                    app:shimmer_duration="1000"
+                    app:shimmer_highlight_alpha="0.9">
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:padding="16dp">
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
 
-                        <ImageView
-                            android:layout_width="58dp"
-                            android:layout_height="58dp"
-                            android:background="@drawable/bg_quick_schedule"
-                            android:backgroundTint="@color/color_background_secondary"
-                            android:contentDescription="Schedule"
-                            android:padding="12dp"
-                            android:src="@drawable/calendar"
-                            app:tint="@color/color_brand_primary" />
-
-                        <LinearLayout
+                        <com.google.android.material.card.MaterialCardView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="14dp"
+                            android:layout_marginEnd="8dp"
                             android:layout_weight="1"
-                            android:orientation="vertical">
+                            app:cardBackgroundColor="@color/color_surface"
+                            app:cardCornerRadius="20dp"
+                            app:cardElevation="1dp"
+                            app:strokeColor="@color/color_divider"
+                            app:strokeWidth="1dp">
+                            <include layout="@layout/item_skeleton_quick_access" />
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:layout_weight="1"
+                            app:cardBackgroundColor="@color/color_surface"
+                            app:cardCornerRadius="20dp"
+                            app:cardElevation="1dp"
+                            app:strokeColor="@color/color_divider"
+                            app:strokeWidth="1dp">
+                            <include layout="@layout/item_skeleton_quick_access" />
+                        </com.google.android.material.card.MaterialCardView>
+
+                    </LinearLayout>
+
+                </com.facebook.shimmer.ShimmerFrameLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_quick_access_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/card_my_schedule"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:layout_weight="1"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground"
+                        app:cardBackgroundColor="@color/color_surface"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="1dp"
+                        app:strokeColor="@color/color_divider"
+                        app:strokeWidth="1dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:padding="12dp">
+
+                            <ImageView
+                                android:layout_width="88dp"
+                                android:layout_height="88dp"
+                                android:background="@drawable/bg_quick_schedule"
+                                android:backgroundTint="@color/color_quick_access_fill"
+                                android:contentDescription="Schedule"
+                                android:padding="22dp"
+                                android:src="@drawable/calendar"
+                                app:tint="@color/color_brand_primary" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="12dp"
                                 android:text="Schedule"
                                 android:textColor="@color/color_text_primary"
-                                android:textSize="16sp"
+                                android:textSize="15sp"
                                 android:textStyle="bold" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
+                                android:layout_marginTop="2dp"
                                 android:text="View shifts"
                                 android:textColor="@color/color_text_muted"
-                                android:textSize="13sp" />
+                                android:textSize="12sp" />
 
                         </LinearLayout>
 
-                    </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
 
-                </com.google.android.material.card.MaterialCardView>
-
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/card_salary"
-                    android:layout_width="0dp"
-                    android:layout_height="124dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_weight="1"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:foreground="?attr/selectableItemBackground"
-                    app:cardBackgroundColor="@color/color_surface"
-                    app:cardCornerRadius="20dp"
-                    app:cardElevation="1dp"
-                    app:strokeColor="@color/color_divider"
-                    app:strokeWidth="1dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:padding="16dp">
-
-                        <ImageView
-                            android:layout_width="58dp"
-                            android:layout_height="58dp"
-                            android:background="@drawable/bg_quick_salary"
-                            android:backgroundTint="@color/color_background_secondary"
-                            android:contentDescription="Salary"
-                            android:padding="12dp"
-                            android:src="@drawable/wallet"
-                            app:tint="@color/color_brand_accent" />
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/card_salary"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground"
+                        app:cardBackgroundColor="@color/color_surface"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="1dp"
+                        app:strokeColor="@color/color_divider"
+                        app:strokeWidth="1dp">
 
                         <LinearLayout
-                            android:layout_width="0dp"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="14dp"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:padding="12dp">
+
+                            <ImageView
+                                android:layout_width="88dp"
+                                android:layout_height="88dp"
+                                android:background="@drawable/bg_quick_salary"
+                                android:backgroundTint="@color/color_quick_access_fill"
+                                android:contentDescription="Salary"
+                                android:padding="22dp"
+                                android:src="@drawable/wallet"
+                                app:tint="@color/color_brand_accent" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="12dp"
                                 android:text="Salary"
                                 android:textColor="@color/color_text_primary"
-                                android:textSize="16sp"
+                                android:textSize="15sp"
                                 android:textStyle="bold" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
+                                android:layout_marginTop="2dp"
                                 android:text="Earnings"
                                 android:textColor="@color/color_text_muted"
-                                android:textSize="13sp" />
+                                android:textSize="12sp" />
 
                         </LinearLayout>
 
-                    </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
 
-                </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
 
-            </LinearLayout>
+            </FrameLayout>
 
-            <LinearLayout
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:clipChildren="false"
-                android:clipToPadding="false"
-                android:orientation="vertical">
+                android:clipToPadding="false">
 
-                <androidx.viewpager2.widget.ViewPager2
-                    android:id="@+id/vp_status_carousel"
+                <com.facebook.shimmer.ShimmerFrameLayout
+                    android:id="@+id/shimmer_banner"
                     android:layout_width="match_parent"
-                    android:layout_height="280dp"
-                    android:clipChildren="false"
-                    android:clipToPadding="false"
-                    android:overScrollMode="never" />
+                    android:layout_height="wrap_content"
+                    app:shimmer_auto_start="true"
+                    app:shimmer_base_alpha="0.5"
+                    app:shimmer_duration="1000"
+                    app:shimmer_highlight_alpha="0.9">
+                    <include layout="@layout/item_skeleton_banner" />
+                </com.facebook.shimmer.ShimmerFrameLayout>
 
                 <LinearLayout
-                    android:id="@+id/container_dots_indicator"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/ll_banner_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="12dp"
-                    android:orientation="horizontal" />
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    tools:visibility="visible">
 
-            </LinearLayout>
+                    <androidx.viewpager2.widget.ViewPager2
+                        android:id="@+id/vp_status_carousel"
+                        android:layout_width="match_parent"
+                        android:layout_height="280dp"
+                        android:clipChildren="false"
+                        android:clipToPadding="false"
+                        android:overScrollMode="never" />
+
+                    <LinearLayout
+                        android:id="@+id/container_dots_indicator"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="12dp"
+                        android:orientation="horizontal" />
+
+                </LinearLayout>
+            </FrameLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -610,15 +668,43 @@
                 app:strokeColor="@color/color_divider"
                 app:strokeWidth="1dp">
 
-                <LinearLayout
-                    android:id="@+id/container_upcoming"
+                <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:divider="@color/color_divider"
-                    android:orientation="vertical"
-                    android:paddingTop="6dp"
-                    android:paddingBottom="6dp"
-                    android:showDividers="middle" />
+                    android:layout_height="wrap_content">
+
+                    <com.facebook.shimmer.ShimmerFrameLayout
+                        android:id="@+id/shimmer_upcoming"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:shimmer_auto_start="true"
+                        app:shimmer_base_alpha="0.5"
+                        app:shimmer_duration="1000"
+                        app:shimmer_highlight_alpha="0.9">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+                            <include layout="@layout/item_skeleton_upcoming" />
+                            <include layout="@layout/item_skeleton_upcoming" />
+                            <include layout="@layout/item_skeleton_upcoming" />
+                        </LinearLayout>
+
+                    </com.facebook.shimmer.ShimmerFrameLayout>
+
+                    <LinearLayout
+                        android:id="@+id/container_upcoming"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:divider="@color/color_divider"
+                        android:orientation="vertical"
+                        android:paddingTop="6dp"
+                        android:paddingBottom="6dp"
+                        android:showDividers="middle"
+                        android:visibility="gone"
+                        tools:visibility="visible" />
+
+                </FrameLayout>
 
             </com.google.android.material.card.MaterialCardView>
 

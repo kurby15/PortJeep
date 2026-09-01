@@ -23,6 +23,7 @@ import com.example.portjeep.BuildConfig;
 import com.example.portjeep.R;
 import com.example.portjeep.data.model.ScheduleItem;
 import com.example.portjeep.utils.CryptoUtils;
+import com.example.portjeep.utils.PreferenceManager;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -236,8 +237,15 @@ public class ScheduleFragment extends Fragment {
                     fetchSchedulesFromApi(result.getToken());
                 })
                 .addOnFailureListener(e -> {
-                    if (isAdded() && getContext() != null) {
-                        Toast.makeText(getContext(), "Auth Error: " + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                    if (!isAdded()) return;
+                    // Try loading from cache if auth fails (likely offline)
+                    String cachedData = PreferenceManager.getSchedulesCache(getContext());
+                    if (cachedData != null) {
+                        parseAndDisplaySchedules(cachedData);
+                    } else {
+                        if (getContext() != null) {
+                            Toast.makeText(getContext(), "Auth Error: " + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                        }
                     }
                     viewModel.setLoading(false);
                 });
@@ -269,9 +277,16 @@ public class ScheduleFragment extends Fragment {
                 handler.post(() -> {
                     if (!isAdded()) return;
                     if (responseCode == HttpURLConnection.HTTP_OK) {
+                        PreferenceManager.saveSchedulesCache(getContext(), rawResult);
                         parseAndDisplaySchedules(rawResult);
                     } else {
-                        Toast.makeText(getContext(), "Server Error (" + responseCode + ")", Toast.LENGTH_LONG).show();
+                        // Try cache on error
+                        String cachedData = PreferenceManager.getSchedulesCache(getContext());
+                        if (cachedData != null) {
+                            parseAndDisplaySchedules(cachedData);
+                        } else {
+                            Toast.makeText(getContext(), "Server Error (" + responseCode + ")", Toast.LENGTH_LONG).show();
+                        }
                         viewModel.setLoading(false);
                     }
                 });
@@ -279,7 +294,13 @@ public class ScheduleFragment extends Fragment {
                 Log.e(TAG, "Network Error", e);
                 handler.post(() -> {
                     if (isAdded()) {
-                        Toast.makeText(getContext(), "Connection failed: " + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                        // Network failure, try cache
+                        String cachedData = PreferenceManager.getSchedulesCache(getContext());
+                        if (cachedData != null) {
+                            parseAndDisplaySchedules(cachedData);
+                        } else {
+                            Toast.makeText(getContext(), "Connection failed: " + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                        }
                         viewModel.setLoading(false);
                     }
                 });
@@ -469,6 +490,9 @@ public class ScheduleFragment extends Fragment {
 
     private void fetchMissingProfileDetails(String userId, ScheduleItem item, boolean isDriver) {
         if (userId == null || userId.isEmpty()) return;
+
+        // Firestore has built-in offline persistence by default on Android.
+        // We can just use the normal get() and it will return cached data if offline.
         db.collection("File201").document(userId).get().addOnSuccessListener(doc -> {
             if (doc.exists() && isAdded()) {
                 String secretKey = BuildConfig.CRYPTO_SECRET_KEY;

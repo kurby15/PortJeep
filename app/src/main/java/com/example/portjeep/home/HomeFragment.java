@@ -24,6 +24,7 @@ import com.example.portjeep.BuildConfig;
 import com.example.portjeep.R;
 import com.example.portjeep.salary.SalaryFragment;
 import com.example.portjeep.utils.CryptoUtils;
+import com.example.portjeep.utils.PreferenceManager;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -58,8 +59,12 @@ public class HomeFragment extends Fragment {
     private static final String TAG = "HomeFragment";
     private static final String API_URL = "https://port-jeep.vercel.app/api/mobile/schedules";
 
-    // Today's Assignment Loading Shimmer
+    // Loading Skeletons
     private ShimmerFrameLayout shimmerContainer;
+    private ShimmerFrameLayout shimmerQuickAccess, shimmerBanner, shimmerUpcoming;
+    private View llQuickAccessContent, llBannerContent;
+
+    // Actual Content Views
     private MaterialCardView cardTodayAssignment;
 
     // ViewPager2 Status Carousel References
@@ -103,6 +108,15 @@ public class HomeFragment extends Fragment {
         // Bind Skeleton Loading Views
         shimmerContainer = view.findViewById(R.id.shimmer_view_container);
         cardTodayAssignment = view.findViewById(R.id.card_today_assignment);
+        
+        shimmerQuickAccess = view.findViewById(R.id.shimmer_quick_access);
+        llQuickAccessContent = view.findViewById(R.id.ll_quick_access_content);
+        
+        shimmerBanner = view.findViewById(R.id.shimmer_banner);
+        llBannerContent = view.findViewById(R.id.ll_banner_content);
+        
+        shimmerUpcoming = view.findViewById(R.id.shimmer_upcoming);
+        containerUpcoming = view.findViewById(R.id.container_upcoming);
 
         // Bind ViewPager2 Carousel Views
         vpStatusCarousel = view.findViewById(R.id.vp_status_carousel);
@@ -132,7 +146,6 @@ public class HomeFragment extends Fragment {
         containerPaoPill = view.findViewById(R.id.container_pao_pill);
         cardMySchedule = view.findViewById(R.id.card_my_schedule);
         cardSalary = view.findViewById(R.id.card_salary);
-        containerUpcoming = view.findViewById(R.id.container_upcoming);
 
         // Set Today's Date
         tvTodayDate = view.findViewById(R.id.tv_today_date);
@@ -143,6 +156,10 @@ public class HomeFragment extends Fragment {
 
         setupStatusCarousel();
         resetDynamicUI();
+
+        // Load offline profile data immediately
+        loadOfflineUserProfile();
+
         showLoadingSkeleton();
 
         updateDynamicGreeting();
@@ -152,6 +169,33 @@ public class HomeFragment extends Fragment {
         setupClickListeners();
 
         return view;
+    }
+
+    private void loadOfflineUserProfile() {
+        Context context = getContext();
+        if (context == null) return;
+
+        String cachedName = PreferenceManager.getUserFirstName(context);
+        String cachedRole = PreferenceManager.getUserRole(context);
+        Set<String> cachedRestDays = PreferenceManager.getUserRestDays(context);
+
+        if (cachedName != null && !cachedName.isEmpty()) {
+            if (tvDriverName != null) tvDriverName.setText(cachedName);
+        }
+
+        if (cachedRole != null && !cachedRole.isEmpty()) {
+            userRole = cachedRole;
+            if (tvRoleBadge != null) {
+                tvRoleBadge.setText(userRole);
+                tvRoleBadge.setVisibility(View.VISIBLE);
+            }
+        }
+
+        if (cachedRestDays != null && !cachedRestDays.isEmpty()) {
+            userRestDays.clear();
+            userRestDays.addAll(cachedRestDays);
+            refreshStatusCarousel();
+        }
     }
 
     private void setupStatusCarousel() {
@@ -352,6 +396,30 @@ public class HomeFragment extends Fragment {
         if (cardTodayAssignment != null) {
             cardTodayAssignment.setVisibility(View.GONE);
         }
+        
+        if (shimmerQuickAccess != null) {
+            shimmerQuickAccess.startShimmer();
+            shimmerQuickAccess.setVisibility(View.VISIBLE);
+        }
+        if (llQuickAccessContent != null) {
+            llQuickAccessContent.setVisibility(View.GONE);
+        }
+        
+        if (shimmerBanner != null) {
+            shimmerBanner.startShimmer();
+            shimmerBanner.setVisibility(View.VISIBLE);
+        }
+        if (llBannerContent != null) {
+            llBannerContent.setVisibility(View.GONE);
+        }
+        
+        if (shimmerUpcoming != null) {
+            shimmerUpcoming.startShimmer();
+            shimmerUpcoming.setVisibility(View.VISIBLE);
+        }
+        if (containerUpcoming != null) {
+            containerUpcoming.setVisibility(View.GONE);
+        }
     }
 
     private void hideLoadingSkeleton() {
@@ -361,6 +429,30 @@ public class HomeFragment extends Fragment {
         }
         if (cardTodayAssignment != null) {
             cardTodayAssignment.setVisibility(View.VISIBLE);
+        }
+        
+        if (shimmerQuickAccess != null) {
+            shimmerQuickAccess.stopShimmer();
+            shimmerQuickAccess.setVisibility(View.GONE);
+        }
+        if (llQuickAccessContent != null) {
+            llQuickAccessContent.setVisibility(View.VISIBLE);
+        }
+        
+        if (shimmerBanner != null) {
+            shimmerBanner.stopShimmer();
+            shimmerBanner.setVisibility(View.GONE);
+        }
+        if (llBannerContent != null) {
+            llBannerContent.setVisibility(View.VISIBLE);
+        }
+
+        if (shimmerUpcoming != null) {
+            shimmerUpcoming.stopShimmer();
+            shimmerUpcoming.setVisibility(View.GONE);
+        }
+        if (containerUpcoming != null) {
+            containerUpcoming.setVisibility(View.VISIBLE);
         }
     }
 
@@ -425,6 +517,7 @@ public class HomeFragment extends Fragment {
                 Object claimRole = result.getClaims().get("role");
                 if (claimRole != null && !claimRole.toString().isEmpty()) {
                     applyRoleBadgeUI(claimRole.toString());
+                    saveCurrentProfileToCache();
                 }
             });
         }
@@ -442,12 +535,22 @@ public class HomeFragment extends Fragment {
 
                             String positionTitle = CryptoUtils.decrypt(rawTitle, secretKey);
                             applyRoleBadgeUI(positionTitle);
+                            saveCurrentProfileToCache();
                         }
                     })
                     .addOnFailureListener(e -> Log.e(TAG, "Error fetching position title", e));
         }
 
         refreshStatusCarousel();
+        saveCurrentProfileToCache();
+    }
+
+    private void saveCurrentProfileToCache() {
+        Context context = getContext();
+        if (context == null) return;
+
+        String firstName = tvDriverName != null ? tvDriverName.getText().toString() : "";
+        PreferenceManager.saveUserProfile(context, firstName, userRole, userRestDays);
     }
 
     private void applyRoleBadgeUI(String positionTitle) {
@@ -476,6 +579,12 @@ public class HomeFragment extends Fragment {
             return;
         }
 
+        // Show cached schedules immediately
+        String cachedData = PreferenceManager.getSchedulesCache(getContext());
+        if (cachedData != null) {
+            parseAndDisplaySchedules(cachedData);
+        }
+
         currentUser.getIdToken(true)
                 .addOnSuccessListener(result -> {
                     if (!isAdded()) return;
@@ -483,7 +592,10 @@ public class HomeFragment extends Fragment {
                 })
                 .addOnFailureListener(e -> {
                     if (!isAdded()) return;
-                    setNoAssignmentUI();
+                    // Cache already loaded from above
+                    if (PreferenceManager.getSchedulesCache(getContext()) == null) {
+                        setNoAssignmentUI();
+                    }
                     hideLoadingSkeleton();
                 });
     }
@@ -522,9 +634,10 @@ public class HomeFragment extends Fragment {
                     if (!isAdded()) return;
 
                     if (responseCode == HttpURLConnection.HTTP_OK) {
+                        PreferenceManager.saveSchedulesCache(getContext(), rawResult);
                         parseAndDisplaySchedules(rawResult);
                     } else {
-                        setNoAssignmentUI();
+                        // Already showing cache from loadSchedulesFromApi
                     }
                     hideLoadingSkeleton();
                 });
@@ -532,7 +645,6 @@ public class HomeFragment extends Fragment {
             } catch (Exception e) {
                 handler.post(() -> {
                     if (isAdded()) {
-                        setNoAssignmentUI();
                         hideLoadingSkeleton();
                     }
                 });

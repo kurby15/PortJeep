@@ -23,6 +23,9 @@
     <color name="color_icon_primary">#F8FAFC</color>
     <color name="color_icon_secondary">#94A3B8</color>
 
+    <!-- Quick Access Specific - visible fill for dark mode -->
+    <color name="color_quick_access_fill">#2D3A4F</color>
+
     <!-- Logo Tint - White in Dark Mode -->
     <color name="color_logo_tint">#FFFFFF</color>
 
