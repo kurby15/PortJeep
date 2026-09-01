@@ -13,11 +13,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.portjeep.BuildConfig;
 import com.example.portjeep.R;
 import com.example.portjeep.auth.LogInActivity;
 import com.example.portjeep.utils.CryptoUtils;
+import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
@@ -33,6 +35,10 @@ import java.util.Locale;
 import java.util.Map;
 
 public class ProfileFragment extends Fragment {
+
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private ShimmerFrameLayout shimmerProfile;
+    private View llProfileContent;
 
     private TextView tvAvatarInitials, tvProfileName, tvEmployeeNumber;
     private TextView tvPosition, tvDateHired, tvCivilStatus, tvSex;
@@ -54,6 +60,17 @@ public class ProfileFragment extends Fragment {
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
+        // Bind Swipe Refresh
+        swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_profile);
+        if (swipeRefreshLayout != null) {
+            swipeRefreshLayout.setColorSchemeResources(R.color.color_brand_primary, R.color.color_brand_accent);
+            swipeRefreshLayout.setOnRefreshListener(this::loadUserProfile);
+        }
+
+        // Bind Skeleton Views
+        shimmerProfile = view.findViewById(R.id.shimmer_profile);
+        llProfileContent = view.findViewById(R.id.ll_profile_content);
+
         // Bind Views
         tvAvatarInitials = view.findViewById(R.id.tv_avatar_initials);
         tvProfileName = view.findViewById(R.id.tv_profile_name);
@@ -72,6 +89,7 @@ public class ProfileFragment extends Fragment {
         btnSignOut = view.findViewById(R.id.btn_sign_out);
 
         // Load profile from Firestore
+        showLoadingSkeleton();
         loadUserProfile();
 
         // Change Password Handler with Dialog Prompt
@@ -81,6 +99,29 @@ public class ProfileFragment extends Fragment {
         btnSignOut.setOnClickListener(v -> showLogoutConfirmationDialog());
 
         return view;
+    }
+
+    private void showLoadingSkeleton() {
+        if (shimmerProfile != null) {
+            shimmerProfile.startShimmer();
+            shimmerProfile.setVisibility(View.VISIBLE);
+        }
+        if (llProfileContent != null) {
+            llProfileContent.setVisibility(View.GONE);
+        }
+    }
+
+    private void hideLoadingSkeleton() {
+        if (shimmerProfile != null) {
+            shimmerProfile.stopShimmer();
+            shimmerProfile.setVisibility(View.GONE);
+        }
+        if (llProfileContent != null) {
+            llProfileContent.setVisibility(View.VISIBLE);
+        }
+        if (swipeRefreshLayout != null) {
+            swipeRefreshLayout.setRefreshing(false);
+        }
     }
 
     private void showResetPasswordDialog() {
@@ -209,7 +250,12 @@ public class ProfileFragment extends Fragment {
 
     private void loadUserProfile() {
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser == null) return;
+        if (currentUser == null) {
+            hideLoadingSkeleton();
+            return;
+        }
+
+        showLoadingSkeleton();
 
         String uid = currentUser.getUid();
 
@@ -220,11 +266,13 @@ public class ProfileFragment extends Fragment {
                     if (isAdded() && documentSnapshot.exists()) {
                         updateUiWithProfileData(documentSnapshot);
                     }
+                    hideLoadingSkeleton();
                 })
                 .addOnFailureListener(e -> {
                     if (isAdded()) {
                         Toast.makeText(getContext(), "Failed to load profile", Toast.LENGTH_SHORT).show();
                     }
+                    hideLoadingSkeleton();
                 });
     }
 

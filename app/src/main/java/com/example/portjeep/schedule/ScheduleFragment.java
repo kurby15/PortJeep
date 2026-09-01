@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -51,6 +52,7 @@ public class ScheduleFragment extends Fragment {
     private static final String TAG = "ScheduleFragment";
     private static final String API_URL = "https://port-jeep.vercel.app/api/mobile/schedules";
 
+    private SwipeRefreshLayout swipeRefreshLayout;
     private ShimmerFrameLayout shimmerContainer;
     private ViewPager2 viewPagerSchedule;
     private LinearLayout layoutEmptyState;
@@ -77,6 +79,13 @@ public class ScheduleFragment extends Fragment {
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
+
+        // Bind Swipe Refresh
+        swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_schedule);
+        if (swipeRefreshLayout != null) {
+            swipeRefreshLayout.setColorSchemeResources(R.color.color_brand_primary, R.color.color_brand_accent);
+            swipeRefreshLayout.setOnRefreshListener(this::loadUserSchedules);
+        }
 
         shimmerContainer = view.findViewById(R.id.shimmer_schedule_container);
         layoutEmptyState = view.findViewById(R.id.layout_empty_state);
@@ -119,8 +128,11 @@ public class ScheduleFragment extends Fragment {
 
     private void setupObservers() {
         viewModel.getIsLoading().observe(getViewLifecycleOwner(), loading -> {
-            if (loading) showLoadingSkeleton();
-            else hideLoadingSkeleton();
+            if (loading) {
+                showLoadingSkeleton();
+            } else {
+                hideLoadingSkeleton();
+            }
         });
 
         viewModel.getActiveTab().observe(getViewLifecycleOwner(), tabIndex -> {
@@ -159,10 +171,14 @@ public class ScheduleFragment extends Fragment {
             shimmerContainer.stopShimmer();
             shimmerContainer.setVisibility(View.GONE);
         }
-        
+
         // Decide what to show based on the current list's content
         int currentTab = viewModel.getActiveTab().getValue() != null ? viewModel.getActiveTab().getValue() : 0;
         updateEmptyStateVisibility(getActiveTabList(currentTab));
+
+        if (swipeRefreshLayout != null) {
+            swipeRefreshLayout.setRefreshing(false);
+        }
     }
 
     private void updateEmptyStateVisibility(List<ScheduleItem> currentList) {
@@ -227,6 +243,7 @@ public class ScheduleFragment extends Fragment {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null) {
             if (getContext() != null) Toast.makeText(getContext(), "Please log in first.", Toast.LENGTH_SHORT).show();
+            if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
             return;
         }
 
@@ -248,6 +265,7 @@ public class ScheduleFragment extends Fragment {
                         }
                     }
                     viewModel.setLoading(false);
+                    if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
                 });
     }
 
@@ -288,6 +306,7 @@ public class ScheduleFragment extends Fragment {
                             Toast.makeText(getContext(), "Server Error (" + responseCode + ")", Toast.LENGTH_LONG).show();
                         }
                         viewModel.setLoading(false);
+                        if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
                     }
                 });
             } catch (Exception e) {
@@ -302,6 +321,7 @@ public class ScheduleFragment extends Fragment {
                             Toast.makeText(getContext(), "Connection failed: " + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                         }
                         viewModel.setLoading(false);
+                        if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
                     }
                 });
             } finally {
@@ -317,6 +337,7 @@ public class ScheduleFragment extends Fragment {
                 String error = root.optString("error", "Unknown error");
                 if (getContext() != null) Toast.makeText(getContext(), "Error: " + error, Toast.LENGTH_SHORT).show();
                 viewModel.setLoading(false);
+                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
                 return;
             }
 
@@ -328,6 +349,7 @@ public class ScheduleFragment extends Fragment {
             if (schedules == null || schedules.length() == 0) {
                 viewModel.setSchedules(today, upcoming, previous);
                 viewModel.setLoading(false);
+                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
                 return;
             }
 
@@ -461,9 +483,11 @@ public class ScheduleFragment extends Fragment {
 
             viewModel.setSchedules(today, upcoming, previous);
             viewModel.setLoading(false);
+            if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
         } catch (Exception e) {
             Log.e(TAG, "Parsing Error", e);
             viewModel.setLoading(false);
+            if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
         }
     }
 

@@ -1,235 +1,241 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/swipe_refresh_schedule"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/color_background_primary"
-    android:clipToPadding="false"
-    android:orientation="vertical"
-    tools:context="com.example.portjeep.schedule.ScheduleFragment">
+    android:layout_height="match_parent">
 
-    <!-- Header Section -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/color_brand_primary"
+        android:layout_height="match_parent"
+        android:background="@color/color_background_primary"
+        android:clipToPadding="false"
         android:orientation="vertical"
-        android:paddingStart="24dp"
-        android:paddingTop="36dp"
-        android:paddingEnd="24dp"
-        android:paddingBottom="28dp">
+        tools:context="com.example.portjeep.schedule.ScheduleFragment">
 
-        <TextView
-            android:id="@+id/tv_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="My Schedule"
-            android:textColor="@color/white"
-            android:textSize="32sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/tv_subtitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:alpha="0.85"
-            android:text="View your assigned trips"
-            android:textColor="@color/white"
-            android:textSize="13sp" />
-
-    </LinearLayout>
-
-    <!-- Segmented Tab Bar -->
-    <com.google.android.material.card.MaterialCardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="20dp"
-        app:cardBackgroundColor="@color/color_surface"
-        app:cardCornerRadius="18dp"
-        app:cardElevation="1dp"
-        app:strokeColor="@color/color_divider"
-        app:strokeWidth="1dp">
-
+        <!-- Header Section -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="4dp">
+            android:background="@color/color_brand_primary"
+            android:orientation="vertical"
+            android:paddingStart="24dp"
+            android:paddingTop="36dp"
+            android:paddingEnd="24dp"
+            android:paddingBottom="28dp">
 
-            <!-- TODAY -->
             <TextView
-                android:id="@+id/tab_today"
-                android:layout_width="0dp"
-                android:layout_height="44dp"
-                android:layout_marginEnd="2dp"
-                android:layout_weight="1"
-                android:background="@drawable/bg_tab_selected"
-                android:gravity="center"
-                android:text="Today"
+                android:id="@+id/tv_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="My Schedule"
                 android:textColor="@color/white"
-                android:textSize="13sp"
+                android:textSize="32sp"
                 android:textStyle="bold" />
 
-            <!-- UPCOMING -->
             <TextView
-                android:id="@+id/tab_upcoming"
-                android:layout_width="0dp"
-                android:layout_height="44dp"
-                android:layout_marginEnd="2dp"
-                android:layout_weight="1"
-                android:background="@drawable/bg_tab_unselected"
-                android:gravity="center"
-                android:text="Upcoming"
-                android:textColor="@color/color_text_secondary"
-                android:textSize="13sp"
-                android:textStyle="bold" />
-
-            <!-- PREVIOUS -->
-            <TextView
-                android:id="@+id/tab_previous"
-                android:layout_width="0dp"
-                android:layout_height="44dp"
-                android:layout_weight="1"
-                android:background="@drawable/bg_tab_unselected"
-                android:gravity="center"
-                android:text="Previous"
-                android:textColor="@color/color_text_secondary"
-                android:textSize="13sp"
-                android:textStyle="bold" />
+                android:id="@+id/tv_subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:alpha="0.85"
+                android:text="View your assigned trips"
+                android:textColor="@color/white"
+                android:textSize="13sp" />
 
         </LinearLayout>
 
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- Section Title -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="22dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="22dp"
-        android:orientation="vertical">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:letterSpacing="0.08"
-            android:text="YOUR SCHEDULE"
-            android:textColor="@color/color_brand_primary"
-            android:textSize="12sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:text="Your assigned trips and vehicles"
-            android:textColor="@color/color_text_muted"
-            android:textSize="13sp" />
-
-    </LinearLayout>
-
-    <!-- Content Area with Skeleton Shimmer -->
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="12dp"
-        android:layout_weight="1">
-
-        <!-- Skeleton View Container -->
-        <com.facebook.shimmer.ShimmerFrameLayout
-            android:id="@+id/shimmer_schedule_container"
+        <!-- Segmented Tab Bar -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp"
-            app:shimmer_auto_start="true"
-            app:shimmer_base_alpha="0.5"
-            app:shimmer_duration="1000"
-            app:shimmer_highlight_alpha="0.9">
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="20dp"
+            app:cardBackgroundColor="@color/color_surface"
+            app:cardCornerRadius="18dp"
+            app:cardElevation="1dp"
+            app:strokeColor="@color/color_divider"
+            app:strokeWidth="1dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="horizontal"
+                android:padding="4dp">
 
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
-                    app:cardBackgroundColor="@color/color_surface"
-                    app:cardCornerRadius="20dp"
-                    app:cardElevation="1dp"
-                    app:strokeColor="@color/color_divider"
-                    app:strokeWidth="1dp">
+                <!-- TODAY -->
+                <TextView
+                    android:id="@+id/tab_today"
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_marginEnd="2dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_tab_selected"
+                    android:gravity="center"
+                    android:text="Today"
+                    android:textColor="@color/white"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
 
-                    <include layout="@layout/item_skeleton_home" />
+                <!-- UPCOMING -->
+                <TextView
+                    android:id="@+id/tab_upcoming"
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_marginEnd="2dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_tab_unselected"
+                    android:gravity="center"
+                    android:text="Upcoming"
+                    android:textColor="@color/color_text_secondary"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
 
-                </com.google.android.material.card.MaterialCardView>
-
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
-                    app:cardBackgroundColor="@color/color_surface"
-                    app:cardCornerRadius="20dp"
-                    app:cardElevation="1dp"
-                    app:strokeColor="@color/color_divider"
-                    app:strokeWidth="1dp">
-
-                    <include layout="@layout/item_skeleton_home" />
-
-                </com.google.android.material.card.MaterialCardView>
+                <!-- PREVIOUS -->
+                <TextView
+                    android:id="@+id/tab_previous"
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_tab_unselected"
+                    android:gravity="center"
+                    android:text="Previous"
+                    android:textColor="@color/color_text_secondary"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
 
             </LinearLayout>
 
-        </com.facebook.shimmer.ShimmerFrameLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-        <!-- Empty State Container -->
+        <!-- Section Title -->
         <LinearLayout
-            android:id="@+id/layout_empty_state"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="-65dp"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:padding="24dp"
-            android:visibility="gone">
-
-            <ImageView
-                android:id="@+id/iv_empty_icon"
-                android:layout_width="128dp"
-                android:layout_height="128dp"
-                android:layout_marginBottom="12dp"
-                android:contentDescription="No schedules"
-                android:src="@drawable/no_schedule"
-                app:tint="@color/color_text_muted" />
+            android:layout_marginStart="22dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="22dp"
+            android:orientation="vertical">
 
             <TextView
-                android:id="@+id/tv_empty_state"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="All schedules are currently assigned."
+                android:letterSpacing="0.08"
+                android:text="YOUR SCHEDULE"
+                android:textColor="@color/color_brand_primary"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Your assigned trips and vehicles"
                 android:textColor="@color/color_text_muted"
-                android:textSize="14sp" />
+                android:textSize="13sp" />
 
         </LinearLayout>
 
-        <!-- Replaced RecyclerView with ViewPager2 for swipe & click binding -->
-        <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/view_pager_schedule"
+        <!-- Content Area with Skeleton Shimmer -->
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone"
-            tools:visibility="visible" />
+            android:layout_height="0dp"
+            android:layout_marginTop="12dp"
+            android:layout_weight="1">
 
-    </FrameLayout>
+            <!-- Skeleton View Container -->
+            <com.facebook.shimmer.ShimmerFrameLayout
+                android:id="@+id/shimmer_schedule_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                app:shimmer_auto_start="true"
+                app:shimmer_base_alpha="0.5"
+                app:shimmer_duration="1000"
+                app:shimmer_highlight_alpha="0.9">
 
-</LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        app:cardBackgroundColor="@color/color_surface"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="1dp"
+                        app:strokeColor="@color/color_divider"
+                        app:strokeWidth="1dp">
+
+                        <include layout="@layout/item_skeleton_home" />
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        app:cardBackgroundColor="@color/color_surface"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="1dp"
+                        app:strokeColor="@color/color_divider"
+                        app:strokeWidth="1dp">
+
+                        <include layout="@layout/item_skeleton_home" />
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                </LinearLayout>
+
+            </com.facebook.shimmer.ShimmerFrameLayout>
+
+            <!-- Empty State Container -->
+            <LinearLayout
+                android:id="@+id/layout_empty_state"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="-65dp"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="24dp"
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/iv_empty_icon"
+                    android:layout_width="128dp"
+                    android:layout_height="128dp"
+                    android:layout_marginBottom="12dp"
+                    android:contentDescription="No schedules"
+                    android:src="@drawable/no_schedule"
+                    app:tint="@color/color_text_muted" />
+
+                <TextView
+                    android:id="@+id/tv_empty_state"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="All schedules are currently assigned."
+                    android:textColor="@color/color_text_muted"
+                    android:textSize="14sp" />
+
+            </LinearLayout>
+
+            <!-- Replaced RecyclerView with ViewPager2 for swipe & click binding -->
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/view_pager_schedule"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+        </FrameLayout>
+
+    </LinearLayout>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

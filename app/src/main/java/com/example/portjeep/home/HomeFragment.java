@@ -17,6 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.bumptech.glide.Glide;
@@ -60,9 +61,10 @@ public class HomeFragment extends Fragment {
     private static final String API_URL = "https://port-jeep.vercel.app/api/mobile/schedules";
 
     // Loading Skeletons
-    private ShimmerFrameLayout shimmerContainer;
+    private ShimmerFrameLayout shimmerContainer, shimmerHeader;
     private ShimmerFrameLayout shimmerQuickAccess, shimmerBanner, shimmerUpcoming;
-    private View llQuickAccessContent, llBannerContent;
+    private View llQuickAccessContent, llBannerContent, rlHeaderContent;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     // Actual Content Views
     private MaterialCardView cardTodayAssignment;
@@ -105,16 +107,30 @@ public class HomeFragment extends Fragment {
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
+        // Bind SwipeRefreshLayout
+        swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
+        if (swipeRefreshLayout != null) {
+            swipeRefreshLayout.setOnRefreshListener(() -> {
+                showLoadingSkeleton();
+                updateDynamicGreeting();
+                loadUserProfile();
+                loadSchedulesFromApi();
+            });
+        }
+
         // Bind Skeleton Loading Views
+        shimmerHeader = view.findViewById(R.id.shimmer_header);
+        rlHeaderContent = view.findViewById(R.id.rl_header_content);
+
         shimmerContainer = view.findViewById(R.id.shimmer_view_container);
         cardTodayAssignment = view.findViewById(R.id.card_today_assignment);
-        
+
         shimmerQuickAccess = view.findViewById(R.id.shimmer_quick_access);
         llQuickAccessContent = view.findViewById(R.id.ll_quick_access_content);
-        
+
         shimmerBanner = view.findViewById(R.id.shimmer_banner);
         llBannerContent = view.findViewById(R.id.ll_banner_content);
-        
+
         shimmerUpcoming = view.findViewById(R.id.shimmer_upcoming);
         containerUpcoming = view.findViewById(R.id.container_upcoming);
 
@@ -253,11 +269,6 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        vpStatusCarousel.setOnTouchListener((v, event) -> {
-            v.getParent().requestDisallowInterceptTouchEvent(true);
-            return false;
-        });
-
         vpStatusCarousel.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
@@ -389,6 +400,14 @@ public class HomeFragment extends Fragment {
     }
 
     private void showLoadingSkeleton() {
+        if (shimmerHeader != null) {
+            shimmerHeader.startShimmer();
+            shimmerHeader.setVisibility(View.VISIBLE);
+        }
+        if (rlHeaderContent != null) {
+            rlHeaderContent.setVisibility(View.GONE);
+        }
+
         if (shimmerContainer != null) {
             shimmerContainer.startShimmer();
             shimmerContainer.setVisibility(View.VISIBLE);
@@ -396,7 +415,7 @@ public class HomeFragment extends Fragment {
         if (cardTodayAssignment != null) {
             cardTodayAssignment.setVisibility(View.GONE);
         }
-        
+
         if (shimmerQuickAccess != null) {
             shimmerQuickAccess.startShimmer();
             shimmerQuickAccess.setVisibility(View.VISIBLE);
@@ -404,7 +423,7 @@ public class HomeFragment extends Fragment {
         if (llQuickAccessContent != null) {
             llQuickAccessContent.setVisibility(View.GONE);
         }
-        
+
         if (shimmerBanner != null) {
             shimmerBanner.startShimmer();
             shimmerBanner.setVisibility(View.VISIBLE);
@@ -412,7 +431,7 @@ public class HomeFragment extends Fragment {
         if (llBannerContent != null) {
             llBannerContent.setVisibility(View.GONE);
         }
-        
+
         if (shimmerUpcoming != null) {
             shimmerUpcoming.startShimmer();
             shimmerUpcoming.setVisibility(View.VISIBLE);
@@ -423,6 +442,18 @@ public class HomeFragment extends Fragment {
     }
 
     private void hideLoadingSkeleton() {
+        if (swipeRefreshLayout != null) {
+            swipeRefreshLayout.setRefreshing(false);
+        }
+
+        if (shimmerHeader != null) {
+            shimmerHeader.stopShimmer();
+            shimmerHeader.setVisibility(View.GONE);
+        }
+        if (rlHeaderContent != null) {
+            rlHeaderContent.setVisibility(View.VISIBLE);
+        }
+
         if (shimmerContainer != null) {
             shimmerContainer.stopShimmer();
             shimmerContainer.setVisibility(View.GONE);
@@ -430,7 +461,7 @@ public class HomeFragment extends Fragment {
         if (cardTodayAssignment != null) {
             cardTodayAssignment.setVisibility(View.VISIBLE);
         }
-        
+
         if (shimmerQuickAccess != null) {
             shimmerQuickAccess.stopShimmer();
             shimmerQuickAccess.setVisibility(View.GONE);
@@ -438,7 +469,7 @@ public class HomeFragment extends Fragment {
         if (llQuickAccessContent != null) {
             llQuickAccessContent.setVisibility(View.VISIBLE);
         }
-        
+
         if (shimmerBanner != null) {
             shimmerBanner.stopShimmer();
             shimmerBanner.setVisibility(View.GONE);
