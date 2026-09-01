@@ -87,8 +87,11 @@
                     android:layout_marginBottom="16dp"
                     android:background="@drawable/bg_pill_input"
                     android:hint="name@example.com"
+                    android:imeOptions="actionNext"
                     android:inputType="textEmailAddress"
+                    android:nextFocusForward="@+id/etPassword"
                     android:paddingHorizontal="18dp"
+                    android:singleLine="true"
                     android:textColor="@color/color_text_primary"
                     android:textColorHint="@color/color_text_muted"
                     android:textSize="14sp" />
@@ -116,9 +119,11 @@
                         android:layout_height="match_parent"
                         android:background="@drawable/bg_pill_input"
                         android:hint="••••••••"
+                        android:imeOptions="actionDone"
                         android:inputType="textPassword"
                         android:paddingStart="18dp"
                         android:paddingEnd="48dp"
+                        android:singleLine="true"
                         android:textColor="@color/color_text_primary"
                         android:textColorHint="@color/color_text_muted"
                         android:textSize="14sp" />
@@ -132,7 +137,7 @@
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:clickable="true"
                         android:contentDescription="Toggle Password Visibility"
-                        android:focusable="true"
+                        android:focusable="false"
                         android:src="@drawable/hide"
                         app:tint="@color/color_text_muted" />
                 </FrameLayout>

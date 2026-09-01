@@ -854,6 +854,22 @@ public class HomeFragment extends Fragment {
             if (tvScheduleDate != null) tvScheduleDate.setText(dateText);
             if (tvScheduleStatus != null) tvScheduleStatus.setText("●  Scheduled");
 
+            // Split logic for upcoming items
+            String unitDisplay = jeepUnit;
+            String plateDisplay = "N/A";
+            if (jeepUnit != null && jeepUnit.contains("(") && jeepUnit.contains(")")) {
+                try {
+                    int startParen = jeepUnit.indexOf("(");
+                    int endParen = jeepUnit.indexOf(")");
+                    plateDisplay = jeepUnit.substring(0, startParen).trim();
+                    unitDisplay = jeepUnit.substring(startParen + 1, endParen).trim();
+                } catch (Exception ignored) {}
+            } else if (jeepUnit != null && jeepUnit.contains(" · ")) {
+                String[] parts = jeepUnit.split(" · ");
+                unitDisplay = parts[0];
+                plateDisplay = parts[1];
+            }
+
             itemView.setOnClickListener(v -> showScheduleDetailsModal(dayText, dateText, jeepUnit, driverName, paoName));
 
             containerUpcoming.addView(itemView);
@@ -906,13 +922,32 @@ public class HomeFragment extends Fragment {
         TextView tvModalDate = dialogView.findViewById(R.id.tv_schedule_date);
         TextView tvModalStatus = dialogView.findViewById(R.id.tv_schedule_status);
         TextView tvModalJeepUnit = dialogView.findViewById(R.id.tv_jeep_unit);
+        TextView tvModalPlateNo = dialogView.findViewById(R.id.tv_plate_no);
         TextView tvModalDriverName = dialogView.findViewById(R.id.tv_driver_name);
         TextView tvModalPaoName = dialogView.findViewById(R.id.tv_pao_name);
 
         if (tvModalDay != null) tvModalDay.setText(dayText);
         if (tvModalDate != null) tvModalDate.setText(dateText);
         if (tvModalStatus != null) tvModalStatus.setText("●  Scheduled");
-        if (tvModalJeepUnit != null) tvModalJeepUnit.setText(jeepUnit);
+
+        // Split unit and plate for upcoming schedules
+        String unitDisplay = jeepUnit;
+        String plateDisplay = "N/A";
+        if (jeepUnit != null && jeepUnit.contains("(") && jeepUnit.contains(")")) {
+            try {
+                int startParen = jeepUnit.indexOf("(");
+                int endParen = jeepUnit.indexOf(")");
+                plateDisplay = jeepUnit.substring(0, startParen).trim();
+                unitDisplay = jeepUnit.substring(startParen + 1, endParen).trim();
+            } catch (Exception ignored) {}
+        } else if (jeepUnit != null && jeepUnit.contains(" · ")) {
+            String[] parts = jeepUnit.split(" · ");
+            unitDisplay = parts[0];
+            plateDisplay = parts[1];
+        }
+
+        if (tvModalJeepUnit != null) tvModalJeepUnit.setText(unitDisplay);
+        if (tvModalPlateNo != null) tvModalPlateNo.setText(plateDisplay);
         if (tvModalDriverName != null) tvModalDriverName.setText(driverName);
         if (tvModalPaoName != null) tvModalPaoName.setText(paoName);
 

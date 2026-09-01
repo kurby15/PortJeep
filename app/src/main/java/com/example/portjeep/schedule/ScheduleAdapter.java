@@ -40,9 +40,19 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ViewHo
 
         if (holder.tvDay != null) holder.tvDay.setText(item.getDay());
         if (holder.tvDate != null) holder.tvDate.setText(item.getDate());
-        if (holder.tvJeepUnit != null) holder.tvJeepUnit.setText(item.getJeepUnit());
         if (holder.tvDriverName != null) holder.tvDriverName.setText(item.getDriverName());
         if (holder.tvPaoName != null) holder.tvPaoName.setText(item.getPaoName());
+
+        // Handle Jeep Unit and Plate split
+        String jeepUnit = item.getJeepUnit();
+        if (jeepUnit != null && jeepUnit.contains(" · ")) {
+            String[] parts = jeepUnit.split(" · ");
+            if (holder.tvJeepUnit != null) holder.tvJeepUnit.setText(parts[0]);
+            if (holder.tvPlateNo != null) holder.tvPlateNo.setText(parts[1]);
+        } else {
+            if (holder.tvJeepUnit != null) holder.tvJeepUnit.setText(jeepUnit);
+            if (holder.tvPlateNo != null) holder.tvPlateNo.setText("N/A");
+        }
 
         // Dynamic Banner Pill Background, Text Color & Dot Color
         if (holder.tvStatus != null) {
@@ -170,7 +180,7 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ViewHo
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvDay, tvDate, tvStatus, tvJeepUnit, tvDriverName, tvPaoName;
+        TextView tvDay, tvDate, tvStatus, tvJeepUnit, tvPlateNo, tvDriverName, tvPaoName;
         View cardDriver, cardPao;
 
         public ViewHolder(@NonNull View itemView) {
@@ -179,6 +189,7 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ViewHo
             tvDate = itemView.findViewById(R.id.tv_schedule_date);
             tvStatus = itemView.findViewById(R.id.tv_schedule_status);
             tvJeepUnit = itemView.findViewById(R.id.tv_jeep_unit);
+            tvPlateNo = itemView.findViewById(R.id.tv_plate_no);
             tvDriverName = itemView.findViewById(R.id.tv_driver_name);
             tvPaoName = itemView.findViewById(R.id.tv_pao_name);
 

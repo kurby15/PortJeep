@@ -173,28 +173,13 @@ public class ScheduleFragment extends Fragment {
             return;
         }
 
-        if (currentList == null || currentList.isEmpty()) {
-            if (viewPagerSchedule != null) viewPagerSchedule.setVisibility(View.GONE);
-            if (layoutEmptyState != null) {
-                layoutEmptyState.setVisibility(View.VISIBLE);
-            }
-            if (tvEmptyState != null) {
-                Integer activeTab = viewModel.getActiveTab().getValue();
-                String message = "All schedules are currently assigned.";
-                if (activeTab != null) {
-                    if (activeTab == 0) {
-                        message = "You have no schedules for today.";
-                    } else if (activeTab == 1) {
-                        message = "There are no upcoming schedules.";
-                    } else if (activeTab == 2) {
-                        message = "No completed schedules in your history.";
-                    }
-                }
-                tvEmptyState.setText(message);
-            }
-        } else {
-            if (layoutEmptyState != null) layoutEmptyState.setVisibility(View.GONE);
-            if (viewPagerSchedule != null) viewPagerSchedule.setVisibility(View.VISIBLE);
+        // FIX: Always keep viewPagerSchedule visible so swiping remains functional even if data is empty.
+        // The per-page empty state is now handled in SchedulePageFragment.
+        if (viewPagerSchedule != null) {
+            viewPagerSchedule.setVisibility(View.VISIBLE);
+        }
+        if (layoutEmptyState != null) {
+            layoutEmptyState.setVisibility(View.GONE);
         }
     }
 

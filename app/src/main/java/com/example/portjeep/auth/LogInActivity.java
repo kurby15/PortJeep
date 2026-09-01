@@ -10,6 +10,7 @@ import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -65,6 +66,24 @@ public class LogInActivity extends AppCompatActivity {
 
         // Set up listeners to reset error states whenever the user types or clicks input fields
         setupInputErrorReset();
+
+        // Fix for "Next" button on keyboard in Email field
+        etEmail.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                etPassword.requestFocus();
+                return true;
+            }
+            return false;
+        });
+
+        // "Done" button on keyboard in Password field
+        etPassword.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                handleLogin();
+                return true;
+            }
+            return false;
+        });
 
         // Dynamically adjust padding for EdgeToEdge + IME (Keyboard)
         ViewCompat.setOnApplyWindowInsetsListener(scrollView, (v, insets) -> {
