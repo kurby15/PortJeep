@@ -92,8 +92,11 @@ public class ProfileFragment extends Fragment {
         showLoadingSkeleton();
         loadUserProfile();
 
-        // Change Password Handler with Dialog Prompt
-        btnChangePassword.setOnClickListener(v -> showResetPasswordDialog());
+        // Change Password Handler - Launch Activity
+        btnChangePassword.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), ChangePasswordActivity.class);
+            startActivity(intent);
+        });
 
         // Sign Out Handler
         btnSignOut.setOnClickListener(v -> showLogoutConfirmationDialog());
@@ -122,93 +125,6 @@ public class ProfileFragment extends Fragment {
         if (swipeRefreshLayout != null) {
             swipeRefreshLayout.setRefreshing(false);
         }
-    }
-
-    private void showResetPasswordDialog() {
-        if (getContext() == null) return;
-
-        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_reset_password, null);
-
-        AlertDialog dialog = new MaterialAlertDialogBuilder(requireContext(), com.google.android.material.R.style.ThemeOverlay_MaterialComponents_MaterialAlertDialog)
-                .setView(dialogView)
-                .setCancelable(true)
-                .create();
-
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        }
-
-        com.google.android.material.card.MaterialCardView cardView = (com.google.android.material.card.MaterialCardView) dialogView;
-        TextInputLayout tilEmail = dialogView.findViewById(R.id.til_reset_email);
-        TextInputEditText etEmail = dialogView.findViewById(R.id.et_reset_email);
-        MaterialButton btnCancel = dialogView.findViewById(R.id.btn_cancel_reset);
-        MaterialButton btnSend = dialogView.findViewById(R.id.btn_send_reset);
-
-        // Pre-fill user's email if available
-        if (etEmail != null && !userEmail.isEmpty()) {
-            etEmail.setText(userEmail);
-        }
-
-        // Dynamic Theme Change Watcher (Changes dialog background without closing)
-        if (etEmail != null) {
-            etEmail.addTextChangedListener(new android.text.TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    String input = s.toString().trim();
-
-                    // 1. Toggle preset theme themes based on keywords
-                    if (input.equalsIgnoreCase("dark")) {
-                        cardView.setCardBackgroundColor(android.graphics.Color.parseColor("#1E1E1E"));
-                    } else if (input.equalsIgnoreCase("light")) {
-                        cardView.setCardBackgroundColor(android.graphics.Color.parseColor("#FFFFFF"));
-                    }
-                    // 2. Custom Hex Color code live change (e.g., #2196F3 or #000000)
-                    else if (input.matches("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{8})$")) {
-                        try {
-                            cardView.setCardBackgroundColor(android.graphics.Color.parseColor(input));
-                        } catch (IllegalArgumentException ignored) {}
-                    }
-                }
-
-                @Override
-                public void afterTextChanged(android.text.Editable s) {}
-            });
-        }
-
-        btnCancel.setOnClickListener(v -> dialog.dismiss());
-
-        btnSend.setOnClickListener(v -> {
-            String inputEmail = etEmail != null && etEmail.getText() != null ? etEmail.getText().toString().trim() : "";
-
-            if (inputEmail.isEmpty()) {
-                tilEmail.setError("Email address is required");
-                return;
-            }
-
-            if (!Patterns.EMAIL_ADDRESS.matcher(inputEmail).matches()) {
-                tilEmail.setError("Please enter a valid email address");
-                return;
-            }
-
-            tilEmail.setError(null);
-            dialog.dismiss();
-            sendPasswordResetEmail(inputEmail);
-        });
-
-        dialog.show();
-    }
-
-    private void sendPasswordResetEmail(String email) {
-        mAuth.sendPasswordResetEmail(email)
-                .addOnSuccessListener(aVoid ->
-                        Toast.makeText(getContext(), "Password reset link sent to " + email, Toast.LENGTH_LONG).show()
-                )
-                .addOnFailureListener(e ->
-                        Toast.makeText(getContext(), "Failed: " + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show()
-                );
     }
 
     private void showLogoutConfirmationDialog() {

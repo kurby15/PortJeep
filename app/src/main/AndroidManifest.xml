@@ -35,6 +35,12 @@
             android:exported="false"
             android:windowSoftInputMode="adjustPan" />
 
+        <activity
+            android:name=".profile.ChangePasswordActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize" />
+
     </application>
 
 </manifest>

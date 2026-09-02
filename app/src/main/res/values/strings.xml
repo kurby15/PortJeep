@@ -2,4 +2,6 @@
     <string name="app_name">PortJeep</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="req_different_from_current">New password is different from current</string>
+    <string name="req_lowercase">One lowercase letter (a-z)</string>
 </resources>
