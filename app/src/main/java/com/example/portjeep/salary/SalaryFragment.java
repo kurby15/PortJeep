@@ -9,6 +9,9 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -25,14 +28,40 @@ public class SalaryFragment extends Fragment {
         // Required empty public constructor
     }
 
+    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_salary, container, false);
 
         swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_salary);
         shimmerSalary = view.findViewById(R.id.shimmer_salary);
         clSalaryContent = view.findViewById(R.id.cl_salary_content);
+
+        // Apply window insets specifically to the loading and content views
+        // so they sit safely below the status bar icons while leaving the background seamless.
+        ViewCompat.setOnApplyWindowInsetsListener(view, (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+
+            if (shimmerSalary != null) {
+                shimmerSalary.setPadding(
+                        shimmerSalary.getPaddingLeft(),
+                        systemBars.top,
+                        shimmerSalary.getPaddingRight(),
+                        shimmerSalary.getPaddingBottom()
+                );
+            }
+
+            if (clSalaryContent != null) {
+                clSalaryContent.setPadding(
+                        clSalaryContent.getPaddingLeft(),
+                        systemBars.top,
+                        clSalaryContent.getPaddingRight(),
+                        clSalaryContent.getPaddingBottom()
+                );
+            }
+
+            return insets;
+        });
 
         if (swipeRefreshLayout != null) {
             swipeRefreshLayout.setColorSchemeResources(R.color.color_brand_primary, R.color.color_brand_accent);
