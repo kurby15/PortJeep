@@ -34,6 +34,11 @@
     <color name="color_status_active_text">#6EE7B7</color>
     <color name="color_status_assigned_bg">#1E3A8A</color>
     <color name="color_status_assigned_text">#DBEAFE</color>
+    <color name="color_status_recorded_bg">#004D40</color>
+    <color name="color_status_recorded_text">#B2DFDB</color>
+
+    <!-- Specific Highlights - Adjusted to be visible against surface -->
+    <color name="color_summary_highlight">#2D3A4F</color>
 
     <!-- Modern Dark Mode Warning - Softer Red -->
     <color name="color_error_bg">#451A1A</color>

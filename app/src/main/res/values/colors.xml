@@ -26,7 +26,7 @@
     <!-- Quick Access Adaptive Fill -->
     <color name="color_quick_access_fill">#E8EDF7</color>
 
-    <!-- Logo Tint - Null in Light Mode to keep original colors -->
+    <!-- Logo Tint -->
     <color name="color_logo_tint">@android:color/transparent</color>
 
     <!-- Status & Badges -->
@@ -34,11 +34,16 @@
     <color name="color_status_active_text">#2E7D32</color>
     <color name="color_status_assigned_bg">#E8EDF7</color>
     <color name="color_status_assigned_text">#1D3557</color>
+    <color name="color_status_recorded_bg">#E0F2F1</color>
+    <color name="color_status_recorded_text">#00695C</color>
+
+    <!-- Specific Highlights -->
+    <color name="color_summary_highlight">#EFF6FF</color>
 
     <!-- Light Mode Warning -->
     <color name="color_error_bg">#FEF2F2</color>
     <color name="color_error_text">#C62828</color>
 
-    <!-- Bottom Nav Specific - Black in Light Mode -->
+    <!-- Bottom Nav -->
     <color name="color_bottom_nav_bg">#000000</color>
 </resources>
