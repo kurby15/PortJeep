@@ -8,6 +8,7 @@ import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.util.Patterns;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.inputmethod.EditorInfo;
@@ -19,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -28,6 +30,10 @@ import com.example.portjeep.BuildConfig;
 import com.example.portjeep.MainActivity;
 import com.example.portjeep.R;
 import com.example.portjeep.utils.CryptoUtils;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -125,12 +131,66 @@ public class LogInActivity extends AppCompatActivity {
         });
 
         // FORGOT PASSWORD BUTTON
-        tvForgotPassword.setOnClickListener(view ->
-                Toast.makeText(LogInActivity.this, "Under maintenance", Toast.LENGTH_SHORT).show()
-        );
+        tvForgotPassword.setOnClickListener(view -> showResetPasswordDialog());
 
         // LOGIN BUTTON
         btnLogin.setOnClickListener(view -> handleLogin());
+    }
+
+    private void showResetPasswordDialog() {
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_reset_password, null);
+
+        AlertDialog dialog = new MaterialAlertDialogBuilder(this, com.google.android.material.R.style.ThemeOverlay_MaterialComponents_MaterialAlertDialog)
+                .setView(dialogView)
+                .setCancelable(true)
+                .create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
+
+        TextInputLayout tilEmail = dialogView.findViewById(R.id.til_reset_email);
+        TextInputEditText etResetEmail = dialogView.findViewById(R.id.et_reset_email);
+        MaterialButton btnCancel = dialogView.findViewById(R.id.btn_cancel_reset);
+        MaterialButton btnSend = dialogView.findViewById(R.id.btn_send_reset);
+
+        // Pre-fill with current email from login if present
+        String currentEmail = etEmail.getText().toString().trim();
+        if (!currentEmail.isEmpty()) {
+            etResetEmail.setText(currentEmail);
+        }
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        btnSend.setOnClickListener(v -> {
+            String inputEmail = etResetEmail != null && etResetEmail.getText() != null ? etResetEmail.getText().toString().trim() : "";
+
+            if (inputEmail.isEmpty()) {
+                tilEmail.setError("Email address is required");
+                return;
+            }
+
+            if (!Patterns.EMAIL_ADDRESS.matcher(inputEmail).matches()) {
+                tilEmail.setError("Please enter a valid email address");
+                return;
+            }
+
+            tilEmail.setError(null);
+            dialog.dismiss();
+            sendPasswordResetEmail(inputEmail);
+        });
+
+        dialog.show();
+    }
+
+    private void sendPasswordResetEmail(String email) {
+        mAuth.sendPasswordResetEmail(email)
+                .addOnSuccessListener(aVoid ->
+                        Toast.makeText(LogInActivity.this, "Password reset link sent to " + email, Toast.LENGTH_LONG).show()
+                )
+                .addOnFailureListener(e ->
+                        Toast.makeText(LogInActivity.this, "Failed: " + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show()
+                );
     }
 
     private void setupInputErrorReset() {
