@@ -88,11 +88,13 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     private void setupHistoryList(HistoryViewHolder holder) {
         List<HistoryAdapter.HistoryItem> items = new ArrayList<>();
-        items.add(new HistoryAdapter.HistoryItem("Aug 8, 2026", "₱ 1,680", "₱ 900", false));
-        items.add(new HistoryAdapter.HistoryItem("Aug 7, 2026", "₱ 3,100", "₱ 1,480", false));
-        items.add(new HistoryAdapter.HistoryItem("Aug 6, 2026", "₱ 2,650", "₱ 1,200", false));
-        items.add(new HistoryAdapter.HistoryItem("Aug 5, 2026", "₱ 2,920", "₱ 1,380", false));
-        items.add(new HistoryAdapter.HistoryItem("Aug 4, 2026", "-", "-", true));
+        // data matching the screenshot
+        items.add(new HistoryAdapter.HistoryItem("Saturday, Aug 8", "1,680", "780", "900", false));
+        items.add(new HistoryAdapter.HistoryItem("Friday, Aug 7", "1,740", "780", "960", false));
+        items.add(new HistoryAdapter.HistoryItem("Thursday, Aug 6", "1,560", "780", "780", false));
+        items.add(new HistoryAdapter.HistoryItem("Wednesday, Aug 5", "1,480", "780", "700", false));
+        items.add(new HistoryAdapter.HistoryItem("Tuesday, Aug 4", "", "", "", true));
+        items.add(new HistoryAdapter.HistoryItem("Monday, Aug 3", "1,620", "780", "840", false));
 
         HistoryAdapter historyAdapter = new HistoryAdapter(items);
         holder.rvHistory.setLayoutManager(new LinearLayoutManager(holder.itemView.getContext()));

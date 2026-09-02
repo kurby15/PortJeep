@@ -12,7 +12,7 @@
         android:orientation="vertical"
         android:padding="20dp">
 
-        <!-- History Header - Aligned with Summary headings -->
+        <!-- History Header -->
         <TextView
             android:id="@+id/tv_history_header"
             android:layout_width="wrap_content"
@@ -45,7 +45,7 @@
             android:textColor="@color/color_text_muted"
             android:visibility="gone" />
 
-        <!-- Bottom Spacer (Reference from Summary) -->
+        <!-- Bottom Spacer -->
         <View
             android:layout_width="match_parent"
             android:layout_height="160dp" />
