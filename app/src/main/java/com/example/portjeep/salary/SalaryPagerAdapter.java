@@ -2,6 +2,7 @@ package com.example.portjeep.salary;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.transition.TransitionManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,7 +28,7 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private final String hiddenText = "₱ ••••••";
     private final String hiddenCalc = "••••• - ••••• - •••• - •••• + •••";
 
-    // Values based on the summary provided
+    // Values for display
     private final String valTotalNet = "₱ 17,459.00";
     private final String valGross = "₱ 35,200.00";
     private final String valRemittance = "- ₱ 13,200.00";
@@ -44,14 +45,11 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private final String valFuelExpense = "₱ 180";
     private final String valNetRemittance = "₱ 900";
 
-    private SummaryViewHolder summaryHolder;
-
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         
-        // Initialize visibility state from SharedPreferences
         SharedPreferences prefs = parent.getContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         isSalaryVisible = prefs.getBoolean(KEY_VISIBLE, true);
 
@@ -65,13 +63,14 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof SummaryViewHolder) {
-            summaryHolder = (SummaryViewHolder) holder;
+            SummaryViewHolder summaryHolder = (SummaryViewHolder) holder;
             updateSummaryUI(summaryHolder);
 
             summaryHolder.ivToggleVisibility.setOnClickListener(v -> {
-                isSalaryVisible = !isSalaryVisible;
+                // Apply modern transition for a smoother user experience
+                TransitionManager.beginDelayedTransition((ViewGroup) summaryHolder.itemView);
                 
-                // Persist visibility state globally for the user
+                isSalaryVisible = !isSalaryVisible;
                 SharedPreferences prefs = v.getContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
                 prefs.edit().putBoolean(KEY_VISIBLE, isSalaryVisible).apply();
                 
@@ -88,7 +87,6 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     private void setupHistoryList(HistoryViewHolder holder) {
         List<HistoryAdapter.HistoryItem> items = new ArrayList<>();
-        // data matching the screenshot
         items.add(new HistoryAdapter.HistoryItem("Saturday, Aug 8", "1,680", "780", "900", false));
         items.add(new HistoryAdapter.HistoryItem("Friday, Aug 7", "1,740", "780", "960", false));
         items.add(new HistoryAdapter.HistoryItem("Thursday, Aug 6", "1,560", "780", "780", false));
@@ -104,23 +102,21 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private void updateSummaryUI(SummaryViewHolder holder) {
         if (holder == null) return;
 
-        // Breakdown items and stats are always visible per your request
+        // Populate static data
         safeSetText(holder.tvGross, valGross);
         safeSetText(holder.tvRemittance, valRemittance);
         safeSetText(holder.tvFuelCosts, valFuelCostsBreakdown);
         safeSetText(holder.tvDeductions, valDeductions);
         safeSetText(holder.tvIncentives, valIncentives);
-        
         safeSetText(holder.tvBoundaryDay, valBoundaryDay);
         safeSetText(holder.tvFuelDay, valFuelDay);
         safeSetText(holder.tvWorkingDays, valWorkingDays);
-
         safeSetText(holder.tvGrossCollected, valGrossCollected);
         safeSetText(holder.tvDueOperator, valDueOperator);
         safeSetText(holder.tvFuelExpense, valFuelExpense);
         safeSetText(holder.tvNetRemittance, valNetRemittance);
 
-        // Hide or Show ONLY Total Net Income components
+        // Handle visibility toggling
         if (isSalaryVisible) {
             safeSetText(holder.tvTotalNet, valTotalNet);
             safeSetText(holder.tvNetBottom, valTotalNet);

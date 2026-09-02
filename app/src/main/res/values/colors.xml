@@ -6,11 +6,12 @@
 
     <!-- Brand Colors -->
     <color name="color_brand_primary">#1D3557</color>
+    <color name="color_brand_secondary">#457B9D</color>
     <color name="color_brand_accent">#E63946</color>
 
     <!-- Semantic Colors - Light Mode -->
     <color name="color_background_primary">#F8FAFC</color>
-    <color name="color_background_secondary">#E8EDF7</color>
+    <color name="color_background_secondary">#DDE5F4</color> <!-- Slightly darker for better gradient visibility -->
     <color name="color_surface">#FFFFFF</color>
     <color name="color_surface_variant">#F1F5F9</color>
 
@@ -18,7 +19,7 @@
     <color name="color_text_secondary">#64748B</color>
     <color name="color_text_muted">#94A3B8</color>
 
-    <color name="color_divider">#E2E8F0</color>
+    <color name="color_divider">#CBD5E1</color> <!-- More visible border -->
 
     <color name="color_icon_primary">#1D3557</color>
     <color name="color_icon_secondary">#64748B</color>

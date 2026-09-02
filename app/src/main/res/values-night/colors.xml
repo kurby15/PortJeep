@@ -10,9 +10,9 @@
 
     <!-- Semantic Colors - Dark Mode (Progressive Depth) -->
     <color name="color_background_primary">#0F172A</color>   <!-- Deep Navy Background -->
-    <color name="color_background_secondary">#1E293B</color> <!-- Slightly lighter background -->
+    <color name="color_background_secondary">#162032</color> <!-- Darker Navy for Contrast -->
     <color name="color_surface">#1E293B</color>              <!-- Card Surface -->
-    <color name="color_surface_variant">#334155</color>      <!-- Nested Elements (e.g., inner pills) -->
+    <color name="color_surface_variant">#334155</color>      <!-- Lighter Surface -->
 
     <color name="color_text_primary">#F8FAFC</color>
     <color name="color_text_secondary">#CBD5E1</color>
@@ -23,10 +23,10 @@
     <color name="color_icon_primary">#F8FAFC</color>
     <color name="color_icon_secondary">#94A3B8</color>
 
-    <!-- Quick Access Specific - visible fill for dark mode -->
+    <!-- Quick Access Specific -->
     <color name="color_quick_access_fill">#2D3A4F</color>
 
-    <!-- Logo Tint - White in Dark Mode -->
+    <!-- Logo Tint -->
     <color name="color_logo_tint">#FFFFFF</color>
 
     <!-- Status & Badges -->
@@ -37,13 +37,13 @@
     <color name="color_status_recorded_bg">#004D40</color>
     <color name="color_status_recorded_text">#B2DFDB</color>
 
-    <!-- Specific Highlights - Adjusted to be visible against surface -->
+    <!-- Specific Highlights -->
     <color name="color_summary_highlight">#2D3A4F</color>
 
-    <!-- Modern Dark Mode Warning - Softer Red -->
+    <!-- Modern Dark Mode Warning -->
     <color name="color_error_bg">#451A1A</color>
     <color name="color_error_text">#FCA5A5</color>
 
-    <!-- Bottom Nav - Explicitly White in Dark Mode as requested -->
+    <!-- Bottom Nav -->
     <color name="color_bottom_nav_bg">#FFFFFF</color>
 </resources>

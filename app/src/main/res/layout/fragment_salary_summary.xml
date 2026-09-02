@@ -12,53 +12,44 @@
         android:orientation="vertical"
         android:padding="20dp">
 
-        <!-- Total Net Income Card -->
+        <!-- Total Net Income Card with Modern Gradient -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardBackgroundColor="@color/color_brand_primary"
+            app:cardBackgroundColor="@android:color/transparent"
             app:cardCornerRadius="28dp"
-            app:cardElevation="6dp"
+            app:cardElevation="8dp"
             app:strokeWidth="0dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@drawable/bg_salary_card_gradient"
                 android:orientation="vertical"
                 android:paddingHorizontal="24dp"
                 android:paddingVertical="32dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-medium"
-                    android:letterSpacing="0.05"
-                    android:text="TOTAL NET INCOME (AUG)"
-                    android:textColor="#B3FFFFFF"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
                     <TextView
-                        android:id="@+id/tv_total_net_income_large"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif-black"
-                        android:text="₱ 17,459.00"
-                        android:textColor="@color/white"
-                        android:textSize="36sp" />
+                        android:fontFamily="sans-serif-medium"
+                        android:letterSpacing="0.05"
+                        android:text="TOTAL NET INCOME (AUG)"
+                        android:textColor="#B3FFFFFF"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
 
                     <ImageView
                         android:id="@+id/iv_toggle_visibility"
                         android:layout_width="32dp"
                         android:layout_height="32dp"
-                        android:layout_marginStart="16dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="false"
+                        android:layout_marginTop="-4dp"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:clickable="true"
                         android:contentDescription="Toggle Visibility"
@@ -66,7 +57,17 @@
                         android:padding="4dp"
                         android:src="@drawable/view"
                         app:tint="@color/white" />
-                </LinearLayout>
+                </RelativeLayout>
+
+                <TextView
+                    android:id="@+id/tv_total_net_income_large"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="sans-serif-black"
+                    android:text="₱ 17,459.00"
+                    android:textColor="@color/white"
+                    android:textSize="38sp" />
 
                 <TextView
                     android:id="@+id/tv_income_trend"
@@ -83,7 +84,7 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Stats Row with Highlights -->
+        <!-- Stats Row -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -95,18 +96,18 @@
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:layout_marginEnd="6dp"
+                android:layout_weight="1"
                 android:background="@drawable/bg_stats_item"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:paddingVertical="16dp">
+                android:paddingVertical="18dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-black"
-                    android:text="BOUNDARY/DAY"
+                    android:text="BOUNDARY"
                     android:textColor="@color/color_text_muted"
                     android:textSize="10sp"
                     android:textStyle="bold" />
@@ -125,12 +126,12 @@
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:layout_marginHorizontal="3dp"
+                android:layout_weight="1"
                 android:background="@drawable/bg_stats_item"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:paddingVertical="16dp">
+                android:paddingVertical="18dp">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -155,18 +156,18 @@
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:layout_marginStart="6dp"
+                android:layout_weight="1"
                 android:background="@drawable/bg_stats_item"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:paddingVertical="16dp">
+                android:paddingVertical="18dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-black"
-                    android:text="WORKING DAYS"
+                    android:text="DAYS"
                     android:textColor="@color/color_text_muted"
                     android:textSize="10sp"
                     android:textStyle="bold" />
@@ -183,20 +184,20 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Main Breakdown Card -->
+        <!-- Main Breakdown Card with Subtle Gradient -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            app:cardBackgroundColor="@color/color_surface"
+            app:cardBackgroundColor="@android:color/transparent"
             app:cardCornerRadius="24dp"
             app:cardElevation="2dp"
-            app:strokeColor="@color/color_divider"
-            app:strokeWidth="1dp">
+            app:strokeWidth="0dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@drawable/bg_item_card_gradient"
                 android:orientation="vertical">
 
                 <!-- Gross Income Row -->
@@ -212,7 +213,6 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:layout_marginEnd="16dp"
                         android:orientation="vertical">
 
                         <TextView
@@ -262,7 +262,6 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:layout_marginEnd="16dp"
                         android:orientation="vertical">
 
                         <TextView
@@ -312,7 +311,6 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:layout_marginEnd="16dp"
                         android:orientation="vertical">
 
                         <TextView
@@ -362,7 +360,6 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:layout_marginEnd="16dp"
                         android:orientation="vertical">
 
                         <TextView
@@ -412,14 +409,13 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:layout_marginEnd="16dp"
                         android:orientation="vertical">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:fontFamily="sans-serif-black"
-                            android:text="ATTENDANCE INCENTIVE"
+                            android:text="INCENTIVES"
                             android:textColor="@color/color_text_muted"
                             android:textSize="11sp"
                             android:textStyle="bold" />
@@ -443,7 +439,7 @@
                         android:textSize="16sp" />
                 </LinearLayout>
 
-                <!-- Highlighted Net Income Row with adaptive background -->
+                <!-- Highlighted Net Income Row -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -457,7 +453,6 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:layout_marginEnd="16dp"
                         android:orientation="vertical">
 
                         <TextView
@@ -491,7 +486,7 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Today's Remittance Header -->
+        <!-- Today's Remittance Card -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -503,162 +498,148 @@
             android:textSize="13sp"
             android:textStyle="bold" />
 
-        <!-- Today's Remittance Card -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:layout_marginBottom="24dp"
-            app:cardBackgroundColor="@color/color_surface"
+            app:cardBackgroundColor="@android:color/transparent"
             app:cardCornerRadius="24dp"
             app:cardElevation="2dp"
-            app:strokeColor="@color/color_brand_primary"
-            app:strokeWidth="1.5dp">
+            app:strokeWidth="0dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@drawable/bg_item_card_gradient"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:padding="24dp">
 
-                <GridLayout
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:columnCount="2"
-                    android:useDefaultMargins="true">
+                    android:orientation="horizontal"
+                    android:weightSum="2">
 
-                    <!-- Gross Collected -->
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_columnWeight="1"
-                        android:orientation="vertical"
-                        android:paddingVertical="10dp">
-
+                        android:layout_weight="1"
+                        android:orientation="vertical">
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:fontFamily="sans-serif-black"
-                            android:text="GROSS COLLECTED"
+                            android:text="GROSS"
                             android:textColor="@color/color_text_muted"
                             android:textSize="10sp"
-                            android:textStyle="bold" />
-
+                            android:fontFamily="sans-serif-black" />
                         <TextView
                             android:id="@+id/tv_val_gross_collected"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:fontFamily="sans-serif-black"
                             android:text="₱ 1,680"
                             android:textColor="@color/color_brand_primary"
-                            android:textSize="17sp" />
+                            android:textSize="17sp"
+                            android:fontFamily="sans-serif-black" />
                     </LinearLayout>
 
-                    <!-- Operator Boundary - Right Aligned -->
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_columnWeight="1"
+                        android:layout_weight="1"
                         android:gravity="end"
-                        android:orientation="vertical"
-                        android:paddingVertical="10dp">
-
+                        android:orientation="vertical">
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:fontFamily="sans-serif-black"
-                            android:text="OPERATOR BOUNDARY"
+                            android:text="BOUNDARY"
                             android:textColor="@color/color_text_muted"
                             android:textSize="10sp"
-                            android:textStyle="bold" />
-
+                            android:fontFamily="sans-serif-black" />
                         <TextView
                             android:id="@+id/tv_val_due_operator"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:fontFamily="sans-serif-black"
                             android:text="₱ 600"
                             android:textColor="@color/color_brand_primary"
-                            android:textSize="17sp" />
+                            android:textSize="17sp"
+                            android:fontFamily="sans-serif-black" />
                     </LinearLayout>
+                </LinearLayout>
 
-                    <!-- Fuel Cost -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:orientation="horizontal"
+                    android:weightSum="2">
+
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_columnWeight="1"
-                        android:orientation="vertical"
-                        android:paddingVertical="10dp">
-
+                        android:layout_weight="1"
+                        android:orientation="vertical">
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:fontFamily="sans-serif-black"
-                            android:text="FUEL COST"
+                            android:text="FUEL"
                             android:textColor="@color/color_text_muted"
                             android:textSize="10sp"
-                            android:textStyle="bold" />
-
+                            android:fontFamily="sans-serif-black" />
                         <TextView
                             android:id="@+id/tv_val_fuel_expense"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:fontFamily="sans-serif-black"
                             android:text="₱ 180"
                             android:textColor="@color/color_brand_primary"
-                            android:textSize="17sp" />
+                            android:textSize="17sp"
+                            android:fontFamily="sans-serif-black" />
                     </LinearLayout>
 
-                    <!-- Net Remittance - Right Aligned -->
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_columnWeight="1"
+                        android:layout_weight="1"
                         android:gravity="end"
-                        android:orientation="vertical"
-                        android:paddingVertical="10dp">
-
+                        android:orientation="vertical">
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:fontFamily="sans-serif-black"
-                            android:text="NET REMITTANCE"
+                            android:text="NET"
                             android:textColor="@color/color_text_muted"
                             android:textSize="10sp"
-                            android:textStyle="bold" />
-
+                            android:fontFamily="sans-serif-black" />
                         <TextView
                             android:id="@+id/tv_val_net_remittance"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:fontFamily="sans-serif-black"
                             android:text="₱ 900"
                             android:textColor="@color/color_brand_primary"
-                            android:textSize="17sp" />
+                            android:textSize="17sp"
+                            android:fontFamily="sans-serif-black" />
                     </LinearLayout>
-                </GridLayout>
+                </LinearLayout>
 
+                <!-- Modern Tonal Button Style based on Primary Background -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_submit_remittance"
                     android:layout_width="match_parent"
                     android:layout_height="62dp"
-                    android:layout_marginTop="20dp"
+                    android:layout_marginTop="28dp"
                     android:fontFamily="sans-serif-black"
                     android:text="SUBMIT REMITTANCE"
-                    android:textColor="@color/white"
+                    android:textColor="@color/color_brand_primary"
                     android:textSize="14sp"
-                    android:textStyle="bold"
-                    app:backgroundTint="@color/color_brand_primary"
-                    app:cornerRadius="18dp"
-                    app:elevation="4dp" />
+                    android:letterSpacing="0.05"
+                    app:backgroundTint="@color/color_background_primary"
+                    app:cornerRadius="20dp"
+                    app:elevation="4dp"
+                    app:rippleColor="@color/color_brand_primary"
+                    app:strokeColor="@color/color_brand_primary"
+                    app:strokeWidth="1.5dp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Bottom Spacer -->
         <View
             android:layout_width="match_parent"
             android:layout_height="100dp" />
