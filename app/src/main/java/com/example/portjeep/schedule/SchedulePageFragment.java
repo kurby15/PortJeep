@@ -97,6 +97,15 @@ public class SchedulePageFragment extends Fragment {
     private void updateVisibility() {
         if (rvList == null || layoutEmpty == null) return;
         if (itemList.isEmpty()) {
+            if (tvEmpty != null) {
+                if (position == 0) {
+                    tvEmpty.setText("No assigned trips for today.");
+                } else if (position == 1) {
+                    tvEmpty.setText("No upcoming trips scheduled.");
+                } else {
+                    tvEmpty.setText("No previous trip history found.");
+                }
+            }
             rvList.setVisibility(View.GONE);
             layoutEmpty.setVisibility(View.VISIBLE);
         } else {
