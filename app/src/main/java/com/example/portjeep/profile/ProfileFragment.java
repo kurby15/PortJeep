@@ -45,7 +45,7 @@ public class ProfileFragment extends Fragment {
     private TextView tvAvatarInitials, tvProfileName, tvEmployeeNumber;
     private TextView tvPosition, tvDateHired, tvCivilStatus, tvSex;
     private TextView tvEmail, tvPhone, tvAddress;
-    private MaterialButton btnChangePassword, btnSignOut;
+    private MaterialButton btnSettings, btnSignOut;
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
@@ -86,15 +86,17 @@ public class ProfileFragment extends Fragment {
         tvEmail = view.findViewById(R.id.tv_email);
         tvPhone = view.findViewById(R.id.tv_phone);
         tvAddress = view.findViewById(R.id.tv_address);
-        btnChangePassword = view.findViewById(R.id.btn_change_password);
+        btnSettings = view.findViewById(R.id.btn_settings);
         btnSignOut = view.findViewById(R.id.btn_sign_out);
 
         showLoadingSkeleton();
         checkConnectionAndLoad();
 
-        btnChangePassword.setOnClickListener(v -> {
-            Intent intent = new Intent(getContext(), ChangePasswordActivity.class);
-            startActivity(intent);
+        btnSettings.setOnClickListener(v -> {
+            getParentFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, new SettingsFragment())
+                    .addToBackStack(null)
+                    .commit();
         });
 
         btnSignOut.setOnClickListener(v -> showLogoutConfirmationDialog());
