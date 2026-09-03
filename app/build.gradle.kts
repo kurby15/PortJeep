@@ -30,6 +30,10 @@ android {
         buildConfigField("String", "CRYPTO_SECRET_KEY", secretKey)
     }
 
+    androidResources {
+        localeFilters += "en"
+    }
+
     // Enables BuildConfig generation in modern AGP
     buildFeatures {
         buildConfig = true
@@ -37,7 +41,8 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -56,6 +61,10 @@ dependencies {
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
+
+    // Biometric & Security
+    implementation("androidx.biometric:biometric:1.1.0")
+    implementation("androidx.security:security-crypto:1.1.0")
 
     // Lottie Animation Library
     implementation("com.airbnb.android:lottie:6.7.1")

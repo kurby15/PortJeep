@@ -16,7 +16,6 @@
         android:padding="24dp">
 
         <!-- Centered Form Card Container -->
-        <!-- Changed width to match_parent to ensure it fits any screen model -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardContainer"
             android:layout_width="match_parent"
@@ -187,6 +186,27 @@
                     app:backgroundTint="@color/color_brand_primary"
                     app:cornerRadius="18dp"
                     app:elevation="0dp" />
+
+                <!-- Biometric Button (Maya Style: Icon on Left) -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnBiometric"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="16dp"
+                    android:text="Login with screen lock"
+                    android:textAllCaps="false"
+                    android:textColor="@color/color_brand_primary"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:visibility="gone"
+                    app:icon="@drawable/fingerprint"
+                    app:iconGravity="textStart"
+                    app:iconPadding="10dp"
+                    app:iconSize="20dp"
+                    app:iconTint="@color/color_brand_primary"
+                    tools:visibility="visible" />
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>

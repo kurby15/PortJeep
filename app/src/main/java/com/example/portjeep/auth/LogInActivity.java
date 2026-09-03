@@ -1,6 +1,7 @@
 package com.example.portjeep.auth;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.text.Editable;
@@ -20,11 +21,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricPrompt;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.security.crypto.EncryptedSharedPreferences;
+import androidx.security.crypto.MasterKey;
 
 import com.example.portjeep.BuildConfig;
 import com.example.portjeep.MainActivity;
@@ -38,7 +45,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.Map;
+import java.util.concurrent.Executor;
 
 public class LogInActivity extends AppCompatActivity {
     private ScrollView scrollView;
@@ -46,11 +56,18 @@ public class LogInActivity extends AppCompatActivity {
     private ImageView ivTogglePassword;
     private TextView tvError, tvForgotPassword;
     private Button btnLogin;
+    private MaterialButton btnBiometric;
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
 
     private boolean isPasswordVisible = false;
+
+    // Biometric components
+    private Executor executor;
+    private BiometricPrompt biometricPrompt;
+    private BiometricPrompt.PromptInfo promptInfo;
+    private SharedPreferences encryptedPrefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,8 +86,9 @@ public class LogInActivity extends AppCompatActivity {
         tvError = findViewById(R.id.tvError);
         tvForgotPassword = findViewById(R.id.tvForgotPassword);
         btnLogin = findViewById(R.id.btnLogin);
+        btnBiometric = findViewById(R.id.btnBiometric);
 
-        // Set up listeners to reset error states whenever the user types or clicks input fields
+        setupBiometricAuth();
         setupInputErrorReset();
 
         // Fix for "Next" button on keyboard in Email field
@@ -135,6 +153,98 @@ public class LogInActivity extends AppCompatActivity {
 
         // LOGIN BUTTON
         btnLogin.setOnClickListener(view -> handleLogin());
+
+        // BIOMETRIC BUTTON
+        btnBiometric.setOnClickListener(view -> biometricPrompt.authenticate(promptInfo));
+    }
+
+    private void setupBiometricAuth() {
+        try {
+            MasterKey masterKey = new MasterKey.Builder(this)
+                    .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                    .build();
+
+            encryptedPrefs = EncryptedSharedPreferences.create(
+                    this,
+                    "secure_auth_prefs",
+                    masterKey,
+                    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            );
+
+            executor = ContextCompat.getMainExecutor(this);
+            biometricPrompt = new BiometricPrompt(LogInActivity.this,
+                    executor, new BiometricPrompt.AuthenticationCallback() {
+                @Override
+                public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
+                    super.onAuthenticationError(errorCode, errString);
+                    if (errorCode != BiometricPrompt.ERROR_USER_CANCELED && errorCode != BiometricPrompt.ERROR_NEGATIVE_BUTTON) {
+                        Toast.makeText(getApplicationContext(), "Authentication error: " + errString, Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
+                    super.onAuthenticationSucceeded(result);
+                    performBiometricLogin();
+                }
+
+                @Override
+                public void onAuthenticationFailed() {
+                    super.onAuthenticationFailed();
+                }
+            });
+
+            // Update: Include DEVICE_CREDENTIAL (PIN/Pattern/Password) as a fallback
+            promptInfo = new BiometricPrompt.PromptInfo.Builder()
+                    .setTitle("Secure Login")
+                    .setSubtitle("Log in using biometrics or device lock")
+                    .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG | BiometricManager.Authenticators.DEVICE_CREDENTIAL)
+                    .build();
+
+            checkBiometricAvailability();
+
+        } catch (GeneralSecurityException | IOException e) {
+            Log.e("BiometricSetup", "Error initializing encrypted preferences", e);
+            btnBiometric.setVisibility(View.GONE);
+        }
+    }
+
+    private void checkBiometricAvailability() {
+        BiometricManager biometricManager = BiometricManager.from(this);
+        // Update: Check for both strong biometrics and device credentials
+        int canAuthenticate = biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG | BiometricManager.Authenticators.DEVICE_CREDENTIAL);
+        
+        String savedEmail = encryptedPrefs.getString("saved_email", null);
+        String savedPassword = encryptedPrefs.getString("saved_password", null);
+
+        if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS && savedEmail != null && savedPassword != null) {
+            btnBiometric.setVisibility(View.VISIBLE);
+        } else {
+            btnBiometric.setVisibility(View.GONE);
+        }
+    }
+
+    private void performBiometricLogin() {
+        String email = encryptedPrefs.getString("saved_email", "");
+        String password = encryptedPrefs.getString("saved_password", "");
+
+        if (!email.isEmpty() && !password.isEmpty()) {
+            etEmail.setText(email);
+            etPassword.setText(password);
+            handleLogin();
+        }
+    }
+
+    private void saveCredentials(String email, String password) {
+        if (encryptedPrefs != null) {
+            encryptedPrefs.edit()
+                    .putString("saved_email", email)
+                    .putString("saved_password", password)
+                    .apply();
+            // Once saved, show the biometric button for next time
+            checkBiometricAvailability();
+        }
     }
 
     private void showResetPasswordDialog() {
@@ -273,6 +383,7 @@ public class LogInActivity extends AppCompatActivity {
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful() && mAuth.getCurrentUser() != null) {
+                        saveCredentials(email, password);
                         FirebaseUser user = mAuth.getCurrentUser();
                         validateUserRoleAndProceed(user, false);
                     } else {
