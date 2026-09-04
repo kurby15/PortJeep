@@ -86,6 +86,26 @@ public class SettingsFragment extends Fragment {
             });
         }
 
+        // Privacy Policy Row
+        View rowPrivacyPolicy = view.findViewById(R.id.btn_privacy_policy);
+        if (rowPrivacyPolicy != null) {
+            rowPrivacyPolicy.setOnClickListener(v -> {
+                Intent intent = new Intent(getContext(), LegalActivity.class);
+                intent.putExtra(LegalActivity.EXTRA_TYPE, LegalActivity.TYPE_PRIVACY);
+                startActivity(intent);
+            });
+        }
+
+        // Terms & Conditions Row
+        View rowTermsConditions = view.findViewById(R.id.btn_terms_conditions);
+        if (rowTermsConditions != null) {
+            rowTermsConditions.setOnClickListener(v -> {
+                Intent intent = new Intent(getContext(), LegalActivity.class);
+                intent.putExtra(LegalActivity.EXTRA_TYPE, LegalActivity.TYPE_TERMS);
+                startActivity(intent);
+            });
+        }
+
         return view;
     }
 

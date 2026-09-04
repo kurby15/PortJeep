@@ -18,6 +18,10 @@
     <string name="settings_new_update">New update available!</string>
     <string name="settings_update_desc">Update now to get best experience.</string>
 
+    <!-- Legal Subtitles -->
+    <string name="legal_privacy_subtitle">Privacy Protection &amp; Data Usage</string>
+    <string name="legal_terms_subtitle">User Agreement &amp; App Rules</string>
+
     <!-- Accessibility / Content Descriptions -->
     <string name="desc_user_icon">User Icon</string>
     <string name="desc_email_icon">Email Icon</string>
@@ -28,4 +32,57 @@
     <string name="desc_terms_icon">Terms Icon</string>
     <string name="desc_go_icon">Go</string>
     <string name="desc_emoji">Emoji</string>
+
+    <!-- Privacy Policy Content -->
+    <string name="privacy_policy_content">
+        <![CDATA[
+        <p><font color=\'#64748B\'>Effective Date: August 15, 2024</font></p>
+        <p><b>PortJeep</b> ("the Company," "we," "us," or "our") is committed to maintaining the highest standards of data protection and individual privacy. This Privacy Policy outlines our comprehensive practices regarding the collection, utilization, and safeguarding of personal data when you engage with our transport management mobile application.</p>
+
+        <p><b>1. DATA COLLECTION AND CLASSIFICATION</b><br>
+        We collect and process information necessary to ensure optimal service delivery and platform integrity:<br>
+        &#8226; <b>Personal Identifiers:</b> Encrypted email addresses and mobile numbers utilized for secure authentication via Google Firebase Services.<br>
+        &#8226; <b>Operational Telemetry:</b> Technical logs pertaining to vehicle assignments, route scheduling, and service history.<br>
+        &#8226; <b>Financial &amp; Performance Data:</b> Aggregated duty logs, salary estimation inputs, and historical earnings records.<br>
+        &#8226; <b>Biometric Security:</b> Our platform leverages Android System Biometrics for advanced authentication. We do <b>not</b> store, process, or transmit biometric templates; all verification is executed natively by the device hardware.</p>
+
+        <p><b>2. INFRASTRUCTURE AND THIRD-PARTY INTEGRATIONS</b><br>
+        To facilitate real-time synchronization and secure data storage, we utilize industry-leading infrastructure providers including <b>Google Firebase</b> and <b>Vercel API</b>. These services are utilized to:<br>
+        &#8226; Enable cross-platform data persistence for authorized users.<br>
+        &#8226; Maintain the security and scalability of our backend services.<br>
+        &#8226; Conduct periodic audits of platform performance and reliability.</p>
+
+        <p><b>3. DATA SECURITY MEASURES</b><br>
+        We employ rigorous technical safeguards, including <b>AES-256 encryption</b> for sensitive local data and <b>TLS/SSL</b> for all data in transit. While we prioritize the security of your information, users are reminded that no method of electronic transmission is entirely immune to risk.</p>
+
+        <p><b>4. USER RIGHTS AND GOVERNANCE</b><br>
+        Users retain the right to access, rectify, or request the deletion of their personal information through the application settings. For formal inquiries regarding data governance, please contact our support desk at <b>support@portjeep.com</b>.</p>
+        ]]>
+    </string>
+
+    <!-- Terms & Conditions Content -->
+    <string name="terms_conditions_content">
+        <![CDATA[
+        <p><font color=\'#64748B\'>Effective Date: August 15, 2024</font></p>
+        <p>These Terms and Conditions ("Agreement") constitute a legally binding agreement between the end user and <b>PortJeep</b> regarding the utilization of the application and its associated services.</p>
+
+        <p><b>1. SCOPE OF SERVICES</b><br>
+        PortJeep provides a specialized digital environment for transport management, encompassing duty scheduling, vehicle assignment logs, and financial estimation utilities for authorized transport personnel.</p>
+
+        <p><b>2. ACCEPTABLE USE AND ACCOUNT INTEGRITY</b><br>
+        The user is solely responsible for maintaining the confidentiality and security of their access credentials. By engaging with this service, you agree to:<br>
+        &#8226; Provide accurate and verifiable information in all duty and salary logs.<br>
+        &#8226; Comply with all local transportation laws and regulatory mandates.<br>
+        &#8226; Refrain from any attempts to circumvent security protocols, reverse-engineer, or disrupt the platform\'s architecture.</p>
+
+        <p><b>3. DISCLAIMER OF WARRANTIES</b><br>
+        THE PLATFORM IS PROVIDED ON AN "AS-IS" AND "AS-AVAILABLE" BASIS. PORTJEEP MAKES NO WARRANTIES, EXPRESS OR IMPLIED, REGARDING THE INFALLIBILITY OF SALARY ESTIMATIONS, WHICH ARE CONTINGENT UPON MANUAL USER INPUT AND SYSTEM ALGORITHMS.</p>
+
+        <p><b>4. LIMITATION OF LIABILITY</b><br>
+        IN NO EVENT SHALL PORTJEEP OR ITS DEVELOPERS BE HELD LIABLE FOR ANY INDIRECT, CONSEQUENTIAL, OR INCIDENTAL DAMAGES RESULTING FROM THE USE OF THE PLATFORM, INCLUDING FINANCIAL DISCREPANCIES ARISING FROM DATA ENTRY ERRORS OR SYSTEM UNAVAILABILITY.</p>
+
+        <p><b>5. INTELLECTUAL PROPERTY RIGHTS</b><br>
+        The software, design elements, and proprietary algorithms associated with PortJeep are the exclusive property of the development team and are protected by applicable international intellectual property laws.</p>
+        ]]>
+    </string>
 </resources>
