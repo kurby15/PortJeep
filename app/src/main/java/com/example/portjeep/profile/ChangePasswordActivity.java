@@ -47,8 +47,8 @@ public class ChangePasswordActivity extends AppCompatActivity {
 
     private ImageView btnBack;
     private TextInputEditText etCurrent, etNew, etConfirm;
-    private ImageView ivReq10, ivReqUpper, ivReqLower, ivReqNumber, ivReqSpecial, ivReqMatch;
-    private TextView tvReq10, tvReqUpper, tvReqLower, tvReqNumber, tvReqSpecial, tvReqMatch;
+    private ImageView ivReq8, ivReqUpper, ivReqLower, ivReqNumber, ivReqSpecial, ivReqMatch;
+    private TextView tvReq8, tvReqUpper, tvReqLower, tvReqNumber, tvReqSpecial, tvReqMatch;
     private TextView tvStrengthLabel;
     private LinearProgressIndicator strengthProgress;
     private MaterialButton btnUpdate, btnCancel;
@@ -59,7 +59,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
     private ConnectivityManager.NetworkCallback networkCallback;
 
     private static final Pattern PASSWORD_PATTERN = Pattern.compile(
-            "^(?=.{10,}$)(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[!@#$%&*]).*$"
+            "^(?=.{8,}$)(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[!@#$%&*]).*$"
     );
 
     @Override
@@ -93,13 +93,13 @@ public class ChangePasswordActivity extends AppCompatActivity {
         etCurrent = findViewById(R.id.et_current_password);
         etNew = findViewById(R.id.et_new_password);
         etConfirm = findViewById(R.id.et_confirm_password);
-        ivReq10 = findViewById(R.id.iv_req_10chars);
+        ivReq8 = findViewById(R.id.iv_req_8chars);
         ivReqUpper = findViewById(R.id.iv_req_upper);
         ivReqLower = findViewById(R.id.iv_req_lower);
         ivReqNumber = findViewById(R.id.iv_req_number);
         ivReqSpecial = findViewById(R.id.iv_req_special);
         ivReqMatch = findViewById(R.id.iv_req_match);
-        tvReq10 = findViewById(R.id.tv_req_10chars);
+        tvReq8 = findViewById(R.id.tv_req_8chars);
         tvReqUpper = findViewById(R.id.tv_req_upper);
         tvReqLower = findViewById(R.id.tv_req_lower);
         tvReqNumber = findViewById(R.id.tv_req_number);
@@ -193,21 +193,21 @@ public class ChangePasswordActivity extends AppCompatActivity {
         String newPwd = etNew.getText().toString().trim();
         String confirm = etConfirm.getText().toString().trim();
 
-        boolean has10 = newPwd.length() >= 10;
+        boolean has8 = newPwd.length() >= 8;
         boolean hasUpper = newPwd.matches(".*[A-Z].*");
         boolean hasLower = newPwd.matches(".*[a-z].*");
         boolean hasNum = newPwd.matches(".*[0-9].*");
         boolean hasSpecial = newPwd.matches(".*[!@#$%&*].*");
         boolean matches = !newPwd.isEmpty() && newPwd.equals(confirm);
 
-        updateRequirementUI(has10, !newPwd.isEmpty(), ivReq10, tvReq10);
+        updateRequirementUI(has8, !newPwd.isEmpty(), ivReq8, tvReq8);
         updateRequirementUI(hasUpper, !newPwd.isEmpty(), ivReqUpper, tvReqUpper);
         updateRequirementUI(hasLower, !newPwd.isEmpty(), ivReqLower, tvReqLower);
         updateRequirementUI(hasNum, !newPwd.isEmpty(), ivReqNumber, tvReqNumber);
         updateRequirementUI(hasSpecial, !newPwd.isEmpty(), ivReqSpecial, tvReqSpecial);
         updateRequirementUI(matches, !confirm.isEmpty(), ivReqMatch, tvReqMatch);
 
-        int score = (has10 ? 20 : 0) + (hasUpper && hasLower ? 20 : 0) + (hasNum ? 20 : 0) + (hasSpecial ? 20 : 0) + (matches ? 20 : 0);
+        int score = (has8 ? 20 : 0) + (hasUpper && hasLower ? 20 : 0) + (hasNum ? 20 : 0) + (hasSpecial ? 20 : 0) + (matches ? 20 : 0);
         strengthProgress.setProgress(score);
         
         if (score < 40) {
