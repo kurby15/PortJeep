@@ -18,6 +18,26 @@
     <string name="settings_new_update">New update available!</string>
     <string name="settings_update_desc">Update now to get best experience.</string>
 
+    <!-- Header Titles -->
+    <string name="header_update_email">UPDATE EMAIL</string>
+    <string name="header_change_mobile">CHANGE MOBILE</string>
+
+    <!-- Email Update Screen -->
+    <string name="email_update_title">Update email address</string>
+    <string name="email_update_desc">We will use this email address for billing statements and password recovery</string>
+    <string name="email_verified">CURRENT USED</string>
+    <string name="btn_change_email">Change email address</string>
+    <string name="email_update_warning">To help keep your account secure, your account will be locked for 24 hours after you update your email</string>
+
+    <!-- Mobile Change Screen -->
+    <string name="mobile_change_title">Change mobile number</string>
+    <string name="mobile_change_desc">Your number will be used to identify your PortJeep account. We\'ll use this to send OTPs, service updates, and all the best deals.</string>
+    <string name="mobile_registered_label">Registered Mobile Number</string>
+    <string name="btn_change_mobile_action">Change mobile number</string>
+    <string name="mobile_useful_links">Useful links:</string>
+    <string name="mobile_lost_number">I don\'t have this number anymore</string>
+    <string name="mobile_guide">Guide on changing mobile number</string>
+
     <!-- Legal Subtitles -->
     <string name="legal_privacy_subtitle">Privacy Protection &amp; Data Usage</string>
     <string name="legal_terms_subtitle">User Agreement &amp; App Rules</string>

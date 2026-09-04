@@ -63,6 +63,24 @@ public class SettingsFragment extends Fragment {
             });
         }
 
+        // Email address row
+        View rowEmail = view.findViewById(R.id.btn_email_address);
+        if (rowEmail != null) {
+            rowEmail.setOnClickListener(v -> {
+                Intent intent = new Intent(getContext(), UpdateEmailActivity.class);
+                startActivity(intent);
+            });
+        }
+
+        // Change mobile number row
+        View rowMobile = view.findViewById(R.id.btn_change_mobile);
+        if (rowMobile != null) {
+            rowMobile.setOnClickListener(v -> {
+                Intent intent = new Intent(getContext(), ChangeMobileActivity.class);
+                startActivity(intent);
+            });
+        }
+
         // Screen Lock Switch
         MaterialSwitch switchScreenLock = view.findViewById(R.id.switch_screen_lock);
         if (switchScreenLock != null) {
