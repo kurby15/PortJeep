@@ -273,12 +273,20 @@ public class ChangePasswordActivity extends AppCompatActivity {
     private void showSuccessDialog() {
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_password_success, null);
         TextView tvCountdown = dialogView.findViewById(R.id.tv_countdown);
+        if (tvCountdown != null) {
+            tvCountdown.setVisibility(View.VISIBLE);
+        }
+        
         AlertDialog dialog = new MaterialAlertDialogBuilder(this).setView(dialogView).setCancelable(false).create();
         if (dialog.getWindow() != null) dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         dialog.show();
 
         new CountDownTimer(3500, 1000) {
-            @Override public void onTick(long millis) { tvCountdown.setText("You will logout in " + (millis / 1000) + "..."); }
+            @Override public void onTick(long millis) { 
+                if (tvCountdown != null) {
+                    tvCountdown.setText("You will logout in " + (millis / 1000) + "..."); 
+                }
+            }
             @Override public void onFinish() {
                 dialog.dismiss();
                 startActivity(new Intent(ChangePasswordActivity.this, LogInActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
@@ -289,11 +297,19 @@ public class ChangePasswordActivity extends AppCompatActivity {
 
     private void showErrorDialog(String title, String msg) {
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_password_error, null);
-        ((TextView)dialogView.findViewById(R.id.tv_error_title)).setText(title);
-        ((TextView)dialogView.findViewById(R.id.tv_error_message)).setText(msg);
+        TextView tvTitle = dialogView.findViewById(R.id.tv_error_title);
+        TextView tvMsg = dialogView.findViewById(R.id.tv_error_message);
+        
+        if (tvTitle != null) tvTitle.setText(title);
+        if (tvMsg != null) tvMsg.setText(msg);
+        
         AlertDialog dialog = new MaterialAlertDialogBuilder(this).setView(dialogView).create();
         if (dialog.getWindow() != null) dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        dialogView.findViewById(R.id.btn_error_ok).setOnClickListener(v -> dialog.dismiss());
+        
+        View btnOk = dialogView.findViewById(R.id.btn_error_ok);
+        if (btnOk != null) {
+            btnOk.setOnClickListener(v -> dialog.dismiss());
+        }
         dialog.show();
     }
 

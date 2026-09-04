@@ -1,5 +1,6 @@
 package com.example.portjeep.auth;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Rect;
@@ -68,6 +69,9 @@ public class LogInActivity extends AppCompatActivity {
     private BiometricPrompt biometricPrompt;
     private BiometricPrompt.PromptInfo promptInfo;
     private SharedPreferences encryptedPrefs;
+
+    private static final String PREFS_SETTINGS = "portjeep_settings";
+    private static final String KEY_SCREEN_LOCK = "screen_lock_enabled";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -217,8 +221,16 @@ public class LogInActivity extends AppCompatActivity {
         
         String savedEmail = encryptedPrefs.getString("saved_email", null);
         String savedPassword = encryptedPrefs.getString("saved_password", null);
+        String savedUid = encryptedPrefs.getString("saved_uid", null);
 
-        if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS && savedEmail != null && savedPassword != null) {
+        // Check if screen lock login is enabled in settings for this specific user
+        SharedPreferences settingsPrefs = getSharedPreferences(PREFS_SETTINGS, Context.MODE_PRIVATE);
+        boolean isScreenLockEnabled = false;
+        if (savedUid != null) {
+            isScreenLockEnabled = settingsPrefs.getBoolean(KEY_SCREEN_LOCK + "_" + savedUid, false);
+        }
+
+        if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS && savedEmail != null && savedPassword != null && isScreenLockEnabled) {
             btnBiometric.setVisibility(View.VISIBLE);
         } else {
             btnBiometric.setVisibility(View.GONE);
@@ -236,13 +248,14 @@ public class LogInActivity extends AppCompatActivity {
         }
     }
 
-    private void saveCredentials(String email, String password) {
+    private void saveCredentials(String email, String password, String uid) {
         if (encryptedPrefs != null) {
             encryptedPrefs.edit()
                     .putString("saved_email", email)
                     .putString("saved_password", password)
+                    .putString("saved_uid", uid)
                     .apply();
-            // Once saved, show the biometric button for next time
+            // Once saved, show the biometric button for next time (if enabled)
             checkBiometricAvailability();
         }
     }
@@ -340,6 +353,7 @@ public class LogInActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        checkBiometricAvailability();
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
             setLoadingState(true);
@@ -383,8 +397,8 @@ public class LogInActivity extends AppCompatActivity {
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful() && mAuth.getCurrentUser() != null) {
-                        saveCredentials(email, password);
                         FirebaseUser user = mAuth.getCurrentUser();
+                        saveCredentials(email, password, user.getUid());
                         validateUserRoleAndProceed(user, false);
                     } else {
                         setLoadingState(false);
