@@ -5,4 +5,27 @@
     <string name="req_different_from_current">New password is different from current</string>
     <string name="req_lowercase">One lowercase letter (a-z)</string>
     <string name="req_8chars">At least 8 characters</string>
+
+    <!-- Settings -->
+    <string name="settings_display">DISPLAY</string>
+    <string name="settings_show_name">Show my name</string>
+    <string name="settings_account">ACCOUNT</string>
+    <string name="settings_email">Email address</string>
+    <string name="settings_change_mobile">Change mobile number</string>
+    <string name="settings_about_portjeep">ABOUT PORTJEEP</string>
+    <string name="settings_privacy_policy">Privacy policy</string>
+    <string name="settings_terms_conditions">Terms &amp; conditions</string>
+    <string name="settings_new_update">New update available!</string>
+    <string name="settings_update_desc">Update now to get best experience.</string>
+
+    <!-- Accessibility / Content Descriptions -->
+    <string name="desc_user_icon">User Icon</string>
+    <string name="desc_email_icon">Email Icon</string>
+    <string name="desc_phone_icon">Phone Icon</string>
+    <string name="desc_fingerprint_icon">Fingerprint Icon</string>
+    <string name="desc_lock_icon">Lock Icon</string>
+    <string name="desc_privacy_icon">Privacy Icon</string>
+    <string name="desc_terms_icon">Terms Icon</string>
+    <string name="desc_go_icon">Go</string>
+    <string name="desc_emoji">Emoji</string>
 </resources>
