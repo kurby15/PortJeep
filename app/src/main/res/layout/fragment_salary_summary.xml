@@ -38,7 +38,7 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-medium"
                         android:letterSpacing="0.05"
-                        android:text="TOTAL NET INCOME (AUG)"
+                        android:text="REMITTANCE DETAILS"
                         android:textColor="#B3FFFFFF"
                         android:textSize="12sp"
                         android:textStyle="bold" />
@@ -65,7 +65,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:fontFamily="sans-serif-black"
-                    android:text="₱ 17,459.00"
+                    android:text="₱ 4,901.06"
                     android:textColor="@color/white"
                     android:textSize="38sp" />
 
@@ -77,7 +77,7 @@
                     android:background="@drawable/bg_trend_pill"
                     android:paddingHorizontal="14dp"
                     android:paddingVertical="8dp"
-                    android:text="↑ 3.9% vs July"
+                    android:text="2 partials"
                     android:textColor="@color/white"
                     android:textSize="12sp"
                     android:textStyle="bold" />
@@ -93,11 +93,12 @@
             android:orientation="horizontal"
             android:weightSum="3">
 
+            <!-- Driver Card -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="6dp"
                 android:layout_weight="1"
+                android:layout_marginEnd="6dp"
                 android:background="@drawable/bg_stats_item"
                 android:gravity="center"
                 android:orientation="vertical"
@@ -107,7 +108,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-black"
-                    android:text="BOUNDARY"
+                    android:text="DRIVER"
                     android:textColor="@color/color_text_muted"
                     android:textSize="10sp"
                     android:textStyle="bold" />
@@ -116,18 +117,25 @@
                     android:id="@+id/tv_val_boundary_day"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
+                    android:layout_marginTop="6dp"
                     android:fontFamily="sans-serif-black"
-                    android:text="₱ 600"
+                    android:text="Jillian"
                     android:textColor="@color/color_brand_primary"
-                    android:textSize="17sp" />
+                    android:textSize="16sp" />
+
+                <!-- Spacer to match Jeep card height -->
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="14sp"
+                    android:layout_marginTop="2dp" />
             </LinearLayout>
 
+            <!-- Jeep Card -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="3dp"
                 android:layout_weight="1"
+                android:layout_marginHorizontal="3dp"
                 android:background="@drawable/bg_stats_item"
                 android:gravity="center"
                 android:orientation="vertical"
@@ -137,27 +145,38 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-black"
-                    android:text="FUEL/DAY"
+                    android:text="JEEP"
                     android:textColor="@color/color_text_muted"
                     android:textSize="10sp"
                     android:textStyle="bold" />
 
                 <TextView
+                    android:id="@+id/tv_val_jeep_unit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:fontFamily="sans-serif-black"
+                    android:text="UNIT 01"
+                    android:textColor="@color/color_brand_primary"
+                    android:textSize="16sp" />
+
+                <TextView
                     android:id="@+id/tv_val_fuel_day"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
+                    android:layout_marginTop="2dp"
                     android:fontFamily="sans-serif-black"
-                    android:text="₱ 180"
-                    android:textColor="@color/color_brand_primary"
-                    android:textSize="17sp" />
+                    android:text="AAA-0000"
+                    android:textColor="@color/color_text_muted"
+                    android:textSize="12sp" />
             </LinearLayout>
 
+            <!-- PAO Card -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="6dp"
                 android:layout_weight="1"
+                android:layout_marginStart="6dp"
                 android:background="@drawable/bg_stats_item"
                 android:gravity="center"
                 android:orientation="vertical"
@@ -167,7 +186,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-black"
-                    android:text="DAYS"
+                    android:text="PAO"
                     android:textColor="@color/color_text_muted"
                     android:textSize="10sp"
                     android:textStyle="bold" />
@@ -176,11 +195,17 @@
                     android:id="@+id/tv_val_working_days"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
+                    android:layout_marginTop="6dp"
                     android:fontFamily="sans-serif-black"
-                    android:text="22"
+                    android:text="Micah"
                     android:textColor="@color/color_brand_primary"
-                    android:textSize="17sp" />
+                    android:textSize="16sp" />
+
+                <!-- Spacer to match Jeep card height -->
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="14sp"
+                    android:layout_marginTop="2dp" />
             </LinearLayout>
         </LinearLayout>
 
@@ -219,7 +244,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:fontFamily="sans-serif-black"
-                            android:text="GROSS INCOME"
+                            android:text="GROSS"
                             android:textColor="@color/color_text_muted"
                             android:textSize="11sp"
                             android:textStyle="bold" />
@@ -228,7 +253,7 @@
                             android:id="@+id/tv_desc_gross_income"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="22 days × avg ₱1,600"
+                            android:text="Total collected gross amount"
                             android:textColor="@color/color_text_muted"
                             android:textSize="12sp" />
                     </LinearLayout>
@@ -238,7 +263,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-black"
-                        android:text="₱ 35,200.00"
+                        android:text="₱ 8,120.00"
                         android:textColor="@color/color_brand_primary"
                         android:textSize="16sp" />
                 </LinearLayout>
@@ -268,7 +293,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:fontFamily="sans-serif-black"
-                            android:text="OPERATOR BOUNDARY"
+                            android:text="EXPENSES"
                             android:textColor="@color/color_text_muted"
                             android:textSize="11sp"
                             android:textStyle="bold" />
@@ -277,7 +302,7 @@
                             android:id="@+id/tv_desc_operator_boundary"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="22 days × ₱600/day"
+                            android:text="Total recorded expenses"
                             android:textColor="@color/color_text_muted"
                             android:textSize="12sp" />
                     </LinearLayout>
@@ -287,7 +312,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-black"
-                        android:text="- ₱ 13,200.00"
+                        android:text="- ₱ 3,218.94"
                         android:textColor="@color/color_brand_primary"
                         android:textSize="16sp" />
                 </LinearLayout>
@@ -317,7 +342,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:fontFamily="sans-serif-black"
-                            android:text="FUEL COSTS"
+                            android:text="NET INCOME"
                             android:textColor="@color/color_text_muted"
                             android:textSize="11sp"
                             android:textStyle="bold" />
@@ -326,7 +351,7 @@
                             android:id="@+id/tv_desc_fuel_costs"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="22 days × ₱180/day"
+                            android:text="Gross minus expenses"
                             android:textColor="@color/color_text_muted"
                             android:textSize="12sp" />
                     </LinearLayout>
@@ -336,7 +361,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-black"
-                        android:text="- ₱ 3,960.00"
+                        android:text="₱ 4,901.06"
                         android:textColor="@color/color_brand_primary"
                         android:textSize="16sp" />
                 </LinearLayout>
@@ -366,7 +391,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:fontFamily="sans-serif-black"
-                            android:text="GOV'T DEDUCTIONS"
+                            android:text="DRIVER SHARE"
                             android:textColor="@color/color_text_muted"
                             android:textSize="11sp"
                             android:textStyle="bold" />
@@ -375,7 +400,7 @@
                             android:id="@+id/tv_desc_gov_deductions"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="SSS ₱581 · PhilHealth ₱400 · Pag-IBIG ₱100"
+                            android:text="Jillian Hartman"
                             android:textColor="@color/color_text_muted"
                             android:textSize="12sp" />
                     </LinearLayout>
@@ -385,7 +410,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-black"
-                        android:text="- ₱ 1,081.00"
+                        android:text="₱ 1,126.40"
                         android:textColor="@color/color_brand_primary"
                         android:textSize="16sp" />
                 </LinearLayout>
@@ -415,7 +440,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:fontFamily="sans-serif-black"
-                            android:text="INCENTIVES"
+                            android:text="PAO SHARE"
                             android:textColor="@color/color_text_muted"
                             android:textSize="11sp"
                             android:textStyle="bold" />
@@ -424,7 +449,7 @@
                             android:id="@+id/tv_desc_attendance_incentive"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Perfect attendance bonus"
+                            android:text="Micah Sutton"
                             android:textColor="@color/color_text_muted"
                             android:textSize="12sp" />
                     </LinearLayout>
@@ -434,7 +459,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-black"
-                        android:text="+ ₱ 500.00"
+                        android:text="₱ 768.00"
                         android:textColor="@color/color_brand_primary"
                         android:textSize="16sp" />
                 </LinearLayout>
@@ -468,7 +493,7 @@
                             android:id="@+id/tv_net_income_calculation"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="35,200 - 13,200 - 3,960 - 1,081 + 500"
+                            android:text="Verified from latest partial reports"
                             android:textColor="@color/color_text_muted"
                             android:textSize="12sp" />
                     </LinearLayout>
@@ -478,7 +503,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-black"
-                        android:text="₱ 17,459.00"
+                        android:text="₱ 4,901.06"
                         android:textColor="@color/color_brand_primary"
                         android:textSize="18sp"
                         android:textStyle="bold" />
@@ -493,7 +518,7 @@
             android:layout_marginTop="32dp"
             android:fontFamily="sans-serif-black"
             android:letterSpacing="0.1"
-            android:text="TODAY'S REMITTANCE"
+            android:text="SCHEDULE DETAILS"
             android:textColor="@color/color_brand_primary"
             android:textSize="13sp"
             android:textStyle="bold" />
@@ -501,7 +526,7 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="16dp"
             android:layout_marginBottom="24dp"
             app:cardBackgroundColor="@android:color/transparent"
             app:cardCornerRadius="24dp"
@@ -513,13 +538,14 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_item_card_gradient"
                 android:orientation="vertical"
-                android:padding="24dp">
+                android:padding="32dp">
 
+                <!-- Row 1: Date and Last Partial -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:weightSum="2">
+                    android:layout_marginBottom="40dp"
+                    android:orientation="horizontal">
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -529,15 +555,15 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="GROSS"
+                            android:text="DATE"
                             android:textColor="@color/color_text_muted"
                             android:textSize="10sp"
                             android:fontFamily="sans-serif-black" />
                         <TextView
-                            android:id="@+id/tv_val_gross_collected"
+                            android:id="@+id/tv_val_schedule_date"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="₱ 1,680"
+                            android:text="Sep 3, 12:00 AM"
                             android:textColor="@color/color_brand_primary"
                             android:textSize="17sp"
                             android:fontFamily="sans-serif-black" />
@@ -552,96 +578,103 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="BOUNDARY"
+                            android:text="LAST PARTIAL"
                             android:textColor="@color/color_text_muted"
                             android:textSize="10sp"
                             android:fontFamily="sans-serif-black" />
                         <TextView
-                            android:id="@+id/tv_val_due_operator"
+                            android:id="@+id/tv_val_last_partial"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="₱ 600"
+                            android:text="Sep 3, 11:36 PM"
                             android:textColor="@color/color_brand_primary"
                             android:textSize="17sp"
                             android:fontFamily="sans-serif-black" />
                     </LinearLayout>
                 </LinearLayout>
 
+                <!-- Row 2: Gross, Expenses, Net Summary -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:orientation="horizontal"
-                    android:weightSum="2">
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="FUEL"
-                            android:textColor="@color/color_text_muted"
-                            android:textSize="10sp"
-                            android:fontFamily="sans-serif-black" />
-                        <TextView
-                            android:id="@+id/tv_val_fuel_expense"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="₱ 180"
-                            android:textColor="@color/color_brand_primary"
-                            android:textSize="17sp"
-                            android:fontFamily="sans-serif-black" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="end"
-                        android:orientation="vertical">
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="NET"
-                            android:textColor="@color/color_text_muted"
-                            android:textSize="10sp"
-                            android:fontFamily="sans-serif-black" />
-                        <TextView
-                            android:id="@+id/tv_val_net_remittance"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="₱ 900"
-                            android:textColor="@color/color_brand_primary"
-                            android:textSize="17sp"
-                            android:fontFamily="sans-serif-black" />
-                    </LinearLayout>
-                </LinearLayout>
-
-                <!-- Modern Tonal Button Style based on Primary Background -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_submit_remittance"
-                    android:layout_width="match_parent"
-                    android:layout_height="62dp"
                     android:layout_marginTop="28dp"
-                    android:fontFamily="sans-serif-black"
-                    android:text="SUBMIT REMITTANCE"
-                    android:textColor="@color/color_brand_primary"
-                    android:textSize="14sp"
-                    android:letterSpacing="0.05"
-                    app:backgroundTint="@color/color_background_primary"
-                    app:cornerRadius="20dp"
-                    app:elevation="4dp"
-                    app:rippleColor="@color/color_brand_primary"
-                    app:strokeColor="@color/color_brand_primary"
-                    app:strokeWidth="1.5dp" />
+                    android:orientation="horizontal"
+                    android:weightSum="3">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Reported Amount"
+                            android:textColor="@color/color_text_muted"
+                            android:textSize="10sp"
+                            android:fontFamily="sans-serif-black" />
+                        <TextView
+                            android:id="@+id/tv_val_schedule_gross"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="₱ 0.00"
+                            android:textColor="@color/color_brand_primary"
+                            android:textSize="17sp"
+                            android:fontFamily="sans-serif-black" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Incentive"
+                            android:textColor="@color/color_text_muted"
+                            android:textSize="10sp"
+                            android:fontFamily="sans-serif-black" />
+                        <TextView
+                            android:id="@+id/tv_val_schedule_expenses"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="₱ 0.00"
+                            android:textColor="@color/color_brand_primary"
+                            android:textSize="17sp"
+                            android:fontFamily="sans-serif-black" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="end"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Result (Surplus)"
+                            android:textColor="@color/color_text_muted"
+                            android:textSize="10sp"
+                            android:fontFamily="sans-serif-black" />
+                        <TextView
+                            android:id="@+id/tv_val_schedule_net"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="₱ 0.00"
+                            android:textColor="@color/color_brand_primary"
+                            android:textSize="17sp"
+                            android:fontFamily="sans-serif-black" />
+                    </LinearLayout>
+                </LinearLayout>
+
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
         <View
             android:layout_width="match_parent"
-            android:layout_height="100dp" />
+            android:layout_height="160dp" />
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>
