@@ -30,7 +30,7 @@ public class UpdateEmailActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
     private View mainLayout;
-    private boolean isMaintenance = false; // Set to true to show maintenance screen
+    private boolean isMaintenance = true; // Set to true to show maintenance screen
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
