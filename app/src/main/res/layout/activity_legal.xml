@@ -11,7 +11,7 @@
         android:background="@color/color_background_primary"
         android:orientation="vertical">
 
-        <!-- Standard Header Section -->
+        <!-- Updated Header Section matching Change Password style -->
         <LinearLayout
             android:id="@+id/header_container"
             android:layout_width="match_parent"
@@ -48,7 +48,7 @@
                     android:layout_centerVertical="true"
                     android:layout_marginStart="16dp"
                     android:layout_toEndOf="@id/btn_back"
-                    android:text="LEGAL"
+                    android:text="PRIVACY POLICY"
                     android:textColor="@color/white"
                     android:textSize="18sp"
                     android:textStyle="bold" />
@@ -67,19 +67,39 @@
                 android:orientation="vertical"
                 android:padding="20dp">
 
+                <!-- Last Updated Date -->
+                <TextView
+                    android:id="@+id/tv_last_updated"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
+                    android:text="@string/legal_last_updated"
+                    android:textColor="@color/color_brand_secondary"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:visibility="visible" />
+
+                <!-- Dynamic container for card-style sections -->
+                <LinearLayout
+                    android:id="@+id/container_sections"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+
+                <!-- Content fallback -->
                 <TextView
                     android:id="@+id/tv_legal_content"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:lineSpacingExtra="4dp"
                     android:textColor="@color/color_text_primary"
-                    android:textSize="14sp" />
+                    android:textSize="14sp"
+                    android:visibility="gone" />
 
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
 
-    <!-- Fragment Container for No Internet (Added for consistency) -->
     <FrameLayout
         android:id="@+id/no_internet_container"
         android:layout_width="match_parent"
