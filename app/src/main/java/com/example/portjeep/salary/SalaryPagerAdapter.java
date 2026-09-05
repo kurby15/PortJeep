@@ -90,12 +90,29 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     private void setupHistoryList(HistoryViewHolder holder) {
         List<HistoryAdapter.HistoryItem> items = new ArrayList<>();
-        items.add(new HistoryAdapter.HistoryItem("Saturday, Aug 8", "1,680", "780", "900", false));
-        items.add(new HistoryAdapter.HistoryItem("Friday, Aug 7", "1,740", "780", "960", false));
-        items.add(new HistoryAdapter.HistoryItem("Thursday, Aug 6", "1,560", "780", "780", false));
-        items.add(new HistoryAdapter.HistoryItem("Wednesday, Aug 5", "1,480", "780", "700", false));
+        
+        // Saturday, Aug 8 with 4 partial reports as per image - Set to expanded by default
+        items.add(new HistoryAdapter.HistoryItem("Saturday, Aug 8", "1,680", "780", "900", false)
+                .addPartial("#1 · Aug 8, 6:14 AM", "420", "297.2", "122.8")
+                .addPartial("#2 · Aug 8, 8:02 AM", "390", "277.2", "112.8")
+                .addPartial("#3 · Aug 8, 9:55 AM", "450", "317.2", "132.8")
+                .addPartial("#4 · Aug 8, 11:40 AM", "420", "297.2", "122.8")
+                .setExpanded(true));
+
+        items.add(new HistoryAdapter.HistoryItem("Friday, Aug 7", "1,740", "780", "960", false)
+                .addPartial("#1 · Aug 7, 7:30 AM", "870", "390", "480")
+                .addPartial("#2 · Aug 7, 12:45 PM", "870", "390", "480"));
+                
+        items.add(new HistoryAdapter.HistoryItem("Thursday, Aug 6", "1,560", "780", "780", false)
+                .addPartial("#1 · Aug 6, 8:00 AM", "1,560", "780", "780"));
+                
+        items.add(new HistoryAdapter.HistoryItem("Wednesday, Aug 5", "1,480", "780", "700", false)
+                .addPartial("#1 · Aug 5, 9:00 AM", "1,480", "780", "700"));
+                
         items.add(new HistoryAdapter.HistoryItem("Tuesday, Aug 4", "", "", "", true));
-        items.add(new HistoryAdapter.HistoryItem("Monday, Aug 3", "1,620", "780", "840", false));
+        
+        items.add(new HistoryAdapter.HistoryItem("Monday, Aug 3", "1,620", "780", "840", false)
+                .addPartial("#1 · Aug 3, 6:00 AM", "1,620", "780", "840"));
 
         HistoryAdapter historyAdapter = new HistoryAdapter(items);
         holder.rvHistory.setLayoutManager(new LinearLayoutManager(holder.itemView.getContext()));

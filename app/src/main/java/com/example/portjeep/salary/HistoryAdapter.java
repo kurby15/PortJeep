@@ -11,6 +11,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.portjeep.R;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHolder> {
@@ -38,18 +40,36 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
             holder.badgeRest.setVisibility(View.VISIBLE);
             holder.llDetailSection.setVisibility(View.GONE);
             holder.ivChevron.setVisibility(View.GONE);
+            holder.tvTripCount.setVisibility(View.GONE);
             holder.itemView.setOnClickListener(null);
             holder.itemView.setClickable(false);
         } else {
             holder.llStatusBadge.setVisibility(View.VISIBLE);
             holder.badgeRest.setVisibility(View.GONE);
             holder.ivChevron.setVisibility(View.VISIBLE);
+            holder.tvTripCount.setVisibility(View.VISIBLE);
             holder.itemView.setClickable(true);
+
+            String tripText = item.partialReports.size() + (item.partialReports.size() == 1 ? " trip recorded" : " trips recorded");
+            holder.tvTripCount.setText(tripText);
             
-            // Detail values with space after currency symbol: ₱ 1,680
-            holder.tvValGross.setText("₱ " + item.gross);
-            holder.tvValBoundaryFuel.setText("₱ " + item.boundaryFuel);
-            holder.tvValNet.setText("₱ " + item.net);
+            DecimalFormat df = new DecimalFormat("#,###.##");
+            // Detail values
+            holder.tvValGross.setText("₱ " + df.format(item.getGrossValue()));
+            holder.tvValBoundaryFuel.setText("₱ " + df.format(item.getExpensesValue()));
+            holder.tvValNet.setText("₱ " + df.format(item.getNetValue()));
+
+            // Populate partial reports
+            holder.llPartialContainer.removeAllViews();
+            LayoutInflater inflater = LayoutInflater.from(holder.itemView.getContext());
+            for (PartialReport report : item.partialReports) {
+                View reportView = inflater.inflate(R.layout.item_partial_report, holder.llPartialContainer, false);
+                ((TextView) reportView.findViewById(R.id.tv_partial_header)).setText(report.header);
+                ((TextView) reportView.findViewById(R.id.tv_val_partial_amount)).setText("₱ " + report.amount);
+                ((TextView) reportView.findViewById(R.id.tv_val_partial_expenses)).setText("₱ " + report.expenses);
+                ((TextView) reportView.findViewById(R.id.tv_val_partial_net)).setText("₱ " + report.net);
+                holder.llPartialContainer.addView(reportView);
+            }
 
             // Expansion logic
             updateExpansionState(holder, item, false);
@@ -58,7 +78,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
                 item.isExpanded = !item.isExpanded;
                 if (holder.itemView.getParent() instanceof ViewGroup) {
                     AutoTransition transition = new AutoTransition();
-                    transition.setDuration(150); // Faster return of animation
+                    transition.setDuration(150);
                     TransitionManager.beginDelayedTransition((ViewGroup) holder.itemView.getParent(), transition);
                 }
                 updateExpansionState(holder, item, true);
@@ -70,10 +90,8 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
         int visibility = item.isExpanded ? View.VISIBLE : View.GONE;
         holder.llDetailSection.setVisibility(visibility);
         
-        // Point down (90f) when expanded, point to the side (0f) when collapsed.
         float rotation = item.isExpanded ? 90f : 0f;
         if (animate) {
-            // Snappy rotation: 150ms
             holder.ivChevron.animate().rotation(rotation).setDuration(150).start();
         } else {
             holder.ivChevron.setRotation(rotation);
@@ -86,17 +104,19 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvDate, tvValGross, tvValBoundaryFuel, tvValNet;
-        LinearLayout llStatusBadge, llDetailSection;
+        TextView tvDate, tvTripCount, tvValGross, tvValBoundaryFuel, tvValNet;
+        LinearLayout llStatusBadge, llDetailSection, llPartialContainer;
         TextView badgeRest;
         ImageView ivChevron;
 
         ViewHolder(View itemView) {
             super(itemView);
             tvDate = itemView.findViewById(R.id.tv_history_date);
+            tvTripCount = itemView.findViewById(R.id.tv_trip_count);
             llStatusBadge = itemView.findViewById(R.id.ll_status_badge);
             badgeRest = itemView.findViewById(R.id.tv_rest_badge);
             llDetailSection = itemView.findViewById(R.id.ll_detail_section);
+            llPartialContainer = itemView.findViewById(R.id.ll_partial_reports_container);
             tvValGross = itemView.findViewById(R.id.tv_history_val_gross);
             tvValBoundaryFuel = itemView.findViewById(R.id.tv_history_val_boundary_fuel);
             tvValNet = itemView.findViewById(R.id.tv_history_val_net);
@@ -111,6 +131,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
         String net;
         boolean isRest;
         boolean isExpanded = false;
+        List<PartialReport> partialReports = new ArrayList<>();
 
         public HistoryItem(String date, String gross, String boundaryFuel, String net, boolean isRest) {
             this.date = date;
@@ -118,6 +139,63 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
             this.boundaryFuel = boundaryFuel;
             this.net = net;
             this.isRest = isRest;
+        }
+
+        public HistoryItem addPartial(String header, String amount, String expenses, String net) {
+            this.partialReports.add(new PartialReport(header, amount, expenses, net));
+            return this;
+        }
+
+        public double getGrossValue() {
+            if (isRest) return 0;
+            if (partialReports.isEmpty()) return parse(gross);
+            double total = 0;
+            for (PartialReport r : partialReports) total += parse(r.amount);
+            return total;
+        }
+
+        public double getExpensesValue() {
+            if (isRest) return 0;
+            if (partialReports.isEmpty()) return parse(boundaryFuel);
+            double total = 0;
+            for (PartialReport r : partialReports) total += parse(r.expenses);
+            return total;
+        }
+
+        public double getNetValue() {
+            if (isRest) return 0;
+            if (partialReports.isEmpty()) return parse(net);
+            double total = 0;
+            for (PartialReport r : partialReports) total += parse(r.net);
+            return total;
+        }
+
+        private double parse(String val) {
+            if (val == null || val.isEmpty()) return 0;
+            try {
+                return Double.parseDouble(val.replace(",", "").replace("₱", "").trim());
+            } catch (Exception e) {
+                return 0;
+            }
+        }
+
+        public HistoryItem setExpanded(boolean expanded) {
+            this.isExpanded = expanded;
+            return this;
+        }
+    }
+
+    public static class PartialReport {
+        String header;
+        String amount;
+        String expenses;
+        String net;
+
+        public PartialReport(String header, String amount, String expenses, String net) {
+            this.header = header;
+            this.amount = amount;
+            this.expenses = expenses;
+            this.net = net;
         }
     }
 }

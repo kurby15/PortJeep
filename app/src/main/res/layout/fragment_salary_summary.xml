@@ -556,11 +556,12 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
+                        android:gravity="start"
                         android:orientation="vertical">
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Reported Amount"
+                            android:text="GROSS"
                             android:textColor="@color/color_text_muted"
                             android:textSize="10sp"
                             android:fontFamily="sans-serif-black" />
@@ -583,7 +584,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Incentive"
+                            android:text="EXPENSES"
                             android:textColor="@color/color_text_muted"
                             android:textSize="10sp"
                             android:fontFamily="sans-serif-black" />
@@ -606,7 +607,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Result (Surplus)"
+                            android:text="NET"
                             android:textColor="@color/color_text_muted"
                             android:textSize="10sp"
                             android:fontFamily="sans-serif-black" />
