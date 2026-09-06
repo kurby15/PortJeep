@@ -185,14 +185,9 @@ public class SettingsFragment extends Fragment {
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_password_success, null);
         TextView tvTitle = dialogView.findViewById(R.id.tv_success_title);
         TextView tvMsg = dialogView.findViewById(R.id.tv_success_message);
-        MaterialButton btnOk = dialogView.findViewById(R.id.btn_success_ok);
         
         if (tvTitle != null) tvTitle.setText(title);
         if (tvMsg != null) tvMsg.setText(message);
-        if (btnOk != null) {
-            btnOk.setVisibility(View.VISIBLE);
-            btnOk.setText("Got it");
-        }
 
         AlertDialog dialog = new MaterialAlertDialogBuilder(requireContext())
                 .setView(dialogView)
@@ -201,10 +196,6 @@ public class SettingsFragment extends Fragment {
         
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        }
-
-        if (btnOk != null) {
-            btnOk.setOnClickListener(v -> dialog.dismiss());
         }
 
         dialog.show();
