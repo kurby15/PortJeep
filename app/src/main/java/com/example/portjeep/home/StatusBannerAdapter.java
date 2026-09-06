@@ -2,6 +2,9 @@ package com.example.portjeep.home;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -119,9 +122,22 @@ public class StatusBannerAdapter extends RecyclerView.Adapter<StatusBannerAdapte
 
             if (tvDayName != null) tvDayName.setText(dayText);
             if (tvStatus != null) {
-                tvStatus.setText("●  UNASSIGNED");
+                // Clear any preset text color conflicts
+                tvStatus.setTextColor(ContextCompat.getColor(context, android.R.color.transparent));
+
+                String text = "●  UNASSIGNED";
+                SpannableStringBuilder ssb = new SpannableStringBuilder(text);
+
+                // Color for the leading dot (index 0 to 1)
+                int dotColor = ContextCompat.getColor(context, R.color.color_brand_accent);
+                ssb.setSpan(new ForegroundColorSpan(dotColor), 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+                // Color for the text label portion (index 2 to end)
+                int textColor = ContextCompat.getColor(context, R.color.color_error_text);
+                ssb.setSpan(new ForegroundColorSpan(textColor), 2, text.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+                tvStatus.setText(ssb);
                 tvStatus.setBackgroundResource(R.drawable.bg_status_unassigned);
-                tvStatus.setTextColor(ContextCompat.getColor(context, R.color.color_error_text));
             }
 
             container.addView(rowView);

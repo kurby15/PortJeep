@@ -88,7 +88,7 @@
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.55"
+                    android:layout_weight="1"
                     android:letterSpacing="0.08"
                     android:text="DAY"
                     android:textColor="@color/color_text_muted"
@@ -96,11 +96,10 @@
                     android:textStyle="bold" />
 
                 <TextView
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.45"
+                    android:gravity="end"
                     android:letterSpacing="0.08"
-                    android:paddingStart="30dp"
                     android:text="STATUS"
                     android:textColor="@color/color_text_muted"
                     android:textSize="11sp"
@@ -108,13 +107,22 @@
 
             </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/container_card_rows"
+            <androidx.core.widget.NestedScrollView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:divider="@color/color_divider"
-                android:orientation="vertical"
-                android:showDividers="middle" />
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:fillViewport="true"
+                android:overScrollMode="never">
+
+                <LinearLayout
+                    android:id="@+id/container_card_rows"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:divider="@color/color_divider"
+                    android:orientation="vertical"
+                    android:showDividers="middle" />
+
+            </androidx.core.widget.NestedScrollView>
 
         </LinearLayout>
 

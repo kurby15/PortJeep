@@ -421,6 +421,238 @@
 
                 </FrameLayout>
 
+                <!-- Today's Summary Section with Skeleton Wrapper -->
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="32dp"
+                    android:clipChildren="false">
+
+                    <com.facebook.shimmer.ShimmerFrameLayout
+                        android:id="@+id/shimmer_summary"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:shimmer_auto_start="true"
+                        app:shimmer_base_alpha="0.5"
+                        app:shimmer_duration="1000"
+                        app:shimmer_highlight_alpha="0.9">
+                        <include layout="@layout/item_skeleton_summary" />
+                    </com.facebook.shimmer.ShimmerFrameLayout>
+
+                    <LinearLayout
+                        android:id="@+id/ll_todays_summary"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:visibility="gone"
+                        tools:visibility="visible">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:letterSpacing="0.08"
+                            android:text="@string/title_todays_summary"
+                            android:textColor="@color/color_brand_primary"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:orientation="horizontal">
+
+                            <!-- Trips Completed -->
+                            <com.google.android.material.card.MaterialCardView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginEnd="6dp"
+                                app:cardBackgroundColor="@color/color_surface"
+                                app:cardCornerRadius="24dp"
+                                app:cardElevation="8dp"
+                                app:strokeColor="@color/color_divider"
+                                app:strokeWidth="1dp"
+                                android:outlineAmbientShadowColor="@color/color_card_shadow_ambient"
+                                android:outlineSpotShadowColor="@color/color_card_shadow_spot">
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="vertical"
+                                    android:padding="20dp">
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="@string/label_trips_completed"
+                                        android:textColor="@color/color_text_muted"
+                                        android:textSize="10sp"
+                                        android:textStyle="bold"
+                                        android:letterSpacing="0.05" />
+                                    <TextView
+                                        android:id="@+id/tv_summary_trips"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="8dp"
+                                        android:text="6"
+                                        android:textColor="@color/color_text_primary"
+                                        android:textSize="24sp"
+                                        android:textStyle="bold" />
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="2dp"
+                                        android:text="@string/unit_trips"
+                                        android:textColor="@color/color_brand_primary"
+                                        android:textSize="12sp" />
+                                </LinearLayout>
+                            </com.google.android.material.card.MaterialCardView>
+
+                            <!-- Distance Covered -->
+                            <com.google.android.material.card.MaterialCardView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginStart="6dp"
+                                app:cardBackgroundColor="@color/color_surface"
+                                app:cardCornerRadius="24dp"
+                                app:cardElevation="8dp"
+                                app:strokeColor="@color/color_divider"
+                                app:strokeWidth="1dp"
+                                android:outlineAmbientShadowColor="@color/color_card_shadow_ambient"
+                                android:outlineSpotShadowColor="@color/color_card_shadow_spot">
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="vertical"
+                                    android:padding="20dp">
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="@string/label_distance_covered"
+                                        android:textColor="@color/color_text_muted"
+                                        android:textSize="10sp"
+                                        android:textStyle="bold"
+                                        android:letterSpacing="0.05" />
+                                    <TextView
+                                        android:id="@+id/tv_summary_distance"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="8dp"
+                                        android:text="48.2"
+                                        android:textColor="@color/color_text_primary"
+                                        android:textSize="24sp"
+                                        android:textStyle="bold" />
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="2dp"
+                                        android:text="@string/unit_km"
+                                        android:textColor="@color/color_brand_primary"
+                                        android:textSize="12sp" />
+                                </LinearLayout>
+                            </com.google.android.material.card.MaterialCardView>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:orientation="horizontal">
+
+                            <!-- Gross Collected -->
+                            <com.google.android.material.card.MaterialCardView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginEnd="6dp"
+                                app:cardBackgroundColor="@color/color_surface"
+                                app:cardCornerRadius="24dp"
+                                app:cardElevation="8dp"
+                                app:strokeColor="@color/color_divider"
+                                app:strokeWidth="1dp"
+                                android:outlineAmbientShadowColor="@color/color_card_shadow_ambient"
+                                android:outlineSpotShadowColor="@color/color_card_shadow_spot">
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="vertical"
+                                    android:padding="20dp">
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="@string/label_gross_collected"
+                                        android:textColor="@color/color_text_muted"
+                                        android:textSize="10sp"
+                                        android:textStyle="bold"
+                                        android:letterSpacing="0.05" />
+                                    <TextView
+                                        android:id="@+id/tv_summary_gross"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="8dp"
+                                        android:text="₱ 1,680"
+                                        android:textColor="@color/color_text_primary"
+                                        android:textSize="24sp"
+                                        android:textStyle="bold" />
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="2dp"
+                                        android:text="@string/unit_today"
+                                        android:textColor="@color/color_brand_primary"
+                                        android:textSize="12sp" />
+                                </LinearLayout>
+                            </com.google.android.material.card.MaterialCardView>
+
+                            <!-- Net Remittance -->
+                            <com.google.android.material.card.MaterialCardView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginStart="6dp"
+                                app:cardBackgroundColor="@color/color_surface"
+                                app:cardCornerRadius="24dp"
+                                app:cardElevation="8dp"
+                                app:strokeColor="@color/color_divider"
+                                app:strokeWidth="1dp"
+                                android:outlineAmbientShadowColor="@color/color_card_shadow_ambient"
+                                android:outlineSpotShadowColor="@color/color_card_shadow_spot">
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="vertical"
+                                    android:padding="20dp">
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="@string/label_net_remittance"
+                                        android:textColor="@color/color_text_muted"
+                                        android:textSize="10sp"
+                                        android:textStyle="bold"
+                                        android:letterSpacing="0.05" />
+                                    <TextView
+                                        android:id="@+id/tv_summary_net"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="8dp"
+                                        android:text="₱ 900"
+                                        android:textColor="@color/color_text_primary"
+                                        android:textSize="24sp"
+                                        android:textStyle="bold" />
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="2dp"
+                                        android:text="@string/unit_due"
+                                        android:textColor="@color/color_brand_primary"
+                                        android:textSize="12sp" />
+                                </LinearLayout>
+                            </com.google.android.material.card.MaterialCardView>
+                        </LinearLayout>
+
+                    </LinearLayout>
+                </FrameLayout>
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -650,7 +882,7 @@
                         <androidx.viewpager2.widget.ViewPager2
                             android:id="@+id/vp_status_carousel"
                             android:layout_width="match_parent"
-                            android:layout_height="280dp"
+                            android:layout_height="290dp"
                             android:clipChildren="false"
                             android:clipToPadding="false"
                             android:overScrollMode="never" />

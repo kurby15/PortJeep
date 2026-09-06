@@ -15,9 +15,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -64,13 +61,15 @@ public class HomeFragment extends Fragment {
     private static final String API_URL = "https://port-jeep.vercel.app/api/mobile/schedules";
 
     // Loading Skeletons
-    private ShimmerFrameLayout shimmerContainer, shimmerHeader;
+    private ShimmerFrameLayout shimmerContainer, shimmerHeader, shimmerSummary;
     private ShimmerFrameLayout shimmerQuickAccess, shimmerBanner, shimmerUpcoming;
     private View llQuickAccessContent, llBannerContent, rlHeaderContent;
     private SwipeRefreshLayout swipeRefreshLayout;
 
     // Actual Content Views
     private MaterialCardView cardTodayAssignment;
+    private View llTodaysSummary;
+    private TextView tvSummaryTrips, tvSummaryDistance, tvSummaryGross, tvSummaryNet;
 
     // ViewPager2 Status Carousel References
     private ViewPager2 vpStatusCarousel;
@@ -128,6 +127,9 @@ public class HomeFragment extends Fragment {
         shimmerContainer = view.findViewById(R.id.shimmer_view_container);
         cardTodayAssignment = view.findViewById(R.id.card_today_assignment);
 
+        shimmerSummary = view.findViewById(R.id.shimmer_summary);
+        llTodaysSummary = view.findViewById(R.id.ll_todays_summary);
+
         shimmerQuickAccess = view.findViewById(R.id.shimmer_quick_access);
         llQuickAccessContent = view.findViewById(R.id.ll_quick_access_content);
 
@@ -136,6 +138,12 @@ public class HomeFragment extends Fragment {
 
         shimmerUpcoming = view.findViewById(R.id.shimmer_upcoming);
         containerUpcoming = view.findViewById(R.id.container_upcoming);
+
+        // Bind Summary Data Views
+        tvSummaryTrips = view.findViewById(R.id.tv_summary_trips);
+        tvSummaryDistance = view.findViewById(R.id.tv_summary_distance);
+        tvSummaryGross = view.findViewById(R.id.tv_summary_gross);
+        tvSummaryNet = view.findViewById(R.id.tv_summary_net);
 
         // Bind ViewPager2 Carousel Views
         vpStatusCarousel = view.findViewById(R.id.vp_status_carousel);
@@ -419,6 +427,14 @@ public class HomeFragment extends Fragment {
             cardTodayAssignment.setVisibility(View.GONE);
         }
 
+        if (shimmerSummary != null) {
+            shimmerSummary.startShimmer();
+            shimmerSummary.setVisibility(View.VISIBLE);
+        }
+        if (llTodaysSummary != null) {
+            llTodaysSummary.setVisibility(View.GONE);
+        }
+
         if (shimmerQuickAccess != null) {
             shimmerQuickAccess.startShimmer();
             shimmerQuickAccess.setVisibility(View.VISIBLE);
@@ -463,6 +479,14 @@ public class HomeFragment extends Fragment {
         }
         if (cardTodayAssignment != null) {
             cardTodayAssignment.setVisibility(View.VISIBLE);
+        }
+
+        if (shimmerSummary != null) {
+            shimmerSummary.stopShimmer();
+            shimmerSummary.setVisibility(View.GONE);
+        }
+        if (llTodaysSummary != null) {
+            llTodaysSummary.setVisibility(View.VISIBLE);
         }
 
         if (shimmerQuickAccess != null) {
@@ -700,6 +724,9 @@ public class HomeFragment extends Fragment {
                 return;
             }
 
+            // Update Summary Data if available in root
+            updateSummaryData(root.optJSONObject("summary"));
+
             JSONArray schedules = root.optJSONArray("schedules");
             if (schedules == null || schedules.length() == 0) {
                 setNoAssignmentUI();
@@ -823,6 +850,20 @@ public class HomeFragment extends Fragment {
         } catch (Exception e) {
             setNoAssignmentUI();
         }
+    }
+
+    private void updateSummaryData(JSONObject summary) {
+        if (!isAdded() || summary == null) return;
+
+        String trips = summary.optString("trips_completed", "0");
+        String distance = summary.optString("distance_covered", "0.0");
+        String gross = summary.optString("gross_collected", "₱ 0");
+        String net = summary.optString("net_remittance", "₱ 0");
+
+        if (tvSummaryTrips != null) tvSummaryTrips.setText(trips);
+        if (tvSummaryDistance != null) tvSummaryDistance.setText(distance);
+        if (tvSummaryGross != null) tvSummaryGross.setText(gross);
+        if (tvSummaryNet != null) tvSummaryNet.setText(net);
     }
 
     private Date parseDateString(String rawDate, String[] patterns, int currentYear) {
