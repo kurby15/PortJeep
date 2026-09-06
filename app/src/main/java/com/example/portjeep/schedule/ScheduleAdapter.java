@@ -42,6 +42,7 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ViewHo
         if (holder.tvDate != null) holder.tvDate.setText(item.getDate());
         if (holder.tvDriverName != null) holder.tvDriverName.setText(item.getDriverName());
         if (holder.tvPaoName != null) holder.tvPaoName.setText(item.getPaoName());
+        if (holder.tvRoute != null) holder.tvRoute.setText(item.getRoute());
 
         // Handle Jeep Unit and Plate split
         String jeepUnit = item.getJeepUnit();
@@ -180,7 +181,7 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ViewHo
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvDay, tvDate, tvStatus, tvJeepUnit, tvPlateNo, tvDriverName, tvPaoName;
+        TextView tvDay, tvDate, tvStatus, tvJeepUnit, tvPlateNo, tvDriverName, tvPaoName, tvRoute;
         View cardDriver, cardPao;
 
         public ViewHolder(@NonNull View itemView) {
@@ -192,6 +193,7 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ViewHo
             tvPlateNo = itemView.findViewById(R.id.tv_plate_no);
             tvDriverName = itemView.findViewById(R.id.tv_driver_name);
             tvPaoName = itemView.findViewById(R.id.tv_pao_name);
+            tvRoute = itemView.findViewById(R.id.tv_schedule_route);
 
             cardDriver = itemView.findViewById(R.id.card_driver);
             cardPao = itemView.findViewById(R.id.card_pao);

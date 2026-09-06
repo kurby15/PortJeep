@@ -121,4 +121,14 @@
 
     <!-- Status -->
     <string name="status_unassigned">UNASSIGNED</string>
+
+    <!-- Schedule Item -->
+    <string name="label_unit_number">UNIT NUMBER</string>
+    <string name="label_plate_number">PLATE NUMBER</string>
+    <string name="label_route">ROUTE</string>
+    <string name="label_squad">SQUAD</string>
+    <string name="label_driver">Driver</string>
+    <string name="label_pao">PAO</string>
+    <string name="default_route">Minuyan - Starmall Loop</string>
+    <string name="desc_route_icon">Route Icon</string>
 </resources>

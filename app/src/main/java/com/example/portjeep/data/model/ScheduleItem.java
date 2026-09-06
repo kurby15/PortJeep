@@ -9,6 +9,7 @@ public class ScheduleItem implements Serializable {
     private String jeepUnit;
     private String driverName;
     private String paoName;
+    private String route = "Minuyan - Starmall Loop";
 
     // Additional fields for contact details
     private String driverEmail = "";
@@ -44,6 +45,7 @@ public class ScheduleItem implements Serializable {
     public String getJeepUnit() { return jeepUnit; }
     public String getDriverName() { return driverName; }
     public String getPaoName() { return paoName; }
+    public String getRoute() { return route; }
 
     public String getDriverEmail() { return driverEmail; }
     public String getDriverContact() { return driverContact; }
@@ -57,6 +59,7 @@ public class ScheduleItem implements Serializable {
     public void setJeepUnit(String jeepUnit) { this.jeepUnit = jeepUnit; }
     public void setDriverName(String driverName) { this.driverName = driverName; }
     public void setPaoName(String paoName) { this.paoName = paoName; }
+    public void setRoute(String route) { this.route = route; }
 
     public void setDriverEmail(String driverEmail) { this.driverEmail = (driverEmail != null) ? driverEmail : ""; }
     public void setDriverContact(String driverContact) { this.driverContact = (driverContact != null) ? driverContact : ""; }
