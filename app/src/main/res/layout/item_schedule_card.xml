@@ -6,18 +6,19 @@
     android:layout_height="wrap_content"
     android:layout_marginBottom="16dp"
     app:cardBackgroundColor="@color/color_surface"
-    app:cardCornerRadius="24dp"
-    app:cardElevation="2dp"
+    app:cardCornerRadius="32dp"
+    app:cardElevation="8dp"
     app:strokeColor="@color/color_divider"
-    app:strokeWidth="1dp">
+    app:strokeWidth="1dp"
+    android:outlineAmbientShadowColor="#1A2563EB"
+    android:outlineSpotShadowColor="#262563EB">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="20dp">
+        android:padding="22dp">
 
-        <!-- Card Header: Day, Date & Pill Status -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -54,11 +55,9 @@
                 android:id="@+id/tv_schedule_status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_status_pill"
-                android:paddingStart="14dp"
-                android:paddingTop="8dp"
-                android:paddingEnd="14dp"
-                android:paddingBottom="8dp"
+                android:background="@drawable/bg_status_assigned_gradient"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="8dp"
                 android:text="●  Assigned"
                 android:textColor="@color/color_status_assigned_text"
                 android:textSize="11sp"
@@ -66,12 +65,11 @@
 
         </LinearLayout>
 
-        <!-- Vehicle Info Card Banner -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:background="@drawable/bg_jeep_card"
+            android:background="@drawable/bg_jeep_card_gradient"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:padding="16dp">
@@ -111,27 +109,6 @@
                     android:textColor="@color/color_text_primary"
                     android:textSize="18sp"
                     android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:letterSpacing="0.08"
-                    android:text="PLATE NUMBER"
-                    android:textColor="@color/color_text_secondary"
-                    android:textSize="10sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tv_plate_no"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="1dp"
-                    android:text="EJP 1234"
-                    android:textColor="@color/color_text_primary"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
             </LinearLayout>
 
             <ImageView
@@ -143,25 +120,12 @@
 
         </LinearLayout>
 
-        <!-- Squad Header -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:letterSpacing="0.1"
-            android:text="SQUAD CREW"
-            android:textColor="@color/color_text_secondary"
-            android:textSize="11sp"
-            android:textStyle="bold" />
-
-        <!-- Squad Grid -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="20dp"
             android:orientation="horizontal">
 
-            <!-- Driver Container -->
             <LinearLayout
                 android:id="@+id/card_driver"
                 android:layout_width="0dp"
@@ -193,10 +157,8 @@
                     android:textColor="@color/color_text_primary"
                     android:textSize="14sp"
                     android:textStyle="bold" />
-
             </LinearLayout>
 
-            <!-- PAO Container -->
             <LinearLayout
                 android:id="@+id/card_pao"
                 android:layout_width="0dp"
@@ -228,11 +190,7 @@
                     android:textColor="@color/color_text_primary"
                     android:textSize="14sp"
                     android:textStyle="bold" />
-
             </LinearLayout>
-
         </LinearLayout>
-
     </LinearLayout>
-
 </com.google.android.material.card.MaterialCardView>

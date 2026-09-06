@@ -3,17 +3,28 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="24dp"
-    android:background="@color/color_surface">
+    android:paddingHorizontal="24dp"
+    android:paddingTop="12dp"
+    android:paddingBottom="32dp"
+    android:background="@drawable/bg_bottom_sheet_card">
+
+    <!-- Handle -->
+    <View
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="24dp"
+        android:background="@color/color_divider" />
 
     <TextView
         android:id="@+id/tv_dialog_role"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="DRIVER DETAILS"
-        android:textColor="@color/color_text_muted"
+        android:textColor="@color/color_brand_primary"
         android:textSize="12sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:letterSpacing="0.05" />
 
     <TextView
         android:id="@+id/tv_dialog_name"
@@ -22,13 +33,13 @@
         android:layout_marginTop="4dp"
         android:text="Name"
         android:textColor="@color/color_text_primary"
-        android:textSize="20sp"
+        android:textSize="22sp"
         android:textStyle="bold" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginVertical="16dp"
+        android:layout_marginVertical="20dp"
         android:background="@color/color_divider" />
 
     <TextView
@@ -36,32 +47,34 @@
         android:layout_height="wrap_content"
         android:text="Email"
         android:textColor="@color/color_text_muted"
-        android:textSize="12sp" />
+        android:textSize="12sp"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/tv_dialog_email"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
+        android:layout_marginTop="4dp"
         android:text="email@example.com"
         android:textColor="@color/color_text_primary"
-        android:textSize="15sp" />
+        android:textSize="16sp" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="16dp"
         android:text="Contact Number"
         android:textColor="@color/color_text_muted"
-        android:textSize="12sp" />
+        android:textSize="12sp"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/tv_dialog_contact"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
+        android:layout_marginTop="4dp"
         android:text="N/A"
         android:textColor="@color/color_text_primary"
-        android:textSize="15sp" />
+        android:textSize="16sp" />
 
 </LinearLayout>

@@ -1,22 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/color_surface">
 
     <LinearLayout
         android:id="@+id/main_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/color_background_primary"
+        android:background="@android:color/transparent"
         android:orientation="vertical">
 
-        <!-- Standard Header Section -->
+        <!-- Modern Header Section -->
         <LinearLayout
             android:id="@+id/header_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/color_brand_primary"
+            android:background="@drawable/bg_header_gradient"
             android:orientation="vertical">
 
             <View
@@ -24,40 +26,44 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp" />
 
-            <RelativeLayout
+            <LinearLayout
                 android:id="@+id/header_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="20dp">
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingStart="22dp"
+                android:paddingTop="30dp"
+                android:paddingEnd="22dp"
+                android:paddingBottom="50dp">
 
                 <ImageView
                     android:id="@+id/btn_back"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
-                    android:layout_centerVertical="true"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:padding="4dp"
                     android:src="@drawable/chevron"
                     android:rotation="180"
-                    app:tint="@color/white" />
+                    app:tint="@color/white"
+                    android:contentDescription="Back" />
 
                 <TextView
                     android:id="@+id/tv_header_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
                     android:layout_marginStart="16dp"
-                    android:layout_toEndOf="@id/btn_back"
                     android:text="@string/header_update_email"
                     android:textColor="@color/white"
-                    android:textSize="18sp"
+                    android:textSize="22sp"
                     android:textStyle="bold" />
-            </RelativeLayout>
+            </LinearLayout>
         </LinearLayout>
 
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginTop="20dp"
             android:fillViewport="true"
             android:overScrollMode="never">
 
@@ -65,51 +71,86 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="24dp">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/email_update_title"
-                    android:textColor="@color/color_text_primary"
-                    android:textSize="24sp"
-                    android:textStyle="bold" />
-
-                <!-- Security Info Box -->
+                android:paddingHorizontal="20dp"
+                android:paddingBottom="40dp">
 
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="32dp"
                     app:cardBackgroundColor="@color/color_surface"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="2dp"
+                    app:cardCornerRadius="32dp"
+                    app:cardElevation="10dp"
                     app:strokeColor="@color/color_divider"
-                    app:strokeWidth="1dp">
+                    app:strokeWidth="1dp"
+                    android:outlineAmbientShadowColor="@color/color_card_shadow_ambient"
+                    android:outlineSpotShadowColor="@color/color_card_shadow_spot">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="16dp">
+                        android:padding="26dp">
 
                         <TextView
-                            android:id="@+id/tv_current_email"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Loading..."
+                            android:text="@string/email_update_title"
                             android:textColor="@color/color_text_primary"
-                            android:textSize="16sp"
+                            android:textSize="20sp"
                             android:textStyle="bold" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
+                            android:layout_marginTop="8dp"
+                            android:text="@string/email_update_desc"
+                            android:textColor="@color/color_text_secondary"
+                            android:textSize="14sp"
+                            android:lineSpacingExtra="2dp"
+                            android:alpha="0.8" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginVertical="24dp"
+                            android:background="@color/color_divider" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:letterSpacing="0.08"
                             android:text="@string/email_verified"
-                            android:textColor="@color/color_status_active_text"
-                            android:textSize="10sp"
+                            android:textColor="@color/color_brand_primary"
+                            android:textSize="11sp"
                             android:textStyle="bold" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:background="@drawable/bg_pill_input"
+                            android:padding="16dp">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/mail"
+                                app:tint="@color/color_brand_primary"
+                                android:contentDescription="@string/desc_email_icon" />
+
+                            <TextView
+                                android:id="@+id/tv_current_email"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="14dp"
+                                tools:text="driver@portjeep.ph"
+                                android:textColor="@color/color_text_primary"
+                                android:textSize="17sp"
+                                android:textStyle="bold" />
+
+                        </LinearLayout>
 
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -117,20 +158,23 @@
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_change_email"
                     android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:layout_marginTop="24dp"
+                    android:layout_height="58dp"
+                    android:layout_marginTop="32dp"
+                    android:background="@drawable/bg_button_gradient"
                     android:text="@string/btn_change_email"
                     android:textAllCaps="false"
                     android:textColor="@color/white"
-                    app:backgroundTint="@color/color_brand_primary"
-                    app:cornerRadius="12dp"
-                    app:elevation="0dp" />
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:backgroundTint="@null"
+                    app:cornerRadius="29dp"
+                    app:elevation="4dp" />
 
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
 
-    <!-- Fragment Container for No Internet -->
+    <!-- Fragment Container for Maintenance/Overlay -->
     <FrameLayout
         android:id="@+id/no_internet_container"
         android:layout_width="match_parent"

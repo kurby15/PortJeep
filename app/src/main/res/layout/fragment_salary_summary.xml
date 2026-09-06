@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/transparent"
@@ -12,14 +13,16 @@
         android:orientation="vertical"
         android:padding="20dp">
 
-        <!-- Total Net Income Card with Modern Gradient -->
+        <!-- Total Net Income Card -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:cardBackgroundColor="@android:color/transparent"
-            app:cardCornerRadius="28dp"
-            app:cardElevation="8dp"
-            app:strokeWidth="0dp">
+            app:cardCornerRadius="32dp"
+            app:cardElevation="10dp"
+            app:strokeWidth="0dp"
+            android:outlineAmbientShadowColor="@color/color_card_shadow_ambient"
+            android:outlineSpotShadowColor="@color/color_card_shadow_spot">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -32,7 +35,6 @@
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
-
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -42,14 +44,11 @@
                         android:textColor="#B3FFFFFF"
                         android:textSize="12sp"
                         android:textStyle="bold" />
-
                     <ImageView
                         android:id="@+id/iv_toggle_visibility"
                         android:layout_width="32dp"
                         android:layout_height="32dp"
                         android:layout_alignParentEnd="true"
-                        android:layout_centerVertical="false"
-                        android:layout_marginTop="-4dp"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:clickable="true"
                         android:contentDescription="Toggle Visibility"
@@ -67,7 +66,8 @@
                     android:fontFamily="sans-serif-black"
                     android:text="₱ 4,901.06"
                     android:textColor="@color/white"
-                    android:textSize="38sp" />
+                    android:textSize="38sp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/tv_income_trend"
@@ -93,44 +93,33 @@
             android:orientation="horizontal"
             android:weightSum="3">
 
-            <!-- Driver Card -->
             <LinearLayout
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:layout_marginEnd="6dp"
                 android:background="@drawable/bg_stats_item"
                 android:gravity="center"
                 android:orientation="vertical"
                 android:paddingVertical="18dp">
-
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-black"
                     android:text="DRIVER"
                     android:textColor="@color/color_text_muted"
                     android:textSize="10sp"
                     android:textStyle="bold" />
-
                 <TextView
                     android:id="@+id/tv_val_boundary_day"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
-                    android:fontFamily="sans-serif-black"
                     android:text="Jillian"
                     android:textColor="@color/color_brand_primary"
-                    android:textSize="16sp" />
-
-                <!-- Spacer to match Jeep card height -->
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="14sp"
-                    android:layout_marginTop="2dp" />
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
             </LinearLayout>
 
-            <!-- Jeep Card -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -140,84 +129,73 @@
                 android:gravity="center"
                 android:orientation="vertical"
                 android:paddingVertical="18dp">
-
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-black"
                     android:text="JEEP"
                     android:textColor="@color/color_text_muted"
                     android:textSize="10sp"
                     android:textStyle="bold" />
-
                 <TextView
                     android:id="@+id/tv_val_jeep_unit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
-                    android:fontFamily="sans-serif-black"
                     android:text="UNIT 01"
                     android:textColor="@color/color_brand_primary"
-                    android:textSize="16sp" />
-
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
                 <TextView
                     android:id="@+id/tv_val_fuel_day"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:fontFamily="sans-serif-black"
                     android:text="AAA-0000"
                     android:textColor="@color/color_text_muted"
-                    android:textSize="12sp" />
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
             </LinearLayout>
 
-            <!-- PAO Card -->
             <LinearLayout
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:layout_marginStart="6dp"
                 android:background="@drawable/bg_stats_item"
                 android:gravity="center"
                 android:orientation="vertical"
                 android:paddingVertical="18dp">
-
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-black"
                     android:text="PAO"
                     android:textColor="@color/color_text_muted"
                     android:textSize="10sp"
                     android:textStyle="bold" />
-
                 <TextView
                     android:id="@+id/tv_val_working_days"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
-                    android:fontFamily="sans-serif-black"
                     android:text="Micah"
                     android:textColor="@color/color_brand_primary"
-                    android:textSize="16sp" />
-
-                <!-- Spacer to match Jeep card height -->
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="14sp"
-                    android:layout_marginTop="2dp" />
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Main Breakdown Card with Subtle Gradient -->
+        <!-- Main Breakdown Card -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             app:cardBackgroundColor="@android:color/transparent"
-            app:cardCornerRadius="24dp"
-            app:cardElevation="2dp"
-            app:strokeWidth="0dp">
+            app:cardCornerRadius="32dp"
+            app:cardElevation="4dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="@color/color_divider"
+            android:outlineAmbientShadowColor="@color/color_card_shadow_ambient"
+            android:outlineSpotShadowColor="@color/color_card_shadow_spot">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -233,22 +211,18 @@
                     android:orientation="horizontal"
                     android:paddingHorizontal="24dp"
                     android:paddingVertical="18dp">
-
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:orientation="vertical">
-
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:fontFamily="sans-serif-black"
                             android:text="DRIVER SHARE"
                             android:textColor="@color/color_text_muted"
                             android:textSize="11sp"
                             android:textStyle="bold" />
-
                         <TextView
                             android:id="@+id/tv_desc_gov_deductions"
                             android:layout_width="match_parent"
@@ -257,15 +231,14 @@
                             android:textColor="@color/color_text_muted"
                             android:textSize="12sp" />
                     </LinearLayout>
-
                     <TextView
                         android:id="@+id/tv_val_deductions"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif-black"
                         android:text="₱ 1,126.40"
                         android:textColor="@color/color_brand_primary"
-                        android:textSize="16sp" />
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
                 </LinearLayout>
 
                 <View
@@ -282,22 +255,18 @@
                     android:orientation="horizontal"
                     android:paddingHorizontal="24dp"
                     android:paddingVertical="18dp">
-
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:orientation="vertical">
-
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:fontFamily="sans-serif-black"
                             android:text="PAO SHARE"
                             android:textColor="@color/color_text_muted"
                             android:textSize="11sp"
                             android:textStyle="bold" />
-
                         <TextView
                             android:id="@+id/tv_desc_attendance_incentive"
                             android:layout_width="match_parent"
@@ -306,15 +275,14 @@
                             android:textColor="@color/color_text_muted"
                             android:textSize="12sp" />
                     </LinearLayout>
-
                     <TextView
                         android:id="@+id/tv_val_incentives"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif-black"
                         android:text="₱ 768.00"
                         android:textColor="@color/color_brand_primary"
-                        android:textSize="16sp" />
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
                 </LinearLayout>
 
                 <View
@@ -323,7 +291,7 @@
                     android:layout_marginHorizontal="24dp"
                     android:background="@color/color_divider" />
 
-                <!-- Gross Income Row -->
+                <!-- Gross Row -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -331,22 +299,18 @@
                     android:orientation="horizontal"
                     android:paddingHorizontal="24dp"
                     android:paddingVertical="18dp">
-
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:orientation="vertical">
-
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:fontFamily="sans-serif-black"
-                            android:text="GROSS"
+                            android:text="GROSS INCOME"
                             android:textColor="@color/color_text_muted"
                             android:textSize="11sp"
                             android:textStyle="bold" />
-
                         <TextView
                             android:id="@+id/tv_desc_gross_income"
                             android:layout_width="match_parent"
@@ -355,15 +319,14 @@
                             android:textColor="@color/color_text_muted"
                             android:textSize="12sp" />
                     </LinearLayout>
-
                     <TextView
                         android:id="@+id/tv_val_gross_income"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif-black"
                         android:text="₱ 8,120.00"
                         android:textColor="@color/color_brand_primary"
-                        android:textSize="16sp" />
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
                 </LinearLayout>
 
                 <View
@@ -380,22 +343,18 @@
                     android:orientation="horizontal"
                     android:paddingHorizontal="24dp"
                     android:paddingVertical="18dp">
-
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:orientation="vertical">
-
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:fontFamily="sans-serif-black"
                             android:text="EXPENSES"
                             android:textColor="@color/color_text_muted"
                             android:textSize="11sp"
                             android:textStyle="bold" />
-
                         <TextView
                             android:id="@+id/tv_desc_operator_boundary"
                             android:layout_width="match_parent"
@@ -404,15 +363,14 @@
                             android:textColor="@color/color_text_muted"
                             android:textSize="12sp" />
                     </LinearLayout>
-
                     <TextView
                         android:id="@+id/tv_val_remittance_due"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif-black"
                         android:text="- ₱ 3,218.94"
                         android:textColor="@color/color_brand_primary"
-                        android:textSize="16sp" />
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
                 </LinearLayout>
 
                 <!-- Highlighted Net Income Row -->
@@ -424,22 +382,18 @@
                     android:orientation="horizontal"
                     android:paddingHorizontal="24dp"
                     android:paddingVertical="22dp">
-
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:orientation="vertical">
-
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:fontFamily="sans-serif-black"
                             android:text="NET INCOME"
                             android:textColor="@color/color_brand_primary"
                             android:textSize="16sp"
                             android:textStyle="bold" />
-
                         <TextView
                             android:id="@+id/tv_net_income_calculation"
                             android:layout_width="match_parent"
@@ -448,12 +402,10 @@
                             android:textColor="@color/color_text_muted"
                             android:textSize="12sp" />
                     </LinearLayout>
-
                     <TextView
                         android:id="@+id/tv_val_net_income_bottom"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif-black"
                         android:text="₱ 4,901.06"
                         android:textColor="@color/color_brand_primary"
                         android:textSize="18sp"
@@ -462,12 +414,11 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Today's Remittance Card -->
+        <!-- Schedule Details Card -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
-            android:fontFamily="sans-serif-black"
             android:letterSpacing="0.1"
             android:text="SCHEDULE DETAILS"
             android:textColor="@color/color_brand_primary"
@@ -480,24 +431,24 @@
             android:layout_marginTop="16dp"
             android:layout_marginBottom="24dp"
             app:cardBackgroundColor="@android:color/transparent"
-            app:cardCornerRadius="24dp"
-            app:cardElevation="2dp"
-            app:strokeWidth="0dp">
+            app:cardCornerRadius="32dp"
+            app:cardElevation="4dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="@color/color_divider"
+            android:outlineAmbientShadowColor="@color/color_card_shadow_ambient"
+            android:outlineSpotShadowColor="@color/color_card_shadow_spot">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_item_card_gradient"
                 android:orientation="vertical"
-                android:padding="32dp">
+                android:padding="24dp">
 
-                <!-- Row 1: Date and Last Partial -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="40dp"
                     android:orientation="horizontal">
-
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -509,17 +460,16 @@
                             android:text="DATE"
                             android:textColor="@color/color_text_muted"
                             android:textSize="10sp"
-                            android:fontFamily="sans-serif-black" />
+                            android:textStyle="bold" />
                         <TextView
                             android:id="@+id/tv_val_schedule_date"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Sep 3, 12:00 AM"
                             android:textColor="@color/color_brand_primary"
-                            android:textSize="17sp"
-                            android:fontFamily="sans-serif-black" />
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
                     </LinearLayout>
-
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -532,31 +482,28 @@
                             android:text="LAST PARTIAL"
                             android:textColor="@color/color_text_muted"
                             android:textSize="10sp"
-                            android:fontFamily="sans-serif-black" />
+                            android:textStyle="bold" />
                         <TextView
                             android:id="@+id/tv_val_last_partial"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Sep 3, 11:36 PM"
                             android:textColor="@color/color_brand_primary"
-                            android:textSize="17sp"
-                            android:fontFamily="sans-serif-black" />
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
                     </LinearLayout>
                 </LinearLayout>
 
-                <!-- Row 2: Gross, Expenses, Net Summary -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="28dp"
+                    android:layout_marginTop="24dp"
                     android:orientation="horizontal"
                     android:weightSum="3">
-
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:gravity="start"
                         android:orientation="vertical">
                         <TextView
                             android:layout_width="wrap_content"
@@ -564,17 +511,16 @@
                             android:text="GROSS"
                             android:textColor="@color/color_text_muted"
                             android:textSize="10sp"
-                            android:fontFamily="sans-serif-black" />
+                            android:textStyle="bold" />
                         <TextView
                             android:id="@+id/tv_val_schedule_gross"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="₱ 0.00"
                             android:textColor="@color/color_brand_primary"
-                            android:textSize="17sp"
-                            android:fontFamily="sans-serif-black" />
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
                     </LinearLayout>
-
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -587,17 +533,16 @@
                             android:text="EXPENSES"
                             android:textColor="@color/color_text_muted"
                             android:textSize="10sp"
-                            android:fontFamily="sans-serif-black" />
+                            android:textStyle="bold" />
                         <TextView
                             android:id="@+id/tv_val_schedule_expenses"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="₱ 0.00"
                             android:textColor="@color/color_brand_primary"
-                            android:textSize="17sp"
-                            android:fontFamily="sans-serif-black" />
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
                     </LinearLayout>
-
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -610,15 +555,15 @@
                             android:text="NET"
                             android:textColor="@color/color_text_muted"
                             android:textSize="10sp"
-                            android:fontFamily="sans-serif-black" />
+                            android:textStyle="bold" />
                         <TextView
                             android:id="@+id/tv_val_schedule_net"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="₱ 0.00"
                             android:textColor="@color/color_brand_primary"
-                            android:textSize="17sp"
-                            android:fontFamily="sans-serif-black" />
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
                     </LinearLayout>
                 </LinearLayout>
 

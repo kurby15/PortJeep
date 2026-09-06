@@ -81,24 +81,12 @@ public class StatusBannerAdapter extends RecyclerView.Adapter<StatusBannerAdapte
 
     private void renderRestDays(LinearLayout container, List<String> restDays) {
         container.removeAllViews();
-        LayoutInflater inflater = LayoutInflater.from(context);
-
         if (restDays == null || restDays.isEmpty()) {
-            SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE", Locale.US);
-            View rowView = inflater.inflate(R.layout.item_rest_day_row, container, false);
-            TextView tvDayName = rowView.findViewById(R.id.tv_rest_day_name);
-            TextView tvStatus = rowView.findViewById(R.id.tv_rest_day_status);
-
-            if (tvDayName != null) tvDayName.setText(dayFormat.format(new Date()));
-            if (tvStatus != null) {
-                tvStatus.setText("●  REST DAY");
-                tvStatus.setBackgroundResource(R.drawable.bg_status_rest);
-            }
-
-            container.addView(rowView);
+            addEmptyStateView(container, "No upcoming rest days found.");
             return;
         }
 
+        LayoutInflater inflater = LayoutInflater.from(context);
         for (String day : restDays) {
             View rowView = inflater.inflate(R.layout.item_rest_day_row, container, false);
             TextView tvDayName = rowView.findViewById(R.id.tv_rest_day_name);
@@ -116,29 +104,12 @@ public class StatusBannerAdapter extends RecyclerView.Adapter<StatusBannerAdapte
 
     private void renderUnassigned(LinearLayout container, List<JSONObject> unassignedList) {
         container.removeAllViews();
-        LayoutInflater inflater = LayoutInflater.from(context);
-
         if (unassignedList == null || unassignedList.isEmpty()) {
-            TextView tvEmpty = new TextView(context);
-            tvEmpty.setText("All schedules are currently assigned.");
-            tvEmpty.setGravity(Gravity.CENTER);
-            tvEmpty.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-            tvEmpty.setTextColor(ContextCompat.getColor(context, R.color.color_text_muted));
-            tvEmpty.setTextSize(14);
-
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-            );
-            tvEmpty.setLayoutParams(params);
-
-            int padding = (int) (16 * context.getResources().getDisplayMetrics().density);
-            tvEmpty.setPadding(0, padding, 0, padding);
-
-            container.addView(tvEmpty);
+            addEmptyStateView(container, "No unassigned schedules found.");
             return;
         }
 
+        LayoutInflater inflater = LayoutInflater.from(context);
         for (JSONObject doc : unassignedList) {
             View rowView = inflater.inflate(R.layout.item_unassigned_row, container, false);
             TextView tvDayName = rowView.findViewById(R.id.tv_unassigned_day_name);
@@ -150,10 +121,38 @@ public class StatusBannerAdapter extends RecyclerView.Adapter<StatusBannerAdapte
             if (tvStatus != null) {
                 tvStatus.setText("●  UNASSIGNED");
                 tvStatus.setBackgroundResource(R.drawable.bg_status_unassigned);
+                tvStatus.setTextColor(ContextCompat.getColor(context, R.color.color_error_text));
             }
 
             container.addView(rowView);
         }
+    }
+
+    private void addEmptyStateView(LinearLayout container, String message) {
+        TextView tvEmpty = new TextView(context);
+        tvEmpty.setText(message);
+        tvEmpty.setGravity(Gravity.CENTER);
+        tvEmpty.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+        tvEmpty.setTextColor(ContextCompat.getColor(context, R.color.color_text_muted));
+        tvEmpty.setTextSize(13);
+
+        // Styling the background as a pill-shaped container like the screenshot
+        tvEmpty.setBackgroundResource(R.drawable.bg_status_assigned);
+        tvEmpty.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.color_background_secondary)));
+
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        int marginVertical = (int) (16 * context.getResources().getDisplayMetrics().density);
+        params.setMargins(0, marginVertical, 0, 0);
+        tvEmpty.setLayoutParams(params);
+
+        int paddingVertical = (int) (18 * context.getResources().getDisplayMetrics().density);
+        int paddingHorizontal = (int) (12 * context.getResources().getDisplayMetrics().density);
+        tvEmpty.setPadding(paddingHorizontal, paddingVertical, paddingHorizontal, paddingVertical);
+
+        container.addView(tvEmpty);
     }
 
     @Override

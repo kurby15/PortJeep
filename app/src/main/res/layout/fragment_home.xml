@@ -9,7 +9,7 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/color_background_primary"
+        android:background="@android:color/transparent"
         android:clipChildren="false"
         android:clipToPadding="false"
         android:fillViewport="true"
@@ -25,7 +25,7 @@
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/color_brand_primary">
+                android:background="@drawable/bg_header_gradient">
 
                 <com.facebook.shimmer.ShimmerFrameLayout
                     android:id="@+id/shimmer_header"
@@ -121,7 +121,8 @@
 
                 <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:clipChildren="false">
 
                     <com.facebook.shimmer.ShimmerFrameLayout
                         android:id="@+id/shimmer_view_container"
@@ -136,7 +137,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             app:cardBackgroundColor="@color/color_surface"
-                            app:cardCornerRadius="24dp"
+                            app:cardCornerRadius="32dp"
                             app:cardElevation="2dp"
                             app:strokeColor="@color/color_divider"
                             app:strokeWidth="1dp">
@@ -153,10 +154,12 @@
                         android:layout_height="wrap_content"
                         android:visibility="gone"
                         app:cardBackgroundColor="@color/color_surface"
-                        app:cardCornerRadius="24dp"
-                        app:cardElevation="2dp"
+                        app:cardCornerRadius="32dp"
+                        app:cardElevation="10dp"
                         app:strokeColor="@color/color_divider"
                         app:strokeWidth="1dp"
+                        android:outlineAmbientShadowColor="@color/color_card_shadow_ambient"
+                        android:outlineSpotShadowColor="@color/color_card_shadow_spot"
                         tools:visibility="visible">
 
                         <LinearLayout
@@ -200,7 +203,7 @@
                                     android:id="@+id/tv_today_date"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:background="@drawable/bg_status_assigned"
+                                    android:background="@drawable/bg_status_assigned_gradient"
                                     android:paddingStart="12dp"
                                     android:paddingTop="8dp"
                                     android:paddingEnd="12dp"
@@ -216,7 +219,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="20dp"
-                                android:background="@drawable/bg_jeep_card"
+                                android:background="@drawable/bg_jeep_card_gradient"
                                 android:gravity="center_vertical"
                                 android:orientation="horizontal"
                                 android:padding="16dp">
@@ -283,7 +286,7 @@
                                     android:id="@+id/tv_jeep_status"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:background="@drawable/bg_status_active"
+                                    android:background="@drawable/bg_status_active_gradient"
                                     android:paddingStart="12dp"
                                     android:paddingTop="8dp"
                                     android:paddingEnd="12dp"
@@ -400,7 +403,7 @@
                                     android:id="@+id/tv_assignment_status"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:background="@drawable/bg_status_assigned"
+                                    android:background="@drawable/bg_status_assigned_gradient"
                                     android:paddingStart="12dp"
                                     android:paddingTop="8dp"
                                     android:paddingEnd="12dp"
@@ -446,7 +449,8 @@
                 <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp">
+                    android:layout_marginTop="12dp"
+                    android:clipChildren="false">
 
                     <com.facebook.shimmer.ShimmerFrameLayout
                         android:id="@+id/shimmer_quick_access"
@@ -468,8 +472,8 @@
                                 android:layout_marginEnd="8dp"
                                 android:layout_weight="1"
                                 app:cardBackgroundColor="@color/color_surface"
-                                app:cardCornerRadius="20dp"
-                                app:cardElevation="1dp"
+                                app:cardCornerRadius="28dp"
+                                app:cardElevation="2dp"
                                 app:strokeColor="@color/color_divider"
                                 app:strokeWidth="1dp">
                                 <include layout="@layout/item_skeleton_quick_access" />
@@ -481,8 +485,8 @@
                                 android:layout_marginStart="8dp"
                                 android:layout_weight="1"
                                 app:cardBackgroundColor="@color/color_surface"
-                                app:cardCornerRadius="20dp"
-                                app:cardElevation="1dp"
+                                app:cardCornerRadius="28dp"
+                                app:cardElevation="2dp"
                                 app:strokeColor="@color/color_divider"
                                 app:strokeWidth="1dp">
                                 <include layout="@layout/item_skeleton_quick_access" />
@@ -496,6 +500,7 @@
                         android:id="@+id/ll_quick_access_content"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:clipChildren="false"
                         android:orientation="horizontal"
                         android:visibility="gone"
                         tools:visibility="visible">
@@ -510,10 +515,12 @@
                             android:focusable="true"
                             android:foreground="?attr/selectableItemBackground"
                             app:cardBackgroundColor="@color/color_surface"
-                            app:cardCornerRadius="20dp"
-                            app:cardElevation="1dp"
+                            app:cardCornerRadius="28dp"
+                            app:cardElevation="8dp"
                             app:strokeColor="@color/color_divider"
-                            app:strokeWidth="1dp">
+                            app:strokeWidth="1dp"
+                            android:outlineAmbientShadowColor="@color/color_card_shadow_ambient"
+                            android:outlineSpotShadowColor="@color/color_card_shadow_spot">
 
                             <LinearLayout
                                 android:layout_width="match_parent"
@@ -525,7 +532,7 @@
                                 <ImageView
                                     android:layout_width="88dp"
                                     android:layout_height="88dp"
-                                    android:background="@drawable/bg_quick_schedule"
+                                    android:background="@drawable/bg_circle_icon"
                                     android:backgroundTint="@color/color_quick_access_fill"
                                     android:contentDescription="Schedule"
                                     android:padding="22dp"
@@ -563,10 +570,12 @@
                             android:focusable="true"
                             android:foreground="?attr/selectableItemBackground"
                             app:cardBackgroundColor="@color/color_surface"
-                            app:cardCornerRadius="20dp"
-                            app:cardElevation="1dp"
+                            app:cardCornerRadius="28dp"
+                            app:cardElevation="8dp"
                             app:strokeColor="@color/color_divider"
-                            app:strokeWidth="1dp">
+                            app:strokeWidth="1dp"
+                            android:outlineAmbientShadowColor="@color/color_card_shadow_ambient"
+                            android:outlineSpotShadowColor="@color/color_card_shadow_spot">
 
                             <LinearLayout
                                 android:layout_width="match_parent"
@@ -578,7 +587,7 @@
                                 <ImageView
                                     android:layout_width="88dp"
                                     android:layout_height="88dp"
-                                    android:background="@drawable/bg_quick_salary"
+                                    android:background="@drawable/bg_circle_icon"
                                     android:backgroundTint="@color/color_quick_access_fill"
                                     android:contentDescription="Salary"
                                     android:padding="22dp"
@@ -687,10 +696,12 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     app:cardBackgroundColor="@color/color_surface"
-                    app:cardCornerRadius="20dp"
-                    app:cardElevation="1dp"
+                    app:cardCornerRadius="32dp"
+                    app:cardElevation="8dp"
                     app:strokeColor="@color/color_divider"
-                    app:strokeWidth="1dp">
+                    app:strokeWidth="1dp"
+                    android:outlineAmbientShadowColor="@color/color_card_shadow_ambient"
+                    android:outlineSpotShadowColor="@color/color_card_shadow_spot">
 
                     <FrameLayout
                         android:layout_width="match_parent"

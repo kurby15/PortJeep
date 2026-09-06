@@ -13,7 +13,7 @@
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/color_background_primary"
+            android:background="@android:color/transparent"
             android:clipChildren="false"
             android:clipToPadding="false"
             android:fillViewport="true"
@@ -26,20 +26,17 @@
                 android:clipChildren="false"
                 android:orientation="vertical">
 
-                <!-- ========================================================= -->
-                <!-- MODERN HEADER                                             -->
-                <!-- ========================================================= -->
+                <!-- Header with Modern Gradient -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/color_brand_primary"
+                    android:background="@drawable/bg_header_gradient"
                     android:orientation="vertical"
                     android:paddingStart="22dp"
                     android:paddingTop="30dp"
                     android:paddingEnd="22dp"
                     android:paddingBottom="42dp">
 
-                    <!-- Title -->
                     <TextView
                         android:id="@+id/tv_title"
                         android:layout_width="wrap_content"
@@ -50,7 +47,6 @@
                         android:textSize="28sp"
                         android:textStyle="bold" />
 
-                    <!-- Subtitle -->
                     <TextView
                         android:id="@+id/tv_subtitle"
                         android:layout_width="wrap_content"
@@ -63,9 +59,6 @@
 
                 </LinearLayout>
 
-                <!-- ========================================================= -->
-                <!-- MAIN CONTENT CONTAINER                                    -->
-                <!-- ========================================================= -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -104,34 +97,36 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 app:cardBackgroundColor="@color/color_surface"
-                                app:cardCornerRadius="20dp"
-                                app:cardElevation="3dp"
+                                app:cardCornerRadius="32dp"
+                                app:cardElevation="10dp"
                                 app:strokeColor="@color/color_divider"
-                                app:strokeWidth="1dp">
+                                app:strokeWidth="1dp"
+                                android:outlineAmbientShadowColor="@color/color_card_shadow_ambient"
+                                android:outlineSpotShadowColor="@color/color_card_shadow_spot">
 
                                 <LinearLayout
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:gravity="center_vertical"
                                     android:orientation="horizontal"
-                                    android:padding="20dp">
+                                    android:padding="22dp">
 
                                     <TextView
                                         android:id="@+id/tv_avatar_initials"
-                                        android:layout_width="60dp"
-                                        android:layout_height="60dp"
-                                        android:background="@drawable/bg_circle_avatar"
-                                        android:backgroundTint="@color/color_background_secondary"
+                                        android:layout_width="64dp"
+                                        android:layout_height="64dp"
+                                        android:background="@drawable/bg_circle_icon"
+                                        android:backgroundTint="@color/color_quick_access_fill"
                                         android:gravity="center"
                                         android:text="RD"
                                         android:textColor="@color/color_brand_primary"
-                                        android:textSize="20sp"
+                                        android:textSize="22sp"
                                         android:textStyle="bold" />
 
                                     <LinearLayout
                                         android:layout_width="0dp"
                                         android:layout_height="wrap_content"
-                                        android:layout_marginStart="14dp"
+                                        android:layout_marginStart="18dp"
                                         android:layout_weight="1"
                                         android:orientation="vertical">
 
@@ -141,7 +136,7 @@
                                             android:layout_height="wrap_content"
                                             android:text="Ricardo Dela Cruz"
                                             android:textColor="@color/color_text_primary"
-                                            android:textSize="18sp"
+                                            android:textSize="20sp"
                                             android:textStyle="bold" />
 
                                         <TextView
@@ -151,21 +146,21 @@
                                             android:layout_marginTop="2dp"
                                             android:text="EMP-2024-0042"
                                             android:textColor="@color/color_text_secondary"
-                                            android:textSize="11sp" />
+                                            android:textSize="12sp" />
 
                                         <TextView
                                             android:id="@+id/tv_status_badge"
                                             android:layout_width="wrap_content"
                                             android:layout_height="wrap_content"
                                             android:layout_marginTop="8dp"
-                                            android:background="@drawable/bg_status_active"
-                                            android:paddingStart="10dp"
-                                            android:paddingTop="5dp"
-                                            android:paddingEnd="10dp"
-                                            android:paddingBottom="5dp"
+                                            android:background="@drawable/bg_status_active_gradient"
+                                            android:paddingStart="12dp"
+                                            android:paddingTop="6dp"
+                                            android:paddingEnd="12dp"
+                                            android:paddingBottom="6dp"
                                             android:text="●  Active"
-                                            android:textColor="#2E7D32"
-                                            android:textSize="10sp"
+                                            android:textColor="@color/color_status_active_text"
+                                            android:textSize="11sp"
                                             android:textStyle="bold" />
                                     </LinearLayout>
                                 </LinearLayout>
@@ -175,27 +170,29 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="26dp"
-                                android:layout_marginBottom="8dp"
-                                android:letterSpacing="0.05"
+                                android:layout_marginTop="32dp"
+                                android:layout_marginBottom="12dp"
+                                android:letterSpacing="0.08"
                                 android:text="PERSONAL INFORMATION"
                                 android:textColor="@color/color_brand_primary"
-                                android:textSize="11sp"
+                                android:textSize="12sp"
                                 android:textStyle="bold" />
 
                             <com.google.android.material.card.MaterialCardView
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 app:cardBackgroundColor="@color/color_surface"
-                                app:cardCornerRadius="18dp"
-                                app:cardElevation="2dp"
+                                app:cardCornerRadius="28dp"
+                                app:cardElevation="6dp"
                                 app:strokeColor="@color/color_divider"
-                                app:strokeWidth="1dp">
+                                app:strokeWidth="1dp"
+                                android:outlineAmbientShadowColor="@color/color_card_shadow_ambient"
+                                android:outlineSpotShadowColor="@color/color_card_shadow_spot">
 
                                 <LinearLayout
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:divider="?android:attr/listDivider"
+                                    android:divider="@color/color_divider"
                                     android:orientation="vertical"
                                     android:showDividers="middle">
 
@@ -204,21 +201,21 @@
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:gravity="center_vertical"
-                                        android:padding="16dp">
+                                        android:padding="20dp">
 
                                         <ImageView
-                                            android:layout_width="38dp"
-                                            android:layout_height="38dp"
-                                            android:background="@drawable/bg_icon_blue_light"
-                                            android:backgroundTint="@color/color_background_secondary"
-                                            android:padding="10dp"
+                                            android:layout_width="42dp"
+                                            android:layout_height="42dp"
+                                            android:background="@drawable/bg_circle_icon"
+                                            android:backgroundTint="@color/color_quick_access_fill"
+                                            android:padding="12dp"
                                             android:src="@drawable/work"
                                             app:tint="@color/color_brand_primary" />
 
                                         <LinearLayout
                                             android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
-                                            android:layout_marginStart="13dp"
+                                            android:layout_marginStart="16dp"
                                             android:orientation="vertical">
 
                                             <TextView
@@ -226,17 +223,17 @@
                                                 android:layout_height="wrap_content"
                                                 android:text="POSITION"
                                                 android:textColor="@color/color_text_muted"
-                                                android:textSize="10sp"
+                                                android:textSize="11sp"
                                                 android:textStyle="bold" />
 
                                             <TextView
                                                 android:id="@+id/tv_position"
                                                 android:layout_width="wrap_content"
                                                 android:layout_height="wrap_content"
-                                                android:layout_marginTop="2dp"
+                                                android:layout_marginTop="4dp"
                                                 android:text="Driver"
                                                 android:textColor="@color/color_text_primary"
-                                                android:textSize="13sp"
+                                                android:textSize="15sp"
                                                 android:textStyle="bold" />
                                         </LinearLayout>
                                     </LinearLayout>
@@ -246,21 +243,21 @@
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:gravity="center_vertical"
-                                        android:padding="16dp">
+                                        android:padding="20dp">
 
                                         <ImageView
-                                            android:layout_width="38dp"
-                                            android:layout_height="38dp"
-                                            android:background="@drawable/bg_icon_blue_light"
-                                            android:backgroundTint="@color/color_background_secondary"
-                                            android:padding="10dp"
+                                            android:layout_width="42dp"
+                                            android:layout_height="42dp"
+                                            android:background="@drawable/bg_circle_icon"
+                                            android:backgroundTint="@color/color_quick_access_fill"
+                                            android:padding="12dp"
                                             android:src="@drawable/calendar"
                                             app:tint="@color/color_brand_primary" />
 
                                         <LinearLayout
                                             android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
-                                            android:layout_marginStart="13dp"
+                                            android:layout_marginStart="16dp"
                                             android:orientation="vertical">
 
                                             <TextView
@@ -268,17 +265,17 @@
                                                 android:layout_height="wrap_content"
                                                 android:text="DATE HIRED"
                                                 android:textColor="@color/color_text_muted"
-                                                android:textSize="10sp"
+                                                android:textSize="11sp"
                                                 android:textStyle="bold" />
 
                                             <TextView
                                                 android:id="@+id/tv_date_hired"
                                                 android:layout_width="wrap_content"
                                                 android:layout_height="wrap_content"
-                                                android:layout_marginTop="2dp"
+                                                android:layout_marginTop="4dp"
                                                 android:text="June 1, 2021"
                                                 android:textColor="@color/color_text_primary"
-                                                android:textSize="13sp"
+                                                android:textSize="15sp"
                                                 android:textStyle="bold" />
                                         </LinearLayout>
                                     </LinearLayout>
@@ -288,21 +285,21 @@
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:gravity="center_vertical"
-                                        android:padding="16dp">
+                                        android:padding="20dp">
 
                                         <ImageView
-                                            android:layout_width="38dp"
-                                            android:layout_height="38dp"
-                                            android:background="@drawable/bg_icon_blue_light"
-                                            android:backgroundTint="@color/color_background_secondary"
-                                            android:padding="10dp"
+                                            android:layout_width="42dp"
+                                            android:layout_height="42dp"
+                                            android:background="@drawable/bg_circle_icon"
+                                            android:backgroundTint="@color/color_quick_access_fill"
+                                            android:padding="12dp"
                                             android:src="@drawable/civil"
                                             app:tint="@color/color_brand_primary" />
 
                                         <LinearLayout
                                             android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
-                                            android:layout_marginStart="13dp"
+                                            android:layout_marginStart="16dp"
                                             android:orientation="vertical">
 
                                             <TextView
@@ -310,17 +307,17 @@
                                                 android:layout_height="wrap_content"
                                                 android:text="CIVIL STATUS"
                                                 android:textColor="@color/color_text_muted"
-                                                android:textSize="10sp"
+                                                android:textSize="11sp"
                                                 android:textStyle="bold" />
 
                                             <TextView
                                                 android:id="@+id/tv_civil_status"
                                                 android:layout_width="wrap_content"
                                                 android:layout_height="wrap_content"
-                                                android:layout_marginTop="2dp"
+                                                android:layout_marginTop="4dp"
                                                 android:text="Married"
                                                 android:textColor="@color/color_text_primary"
-                                                android:textSize="13sp"
+                                                android:textSize="15sp"
                                                 android:textStyle="bold" />
                                         </LinearLayout>
                                     </LinearLayout>
@@ -330,21 +327,21 @@
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:gravity="center_vertical"
-                                        android:padding="16dp">
+                                        android:padding="20dp">
 
                                         <ImageView
-                                            android:layout_width="38dp"
-                                            android:layout_height="38dp"
-                                            android:background="@drawable/bg_icon_blue_light"
-                                            android:backgroundTint="@color/color_background_secondary"
-                                            android:padding="10dp"
+                                            android:layout_width="42dp"
+                                            android:layout_height="42dp"
+                                            android:background="@drawable/bg_circle_icon"
+                                            android:backgroundTint="@color/color_quick_access_fill"
+                                            android:padding="12dp"
                                             android:src="@drawable/sex"
                                             app:tint="@color/color_brand_primary" />
 
                                         <LinearLayout
                                             android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
-                                            android:layout_marginStart="13dp"
+                                            android:layout_marginStart="16dp"
                                             android:orientation="vertical">
 
                                             <TextView
@@ -352,17 +349,17 @@
                                                 android:layout_height="wrap_content"
                                                 android:text="SEX"
                                                 android:textColor="@color/color_text_muted"
-                                                android:textSize="10sp"
+                                                android:textSize="11sp"
                                                 android:textStyle="bold" />
 
                                             <TextView
                                                 android:id="@+id/tv_sex"
                                                 android:layout_width="wrap_content"
                                                 android:layout_height="wrap_content"
-                                                android:layout_marginTop="2dp"
+                                                android:layout_marginTop="4dp"
                                                 android:text="Male"
                                                 android:textColor="@color/color_text_primary"
-                                                android:textSize="13sp"
+                                                android:textSize="15sp"
                                                 android:textStyle="bold" />
                                         </LinearLayout>
                                     </LinearLayout>
@@ -374,27 +371,29 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="26dp"
-                                android:layout_marginBottom="8dp"
-                                android:letterSpacing="0.05"
+                                android:layout_marginTop="32dp"
+                                android:layout_marginBottom="12dp"
+                                android:letterSpacing="0.08"
                                 android:text="CONTACT INFORMATION"
                                 android:textColor="@color/color_brand_primary"
-                                android:textSize="11sp"
+                                android:textSize="12sp"
                                 android:textStyle="bold" />
 
                             <com.google.android.material.card.MaterialCardView
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 app:cardBackgroundColor="@color/color_surface"
-                                app:cardCornerRadius="18dp"
-                                app:cardElevation="2dp"
+                                app:cardCornerRadius="28dp"
+                                app:cardElevation="6dp"
                                 app:strokeColor="@color/color_divider"
-                                app:strokeWidth="1dp">
+                                app:strokeWidth="1dp"
+                                android:outlineAmbientShadowColor="@color/color_card_shadow_ambient"
+                                android:outlineSpotShadowColor="@color/color_card_shadow_spot">
 
                                 <LinearLayout
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:divider="?android:attr/listDivider"
+                                    android:divider="@color/color_divider"
                                     android:orientation="vertical"
                                     android:showDividers="middle">
 
@@ -403,21 +402,21 @@
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:gravity="center_vertical"
-                                        android:padding="16dp">
+                                        android:padding="20dp">
 
                                         <ImageView
-                                            android:layout_width="38dp"
-                                            android:layout_height="38dp"
-                                            android:background="@drawable/bg_icon_blue_light"
-                                            android:backgroundTint="@color/color_background_secondary"
-                                            android:padding="10dp"
+                                            android:layout_width="42dp"
+                                            android:layout_height="42dp"
+                                            android:background="@drawable/bg_circle_icon"
+                                            android:backgroundTint="@color/color_quick_access_fill"
+                                            android:padding="12dp"
                                             android:src="@drawable/mail"
                                             app:tint="@color/color_brand_primary" />
 
                                         <LinearLayout
                                             android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
-                                            android:layout_marginStart="13dp"
+                                            android:layout_marginStart="16dp"
                                             android:orientation="vertical">
 
                                             <TextView
@@ -425,17 +424,17 @@
                                                 android:layout_height="wrap_content"
                                                 android:text="EMAIL"
                                                 android:textColor="@color/color_text_muted"
-                                                android:textSize="10sp"
+                                                android:textSize="11sp"
                                                 android:textStyle="bold" />
 
                                             <TextView
                                                 android:id="@+id/tv_email"
                                                 android:layout_width="wrap_content"
                                                 android:layout_height="wrap_content"
-                                                android:layout_marginTop="2dp"
+                                                android:layout_marginTop="4dp"
                                                 android:text="r.delacruz@portjeep.ph"
                                                 android:textColor="@color/color_text_primary"
-                                                android:textSize="13sp"
+                                                android:textSize="15sp"
                                                 android:textStyle="bold" />
                                         </LinearLayout>
                                     </LinearLayout>
@@ -445,21 +444,21 @@
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:gravity="center_vertical"
-                                        android:padding="16dp">
+                                        android:padding="20dp">
 
                                         <ImageView
-                                            android:layout_width="38dp"
-                                            android:layout_height="38dp"
-                                            android:background="@drawable/bg_icon_blue_light"
-                                            android:backgroundTint="@color/color_background_secondary"
-                                            android:padding="10dp"
+                                            android:layout_width="42dp"
+                                            android:layout_height="42dp"
+                                            android:background="@drawable/bg_circle_icon"
+                                            android:backgroundTint="@color/color_quick_access_fill"
+                                            android:padding="12dp"
                                             android:src="@drawable/phone"
                                             app:tint="@color/color_brand_primary" />
 
                                         <LinearLayout
                                             android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
-                                            android:layout_marginStart="13dp"
+                                            android:layout_marginStart="16dp"
                                             android:orientation="vertical">
 
                                             <TextView
@@ -467,17 +466,17 @@
                                                 android:layout_height="wrap_content"
                                                 android:text="CONTACT NO."
                                                 android:textColor="@color/color_text_muted"
-                                                android:textSize="10sp"
+                                                android:textSize="11sp"
                                                 android:textStyle="bold" />
 
                                             <TextView
                                                 android:id="@+id/tv_phone"
                                                 android:layout_width="wrap_content"
                                                 android:layout_height="wrap_content"
-                                                android:layout_marginTop="2dp"
+                                                android:layout_marginTop="4dp"
                                                 android:text="09171234567"
                                                 android:textColor="@color/color_text_primary"
-                                                android:textSize="13sp"
+                                                android:textSize="15sp"
                                                 android:textStyle="bold" />
                                         </LinearLayout>
                                     </LinearLayout>
@@ -487,21 +486,21 @@
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:gravity="center_vertical"
-                                        android:padding="16dp">
+                                        android:padding="20dp">
 
                                         <ImageView
-                                            android:layout_width="38dp"
-                                            android:layout_height="38dp"
-                                            android:background="@drawable/bg_icon_blue_light"
-                                            android:backgroundTint="@color/color_background_secondary"
-                                            android:padding="10dp"
+                                            android:layout_width="42dp"
+                                            android:layout_height="42dp"
+                                            android:background="@drawable/bg_circle_icon"
+                                            android:backgroundTint="@color/color_quick_access_fill"
+                                            android:padding="12dp"
                                             android:src="@drawable/location"
                                             app:tint="@color/color_brand_primary" />
 
                                         <LinearLayout
                                             android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
-                                            android:layout_marginStart="13dp"
+                                            android:layout_marginStart="16dp"
                                             android:orientation="vertical">
 
                                             <TextView
@@ -509,17 +508,17 @@
                                                 android:layout_height="wrap_content"
                                                 android:text="ADDRESS"
                                                 android:textColor="@color/color_text_muted"
-                                                android:textSize="10sp"
+                                                android:textSize="11sp"
                                                 android:textStyle="bold" />
 
                                             <TextView
                                                 android:id="@+id/tv_address"
                                                 android:layout_width="wrap_content"
                                                 android:layout_height="wrap_content"
-                                                android:layout_marginTop="2dp"
+                                                android:layout_marginTop="4dp"
                                                 android:text="Brgy. Balintawak, Caloocan City"
                                                 android:textColor="@color/color_text_primary"
-                                                android:textSize="13sp"
+                                                android:textSize="15sp"
                                                 android:textStyle="bold" />
                                         </LinearLayout>
                                     </LinearLayout>
@@ -527,50 +526,45 @@
                                 </LinearLayout>
                             </com.google.android.material.card.MaterialCardView>
 
-                            <!-- SECTION 3: ACTION BUTTONS -->
+                            <!-- Actions -->
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btn_settings"
                                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                                 android:layout_width="match_parent"
-                                android:layout_height="52dp"
-                                android:layout_marginTop="26dp"
+                                android:layout_height="58dp"
+                                android:layout_marginTop="32dp"
                                 android:text="SETTINGS"
                                 android:textColor="@color/color_brand_primary"
-                                android:textSize="13sp"
+                                android:textSize="14sp"
                                 android:textStyle="bold"
-                                app:cornerRadius="14dp"
+                                app:cornerRadius="29dp"
                                 app:strokeColor="@color/color_brand_primary"
-                                app:strokeWidth="1.5dp" />
+                                app:strokeWidth="2dp" />
 
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btn_sign_out"
                                 style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                                 android:layout_width="match_parent"
-                                android:layout_height="52dp"
-                                android:layout_marginTop="10dp"
-                                android:backgroundTint="@color/color_background_secondary"
+                                android:layout_height="58dp"
+                                android:layout_marginTop="12dp"
+                                android:backgroundTint="@color/color_quick_access_fill"
                                 android:text="SIGN OUT"
                                 android:textColor="@color/color_brand_accent"
-                                android:textSize="13sp"
+                                android:textSize="14sp"
                                 android:textStyle="bold"
-                                app:cornerRadius="14dp"
+                                app:cornerRadius="29dp"
                                 app:icon="@drawable/logout"
                                 app:iconGravity="textStart"
                                 app:iconTint="@color/color_brand_accent" />
 
-                            <!-- Bottom spacing to prevent content from being hidden behind the navigation bar -->
                             <View
                                 android:layout_width="match_parent"
                                 android:layout_height="140dp" />
 
                         </LinearLayout>
-
                     </FrameLayout>
-
                 </LinearLayout>
-
             </LinearLayout>
-
         </ScrollView>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 

@@ -7,10 +7,12 @@
     android:layout_height="wrap_content"
     android:layout_margin="16dp"
     app:cardBackgroundColor="@color/color_surface"
-    app:cardCornerRadius="28dp"
-    app:cardElevation="0dp"
+    app:cardCornerRadius="32dp"
+    app:cardElevation="10dp"
     app:strokeColor="@color/color_divider"
-    app:strokeWidth="1dp">
+    app:strokeWidth="1dp"
+    android:outlineAmbientShadowColor="@color/color_card_shadow_ambient"
+    android:outlineSpotShadowColor="@color/color_card_shadow_spot">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -18,7 +20,7 @@
         android:orientation="vertical"
         android:padding="24dp">
 
-        <!-- Header: Title and Close-like feel -->
+        <!-- Header: Title -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -28,9 +30,6 @@
             android:textStyle="bold"
             android:letterSpacing="0.1" />
 
-        <!-- ===================================================== -->
-        <!-- DATE + STATUS                                         -->
-        <!-- ===================================================== -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -67,7 +66,7 @@
                 android:id="@+id/tv_schedule_status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_status_assigned"
+                android:background="@drawable/bg_status_assigned_gradient"
                 android:paddingStart="14dp"
                 android:paddingTop="8dp"
                 android:paddingEnd="14dp"
@@ -78,16 +77,12 @@
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <!-- Divider -->
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_marginTop="24dp"
             android:background="@color/color_divider" />
 
-        <!-- ===================================================== -->
-        <!-- VEHICLE INFO SECTION                                  -->
-        <!-- ===================================================== -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -102,7 +97,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:background="@drawable/bg_jeep_pill"
+            android:background="@drawable/bg_jeep_card_gradient"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:padding="16dp">
@@ -165,9 +160,6 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- ===================================================== -->
-        <!-- CREW SECTION                                          -->
-        <!-- ===================================================== -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -191,11 +183,8 @@
                 android:layout_marginEnd="6dp"
                 android:layout_weight="1"
                 android:background="@drawable/bg_jeep_pill"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
-                android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="16dp"
+                android:orientation="vertical">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -211,10 +200,10 @@
                     android:layout_marginTop="4dp"
                     android:ellipsize="end"
                     android:maxLines="1"
-                    android:text="Ricardo Dela Cruz"
                     android:textColor="@color/color_text_primary"
                     android:textSize="13sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    tools:text="Ricardo Dela Cruz" />
             </LinearLayout>
 
             <LinearLayout
@@ -224,11 +213,8 @@
                 android:layout_marginStart="6dp"
                 android:layout_weight="1"
                 android:background="@drawable/bg_jeep_pill"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
-                android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="16dp"
+                android:orientation="vertical">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -244,10 +230,10 @@
                     android:layout_marginTop="4dp"
                     android:ellipsize="end"
                     android:maxLines="1"
-                    android:text="Maria Buenaventura"
                     android:textColor="@color/color_text_primary"
                     android:textSize="13sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    tools:text="Maria Buenaventura" />
             </LinearLayout>
         </LinearLayout>
 

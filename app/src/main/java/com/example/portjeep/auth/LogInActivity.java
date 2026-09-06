@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.text.Editable;
-import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.util.Patterns;
@@ -14,9 +13,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.inputmethod.EditorInfo;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -53,16 +49,14 @@ import java.util.concurrent.Executor;
 
 public class LogInActivity extends AppCompatActivity {
     private ScrollView scrollView;
-    private EditText etEmail, etPassword;
-    private ImageView ivTogglePassword;
+    private TextInputLayout tilEmail, tilPassword;
+    private TextInputEditText etEmail, etPassword;
     private TextView tvError, tvForgotPassword;
-    private Button btnLogin;
+    private MaterialButton btnLogin;
     private MaterialButton btnBiometric;
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
-
-    private boolean isPasswordVisible = false;
 
     // Biometric components
     private Executor executor;
@@ -84,9 +78,10 @@ public class LogInActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
 
         scrollView = findViewById(R.id.main);
+        tilEmail = findViewById(R.id.tilEmail);
+        tilPassword = findViewById(R.id.tilPassword);
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
-        ivTogglePassword = findViewById(R.id.ivTogglePassword);
         tvError = findViewById(R.id.tvError);
         tvForgotPassword = findViewById(R.id.tvForgotPassword);
         btnLogin = findViewById(R.id.btnLogin);
@@ -138,20 +133,6 @@ public class LogInActivity extends AppCompatActivity {
             }
         });
 
-        // TOGGLE PASSWORD VISIBILITY
-        ivTogglePassword.setOnClickListener(view -> {
-            if (isPasswordVisible) {
-                etPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-                ivTogglePassword.setImageResource(R.drawable.hide);
-                isPasswordVisible = false;
-            } else {
-                etPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-                ivTogglePassword.setImageResource(R.drawable.view);
-                isPasswordVisible = true;
-            }
-            etPassword.setSelection(etPassword.getText().length());
-        });
-
         // FORGOT PASSWORD BUTTON
         tvForgotPassword.setOnClickListener(view -> showResetPasswordDialog());
 
@@ -199,7 +180,6 @@ public class LogInActivity extends AppCompatActivity {
                 }
             });
 
-            // Update: Include DEVICE_CREDENTIAL (PIN/Pattern/Password) as a fallback
             promptInfo = new BiometricPrompt.PromptInfo.Builder()
                     .setTitle("Secure Login")
                     .setSubtitle("Log in using biometrics or device lock")
@@ -216,14 +196,12 @@ public class LogInActivity extends AppCompatActivity {
 
     private void checkBiometricAvailability() {
         BiometricManager biometricManager = BiometricManager.from(this);
-        // Update: Check for both strong biometrics and device credentials
         int canAuthenticate = biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG | BiometricManager.Authenticators.DEVICE_CREDENTIAL);
-        
-        String savedEmail = encryptedPrefs.getString("saved_email", null);
-        String savedPassword = encryptedPrefs.getString("saved_password", null);
-        String savedUid = encryptedPrefs.getString("saved_uid", null);
 
-        // Check if screen lock login is enabled in settings for this specific user
+        String savedEmail = encryptedPrefs != null ? encryptedPrefs.getString("saved_email", null) : null;
+        String savedPassword = encryptedPrefs != null ? encryptedPrefs.getString("saved_password", null) : null;
+        String savedUid = encryptedPrefs != null ? encryptedPrefs.getString("saved_uid", null) : null;
+
         SharedPreferences settingsPrefs = getSharedPreferences(PREFS_SETTINGS, Context.MODE_PRIVATE);
         boolean isScreenLockEnabled = false;
         if (savedUid != null) {
@@ -255,7 +233,6 @@ public class LogInActivity extends AppCompatActivity {
                     .putString("saved_password", password)
                     .putString("saved_uid", uid)
                     .apply();
-            // Once saved, show the biometric button for next time (if enabled)
             checkBiometricAvailability();
         }
     }
@@ -272,12 +249,11 @@ public class LogInActivity extends AppCompatActivity {
             dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         }
 
-        TextInputLayout tilEmail = dialogView.findViewById(R.id.til_reset_email);
+        TextInputLayout tilResetEmail = dialogView.findViewById(R.id.til_reset_email);
         TextInputEditText etResetEmail = dialogView.findViewById(R.id.et_reset_email);
         MaterialButton btnCancel = dialogView.findViewById(R.id.btn_cancel_reset);
         MaterialButton btnSend = dialogView.findViewById(R.id.btn_send_reset);
 
-        // Pre-fill with current email from login if present
         String currentEmail = etEmail.getText().toString().trim();
         if (!currentEmail.isEmpty()) {
             etResetEmail.setText(currentEmail);
@@ -289,16 +265,16 @@ public class LogInActivity extends AppCompatActivity {
             String inputEmail = etResetEmail != null && etResetEmail.getText() != null ? etResetEmail.getText().toString().trim() : "";
 
             if (inputEmail.isEmpty()) {
-                tilEmail.setError("Email address is required");
+                tilResetEmail.setError("Email address is required");
                 return;
             }
 
             if (!Patterns.EMAIL_ADDRESS.matcher(inputEmail).matches()) {
-                tilEmail.setError("Please enter a valid email address");
+                tilResetEmail.setError("Please enter a valid email address");
                 return;
             }
 
-            tilEmail.setError(null);
+            tilResetEmail.setError(null);
             dialog.dismiss();
             sendPasswordResetEmail(inputEmail);
         });
@@ -320,34 +296,45 @@ public class LogInActivity extends AppCompatActivity {
         TextWatcher errorClearWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 clearErrors();
             }
-
             @Override
             public void afterTextChanged(Editable s) {}
         };
 
         View.OnClickListener clickClearListener = v -> clearErrors();
 
-        // Clear error on type
+        // This ensures the error clears on the first tap when the field isn't yet focused
+        View.OnFocusChangeListener focusClearListener = (v, hasFocus) -> {
+            if (hasFocus) clearErrors();
+        };
+
         etEmail.addTextChangedListener(errorClearWatcher);
         etPassword.addTextChangedListener(errorClearWatcher);
 
-        // Clear error on click/focus
         etEmail.setOnClickListener(clickClearListener);
         etPassword.setOnClickListener(clickClearListener);
+
+        etEmail.setOnFocusChangeListener(focusClearListener);
+        etPassword.setOnFocusChangeListener(focusClearListener);
+
+        // Also clear if clicking the surrounding box
+        tilEmail.setOnClickListener(clickClearListener);
+        tilPassword.setOnClickListener(clickClearListener);
     }
 
     private void clearErrors() {
+        // Clear global error banner if visible
         if (tvError.getVisibility() == View.VISIBLE) {
             tvError.setVisibility(View.GONE);
             tvError.setText("");
-            etEmail.setBackgroundResource(R.drawable.bg_pill_input);
-            etPassword.setBackgroundResource(R.drawable.bg_pill_input);
         }
+
+        // Reset TextInputLayout states
+        if (tilEmail != null) tilEmail.setError(null);
+        if (tilPassword != null) tilPassword.setError(null);
     }
 
     @Override
@@ -368,27 +355,27 @@ public class LogInActivity extends AppCompatActivity {
         clearErrors();
 
         if (email.isEmpty() && password.isEmpty()) {
-            etEmail.setBackgroundResource(R.drawable.bg_pill_input_error);
-            etPassword.setBackgroundResource(R.drawable.bg_pill_input_error);
             showError("Please enter your email and password.");
+            tilEmail.setError(" ");
+            tilPassword.setError(" ");
             return;
         }
 
         if (email.isEmpty()) {
-            etEmail.setBackgroundResource(R.drawable.bg_pill_input_error);
             showError("Please enter your email address.");
+            tilEmail.setError(" ");
             return;
         }
 
         if (password.isEmpty()) {
-            etPassword.setBackgroundResource(R.drawable.bg_pill_input_error);
             showError("Please enter your password.");
+            tilPassword.setError(" ");
             return;
         }
 
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            etEmail.setBackgroundResource(R.drawable.bg_pill_input_error);
             showError("Please enter a valid email address.");
+            tilEmail.setError(" ");
             return;
         }
 
@@ -402,12 +389,11 @@ public class LogInActivity extends AppCompatActivity {
                         validateUserRoleAndProceed(user, false);
                     } else {
                         setLoadingState(false);
-                        etEmail.setBackgroundResource(R.drawable.bg_pill_input_error);
-                        etPassword.setBackgroundResource(R.drawable.bg_pill_input_error);
-
                         String errorMsg = task.getException() != null ?
                                 task.getException().getLocalizedMessage() : "Authentication failed. Please check your credentials.";
                         showError(errorMsg);
+                        tilEmail.setError(" ");
+                        tilPassword.setError(" ");
                     }
                 });
     }

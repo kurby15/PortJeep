@@ -4,46 +4,67 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <!-- Brand Colors (Optimized for Dark Mode) -->
-    <color name="color_brand_primary">#3B82F6</color>
-    <color name="color_brand_accent">#EF4444</color>
+    <!-- Modern Dark Brand Colors -->
+    <color name="color_brand_primary">#60A5FA</color>
+    <color name="color_brand_secondary">#A78BFA</color>
+    <color name="color_brand_accent">#FB7185</color>
 
-    <!-- Semantic Colors - Dark Mode (Progressive Depth) -->
-    <color name="color_background_primary">#0F172A</color>   <!-- Deep Navy Background -->
-    <color name="color_background_secondary">#162032</color> <!-- Darker Navy for Contrast -->
-    <color name="color_surface">#1E293B</color>              <!-- Card Surface -->
-    <color name="color_surface_variant">#334155</color>      <!-- Lighter Surface -->
+    <!-- Modern Shadow Colors (Dark Mode Subtle) -->
+    <color name="color_card_shadow_ambient">#40000000</color>
+    <color name="color_card_shadow_spot">#60000000</color>
+
+    <!-- Semantic Colors - Dark Mode (Modern Deep Navy) -->
+    <color name="color_background_primary">#0F172A</color>
+    <color name="color_background_secondary">#1E293B</color>
+    <color name="color_surface">#1E293B</color>
+    <color name="color_surface_variant">#334155</color>
 
     <color name="color_text_primary">#F8FAFC</color>
-    <color name="color_text_secondary">#CBD5E1</color>
-    <color name="color_text_muted">#94A3B8</color>
+    <color name="color_text_secondary">#94A3B8</color>
+    <color name="color_text_muted">#64748B</color>
 
     <color name="color_divider">#334155</color>
 
-    <color name="color_icon_primary">#F8FAFC</color>
+    <color name="color_icon_primary">#60A5FA</color>
     <color name="color_icon_secondary">#94A3B8</color>
 
+    <!-- Skeleton Color for Dark Mode -->
+    <color name="color_skeleton">#334155</color>
+
     <!-- Quick Access Specific -->
-    <color name="color_quick_access_fill">#2D3A4F</color>
+    <color name="color_quick_access_fill">#1E293B</color>
 
     <!-- Logo Tint -->
     <color name="color_logo_tint">#FFFFFF</color>
 
     <!-- Status & Badges -->
     <color name="color_status_active_bg">#064E3B</color>
-    <color name="color_status_active_text">#6EE7B7</color>
+    <color name="color_status_active_text">#4ADE80</color>
+
     <color name="color_status_assigned_bg">#1E3A8A</color>
-    <color name="color_status_assigned_text">#DBEAFE</color>
-    <color name="color_status_recorded_bg">#004D40</color>
-    <color name="color_status_recorded_text">#B2DFDB</color>
+    <color name="color_status_assigned_text">#93C5FD</color>
+
+    <!-- Adaptive Status Text -->
+    <color name="color_status_badge_text">#FFFFFF</color>
+    <color name="color_status_badge_stroke">#60A5FA</color>
+
+    <!-- Blue Gradients for Status Rest -->
+    <color name="color_status_rest_start">#1E40AF</color>
+    <color name="color_status_rest_end">#1E3A8A</color>
+
+    <!-- Blue Gradients for Status Recorded -->
+    <color name="color_status_recorded_bg">#334155</color>
+    <color name="color_status_recorded_text">#BAE6FD</color>
+    <color name="color_status_recorded_start">#0369A1</color>
+    <color name="color_status_recorded_end">#075985</color>
 
     <!-- Specific Highlights -->
-    <color name="color_summary_highlight">#2D3A4F</color>
+    <color name="color_summary_highlight">#1E293B</color>
 
     <!-- Modern Dark Mode Warning -->
     <color name="color_error_bg">#451A1A</color>
-    <color name="color_error_text">#FCA5A5</color>
+    <color name="color_error_text">#FDA4AF</color>
 
     <!-- Bottom Nav -->
-    <color name="color_bottom_nav_bg">#FFFFFF</color>
+    <color name="color_bottom_nav_bg">#1E293B</color>
 </resources>

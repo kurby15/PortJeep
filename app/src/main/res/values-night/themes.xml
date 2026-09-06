@@ -1,10 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.PortJeep" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <item name="logoTint">@color/color_logo_tint</item>
+        <!-- Brand Colors -->
+        <item name="colorPrimary">@color/color_brand_primary</item>
+        <item name="colorSecondary">@color/color_brand_secondary</item>
+        <item name="colorAccent">@color/color_brand_accent</item>
 
-        <!-- Apply the custom bottom navigation style in dark mode -->
+        <!-- Surface and Background -->
+        <item name="android:colorBackground">@color/color_background_primary</item>
+        <item name="colorSurface">@color/color_surface</item>
+        <item name="colorSurfaceVariant">@color/color_surface_variant</item>
+
+        <!-- Text and Icons -->
+        <item name="colorOnSurface">@color/color_text_primary</item>
+        <item name="colorOnSurfaceVariant">@color/color_text_secondary</item>
+
+        <!-- Custom attributes -->
+        <item name="logoTint">@color/color_logo_tint</item>
         <item name="bottomNavigationStyle">@style/Widget.App.BottomNavigationView</item>
 
         <!-- Status bar and navigation bar colors -->

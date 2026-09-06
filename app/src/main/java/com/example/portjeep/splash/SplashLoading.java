@@ -32,7 +32,8 @@ public class SplashLoading extends AppCompatActivity {
             startActivity(new Intent(this, LogInActivity.class));
             finish();
         };
-        handler.postDelayed(runnable, 7400);
+        // Reduced delay to 2.5 seconds for a better user experience
+        handler.postDelayed(runnable, 7100);
 
     }
 

@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_background_primary"
+    android:background="@drawable/bg_main_gradient"
     android:fillViewport="true"
     android:scrollbars="none"
     tools:context="com.example.portjeep.auth.LogInActivity">
@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:padding="24dp">
 
-        <!-- Centered Form Card Container -->
+        <!-- Modern Floating Card with soft themed shadow -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardContainer"
             android:layout_width="match_parent"
@@ -23,31 +23,32 @@
             android:layout_centerInParent="true"
             app:cardBackgroundColor="@color/color_surface"
             app:cardCornerRadius="28dp"
-            app:cardElevation="0dp"
+            app:cardElevation="8dp"
+            app:cardMaxElevation="12dp"
             app:strokeColor="@color/color_divider"
-            app:strokeWidth="1dp">
+            app:strokeWidth="1dp"
+            android:outlineAmbientShadowColor="@color/color_card_shadow_ambient"
+            android:outlineSpotShadowColor="@color/color_card_shadow_spot">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:paddingHorizontal="28dp"
-                android:paddingTop="32dp"
-                android:paddingBottom="32dp">
+                android:paddingHorizontal="24dp"
+                android:paddingTop="28dp"
+                android:paddingBottom="28dp">
 
-                <!-- Logo Section -->
                 <ImageView
                     android:layout_width="160dp"
-                    android:layout_height="160dp"
+                    android:layout_height="120dp"
                     android:layout_gravity="center_horizontal"
-                    android:layout_marginBottom="32dp"
+                    android:layout_marginBottom="24dp"
                     android:adjustViewBounds="true"
                     android:contentDescription="PortJeep Logo"
                     android:scaleType="fitCenter"
                     android:src="@drawable/icon1"
                     app:tint="?attr/logoTint" />
 
-                <!-- Title Section -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -64,85 +65,67 @@
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="6dp"
                     android:layout_marginBottom="24dp"
-                    android:alpha="0.8"
+                    android:alpha="0.7"
                     android:text="Sign in to continue to Port Jeep"
                     android:textColor="@color/color_text_secondary"
                     android:textSize="14sp" />
 
-                <!-- Email Address Label & Input -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:alpha="0.9"
-                    android:text="Email Address"
-                    android:textColor="@color/color_text_primary"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
-
-                <EditText
-                    android:id="@+id/etEmail"
+                <!-- Email Input Field -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilEmail"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="8dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    android:background="@drawable/bg_pill_input"
-                    android:hint="name@example.com"
-                    android:imeOptions="actionNext"
-                    android:inputType="textEmailAddress"
-                    android:nextFocusForward="@+id/etPassword"
-                    android:paddingHorizontal="18dp"
-                    android:singleLine="true"
-                    android:textColor="@color/color_text_primary"
-                    android:textColorHint="@color/color_text_muted"
-                    android:textSize="14sp" />
+                    android:hint="Email Address"
+                    app:boxCornerRadiusBottomEnd="24dp"
+                    app:boxCornerRadiusBottomStart="24dp"
+                    app:boxCornerRadiusTopEnd="24dp"
+                    app:boxCornerRadiusTopStart="24dp"
+                    app:boxStrokeColor="@color/color_brand_primary"
+                    app:hintTextColor="@color/color_brand_primary">
 
-                <!-- Password Label -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:alpha="0.9"
-                    android:text="Password"
-                    android:textColor="@color/color_text_primary"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
-
-                <!-- Password Container with View/Hide Toggle -->
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginBottom="8dp">
-
-                    <EditText
-                        android:id="@+id/etPassword"
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etEmail"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@drawable/bg_pill_input"
-                        android:hint="••••••••"
-                        android:imeOptions="actionDone"
-                        android:inputType="textPassword"
-                        android:paddingStart="18dp"
-                        android:paddingEnd="48dp"
+                        android:layout_height="wrap_content"
+                        android:inputType="textEmailAddress"
+                        android:imeOptions="actionNext"
+                        android:padding="14dp"
                         android:singleLine="true"
                         android:textColor="@color/color_text_primary"
-                        android:textColorHint="@color/color_text_muted"
-                        android:textSize="14sp" />
+                        android:textSize="15sp" />
+                </com.google.android.material.textfield.TextInputLayout>
 
-                    <ImageView
-                        android:id="@+id/ivTogglePassword"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_gravity="end|center_vertical"
-                        android:layout_marginEnd="14dp"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:clickable="true"
-                        android:contentDescription="Toggle Password Visibility"
-                        android:focusable="false"
-                        android:src="@drawable/hide"
-                        app:tint="@color/color_text_muted" />
-                </FrameLayout>
+                <!-- Password Input Field -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilPassword"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:hint="Password"
+                    app:boxCornerRadiusBottomEnd="24dp"
+                    app:boxCornerRadiusBottomStart="24dp"
+                    app:boxCornerRadiusTopEnd="24dp"
+                    app:boxCornerRadiusTopStart="24dp"
+                    app:boxStrokeColor="@color/color_brand_primary"
+                    app:hintTextColor="@color/color_brand_primary"
+                    app:endIconMode="password_toggle"
+                    app:endIconTint="@color/color_text_secondary">
 
-                <!-- Forgot Password Link -->
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etPassword"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textPassword"
+                        android:imeOptions="actionDone"
+                        android:padding="14dp"
+                        android:singleLine="true"
+                        android:textColor="@color/color_text_primary"
+                        android:textSize="15sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
                 <TextView
                     android:id="@+id/tvForgotPassword"
                     android:layout_width="wrap_content"
@@ -154,10 +137,9 @@
                     android:padding="4dp"
                     android:text="Forgot Password?"
                     android:textColor="@color/color_brand_accent"
-                    android:textSize="12sp"
+                    android:textSize="13sp"
                     android:textStyle="bold" />
 
-                <!-- Error Banner -->
                 <TextView
                     android:id="@+id/tvError"
                     android:layout_width="match_parent"
@@ -166,28 +148,28 @@
                     android:background="@drawable/bg_error_banner"
                     android:drawableStart="@drawable/warning"
                     android:drawablePadding="10dp"
-                    android:padding="14dp"
+                    android:padding="12dp"
                     android:textColor="@color/color_error_text"
                     android:textSize="13sp"
                     android:visibility="gone"
                     tools:text="Invalid credentials"
                     tools:visibility="visible" />
 
-                <!-- Sign In Button -->
+                <!-- Gradient Sign In Button with subtle shadow -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnLogin"
                     android:layout_width="match_parent"
-                    android:layout_height="52dp"
+                    android:layout_height="54dp"
+                    android:background="@drawable/bg_button_gradient"
+                    android:elevation="4dp"
                     android:text="Sign In"
                     android:textAllCaps="false"
                     android:textColor="@color/white"
-                    android:textSize="15sp"
+                    android:textSize="16sp"
                     android:textStyle="bold"
-                    app:backgroundTint="@color/color_brand_primary"
-                    app:cornerRadius="18dp"
-                    app:elevation="0dp" />
+                    app:backgroundTint="@null"
+                    app:cornerRadius="27dp" />
 
-                <!-- Biometric Button (Maya Style: Icon on Left) -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnBiometric"
                     style="@style/Widget.MaterialComponents.Button.TextButton"
@@ -203,7 +185,7 @@
                     android:visibility="gone"
                     app:icon="@drawable/fingerprint"
                     app:iconGravity="textStart"
-                    app:iconPadding="10dp"
+                    app:iconPadding="8dp"
                     app:iconSize="20dp"
                     app:iconTint="@color/color_brand_primary"
                     tools:visibility="visible" />
@@ -211,7 +193,6 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Copyright Watermark -->
         <TextView
             android:id="@+id/tvCopyright"
             android:layout_width="wrap_content"
@@ -219,9 +200,9 @@
             android:layout_below="@id/cardContainer"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="24dp"
-            android:alpha="0.7"
+            android:alpha="0.6"
             android:gravity="center"
-            android:text="© 2026 Sapang Palay Minuyan MultiPurpose Cooperative"
+            android:text="© 2026 Sapang Palay Minuyan Cooperative"
             android:textColor="@color/color_text_muted"
             android:textSize="11sp" />
 

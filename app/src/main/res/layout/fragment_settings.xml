@@ -3,14 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_background_primary"
+    android:background="@android:color/transparent"
     android:orientation="vertical">
 
-    <!-- Header -->
+    <!-- Modern Header with Gradient -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/color_brand_primary"
+        android:background="@drawable/bg_header_gradient"
         android:orientation="vertical"
         android:paddingStart="22dp"
         android:paddingTop="30dp"
@@ -55,7 +55,7 @@
             android:textSize="12sp" />
     </LinearLayout>
 
-    <!-- Content -->
+    <!-- Content Area -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -65,7 +65,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="20dp"
             android:orientation="vertical"
             android:paddingStart="20dp"
             android:paddingEnd="20dp"
@@ -75,24 +75,26 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="@color/color_surface"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="3dp"
+                app:cardCornerRadius="32dp"
+                app:cardElevation="10dp"
                 app:strokeColor="@color/color_divider"
-                app:strokeWidth="1dp">
+                app:strokeWidth="1dp"
+                android:outlineAmbientShadowColor="@color/color_card_shadow_ambient"
+                android:outlineSpotShadowColor="@color/color_card_shadow_spot">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="20dp">
+                    android:padding="22dp">
 
                     <!-- ACCOUNT Section -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:letterSpacing="0.05"
+                        android:letterSpacing="0.08"
                         android:text="@string/settings_account"
-                        android:textColor="@color/color_text_muted"
+                        android:textColor="@color/color_brand_primary"
                         android:textSize="12sp"
                         android:textStyle="bold" />
 
@@ -107,14 +109,14 @@
                         android:focusable="true"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
-                        android:paddingVertical="8dp">
+                        android:paddingVertical="14dp">
 
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:contentDescription="@string/desc_email_icon"
                             android:src="@drawable/mail"
-                            app:tint="@color/color_text_primary" />
+                            app:tint="@color/color_brand_primary" />
 
                         <TextView
                             android:layout_width="0dp"
@@ -137,7 +139,6 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:layout_marginVertical="8dp"
                         android:background="@color/color_divider" />
 
                     <!-- Change mobile number row -->
@@ -150,14 +151,14 @@
                         android:focusable="true"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
-                        android:paddingVertical="8dp">
+                        android:paddingVertical="14dp">
 
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:contentDescription="@string/desc_phone_icon"
                             android:src="@drawable/phone"
-                            app:tint="@color/color_text_primary" />
+                            app:tint="@color/color_brand_primary" />
 
                         <TextView
                             android:layout_width="0dp"
@@ -177,21 +178,15 @@
                             app:tint="@color/color_text_muted" />
                     </LinearLayout>
 
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_marginVertical="8dp"
-                        android:background="@color/color_divider" />
-
                     <!-- PRIVACY & SECURITY Section -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginBottom="16dp"
-                        android:letterSpacing="0.05"
+                        android:layout_marginTop="24dp"
+                        android:layout_marginBottom="12dp"
+                        android:letterSpacing="0.08"
                         android:text="PRIVACY &amp; SECURITY"
-                        android:textColor="@color/color_text_muted"
+                        android:textColor="@color/color_brand_primary"
                         android:textSize="12sp"
                         android:textStyle="bold" />
 
@@ -201,14 +196,14 @@
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
-                        android:paddingVertical="8dp">
+                        android:paddingVertical="14dp">
 
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:contentDescription="@string/desc_fingerprint_icon"
                             android:src="@drawable/fingerprint"
-                            app:tint="@color/color_text_primary" />
+                            app:tint="@color/color_brand_primary" />
 
                         <TextView
                             android:layout_width="0dp"
@@ -230,7 +225,6 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:layout_marginVertical="8dp"
                         android:background="@color/color_divider" />
 
                     <!-- Change password row -->
@@ -243,14 +237,14 @@
                         android:focusable="true"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
-                        android:paddingVertical="8dp">
+                        android:paddingVertical="14dp">
 
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:contentDescription="@string/desc_lock_icon"
                             android:src="@drawable/lock"
-                            app:tint="@color/color_text_primary" />
+                            app:tint="@color/color_brand_primary" />
 
                         <TextView
                             android:layout_width="0dp"
@@ -270,25 +264,18 @@
                             app:tint="@color/color_text_muted" />
                     </LinearLayout>
 
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_marginVertical="8dp"
-                        android:background="@color/color_divider" />
-
-                    <!-- ABOUT PORTJEEP Section -->
+                    <!-- ABOUT Section -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginBottom="16dp"
-                        android:letterSpacing="0.05"
+                        android:layout_marginTop="24dp"
+                        android:layout_marginBottom="12dp"
+                        android:letterSpacing="0.08"
                         android:text="@string/settings_about_portjeep"
-                        android:textColor="@color/color_text_muted"
+                        android:textColor="@color/color_brand_primary"
                         android:textSize="12sp"
                         android:textStyle="bold" />
 
-                    <!-- Privacy policy row -->
                     <LinearLayout
                         android:id="@+id/btn_privacy_policy"
                         android:layout_width="match_parent"
@@ -298,14 +285,14 @@
                         android:focusable="true"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
-                        android:paddingVertical="8dp">
+                        android:paddingVertical="14dp">
 
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:contentDescription="@string/desc_privacy_icon"
                             android:src="@drawable/insurance"
-                            app:tint="@color/color_text_primary" />
+                            app:tint="@color/color_brand_primary" />
 
                         <TextView
                             android:layout_width="0dp"
@@ -328,10 +315,8 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:layout_marginVertical="8dp"
                         android:background="@color/color_divider" />
 
-                    <!-- Terms & conditions row -->
                     <LinearLayout
                         android:id="@+id/btn_terms_conditions"
                         android:layout_width="match_parent"
@@ -341,14 +326,14 @@
                         android:focusable="true"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
-                        android:paddingVertical="8dp">
+                        android:paddingVertical="14dp">
 
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:contentDescription="@string/desc_terms_icon"
                             android:src="@drawable/terms"
-                            app:tint="@color/color_text_primary" />
+                            app:tint="@color/color_brand_primary" />
 
                         <TextView
                             android:layout_width="0dp"

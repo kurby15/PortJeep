@@ -3,8 +3,8 @@
     <!-- Semantic red background -->
     <solid android:color="@color/color_error_bg" />
 
-    <!-- Rounded corners matching the design -->
-    <corners android:radius="14dp" />
+    <!-- Rounded corners matching the modern design -->
+    <corners android:radius="24dp" />
 
     <!-- Subtle border -->
     <stroke

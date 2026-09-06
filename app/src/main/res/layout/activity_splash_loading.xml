@@ -6,8 +6,8 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_background_primary"
-    tools:context=".SalaryFragment">
+    android:background="@drawable/bg_main_gradient"
+    tools:context="com.example.portjeep.splash.SplashLoading">
 
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/lottieAnimation"

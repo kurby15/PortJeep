@@ -38,7 +38,7 @@
             android:paddingEnd="12dp"
             android:paddingBottom="6dp"
             android:textAllCaps="true"
-            android:textColor="@color/color_status_assigned_text"
+            android:textColor="@color/color_status_badge_text"
             android:textSize="11sp"
             android:textStyle="bold"
             tools:text="●  REST DAY" />

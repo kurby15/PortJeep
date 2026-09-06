@@ -4,47 +4,67 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <!-- Brand Colors -->
-    <color name="color_brand_primary">#1D3557</color>
-    <color name="color_brand_secondary">#457B9D</color>
-    <color name="color_brand_accent">#E63946</color>
+    <!-- Modern Brand Colors -->
+    <color name="color_brand_primary">#2563EB</color>
+    <color name="color_brand_secondary">#7C3AED</color>
+    <color name="color_brand_accent">#F43F5E</color>
 
-    <!-- Semantic Colors - Light Mode -->
-    <color name="color_background_primary">#F8FAFC</color>
-    <color name="color_background_secondary">#DDE5F4</color> <!-- Slightly darker for better gradient visibility -->
+    <!-- Modern Shadow Colors (Light Mode Blue Tint) -->
+    <color name="color_card_shadow_ambient">#1A2563EB</color>
+    <color name="color_card_shadow_spot">#332563EB</color>
+
+    <!-- Semantic Colors - Light Mode (Modern) -->
+    <color name="color_background_primary">#FFFFFF</color>
+    <color name="color_background_secondary">#E0F2FE</color>
     <color name="color_surface">#FFFFFF</color>
-    <color name="color_surface_variant">#F1F5F9</color>
+    <color name="color_surface_variant">#F8FAFC</color>
 
     <color name="color_text_primary">#0F172A</color>
-    <color name="color_text_secondary">#64748B</color>
+    <color name="color_text_secondary">#475569</color>
     <color name="color_text_muted">#94A3B8</color>
 
-    <color name="color_divider">#CBD5E1</color> <!-- More visible border -->
+    <color name="color_divider">#F1F5F9</color>
 
-    <color name="color_icon_primary">#1D3557</color>
+    <color name="color_icon_primary">#2563EB</color>
     <color name="color_icon_secondary">#64748B</color>
 
+    <!-- Skeleton Color -->
+    <color name="color_skeleton">#E2E8F0</color>
+
     <!-- Quick Access Adaptive Fill -->
-    <color name="color_quick_access_fill">#E8EDF7</color>
+    <color name="color_quick_access_fill">#F1F5F9</color>
 
     <!-- Logo Tint -->
     <color name="color_logo_tint">@android:color/transparent</color>
 
     <!-- Status & Badges -->
-    <color name="color_status_active_bg">#E8F5E9</color>
-    <color name="color_status_active_text">#2E7D32</color>
-    <color name="color_status_assigned_bg">#E8EDF7</color>
-    <color name="color_status_assigned_text">#1D3557</color>
-    <color name="color_status_recorded_bg">#E0F2F1</color>
-    <color name="color_status_recorded_text">#00695C</color>
+    <color name="color_status_active_bg">#DCFCE7</color>
+    <color name="color_status_active_text">#166534</color>
+
+    <color name="color_status_assigned_bg">#DBEAFE</color>
+    <color name="color_status_assigned_text">#1E40AF</color>
+
+    <!-- Adaptive Status Text -->
+    <color name="color_status_badge_text">#000000</color>
+    <color name="color_status_badge_stroke">#3B82F6</color>
+
+    <!-- Blue Gradient for Rest -->
+    <color name="color_status_rest_start">#DBEAFE</color>
+    <color name="color_status_rest_end">#BFDBFE</color>
+
+    <!-- Blue Gradient for Recorded -->
+    <color name="color_status_recorded_bg">#F1F5F9</color>
+    <color name="color_status_recorded_text">#334155</color>
+    <color name="color_status_recorded_start">#E0F2FE</color>
+    <color name="color_status_recorded_end">#BAE6FD</color>
 
     <!-- Specific Highlights -->
-    <color name="color_summary_highlight">#EFF6FF</color>
+    <color name="color_summary_highlight">#F0F9FF</color>
 
     <!-- Light Mode Warning -->
-    <color name="color_error_bg">#FEF2F2</color>
-    <color name="color_error_text">#C62828</color>
+    <color name="color_error_bg">#FFF1F2</color>
+    <color name="color_error_text">#BE123C</color>
 
     <!-- Bottom Nav -->
-    <color name="color_bottom_nav_bg">#000000</color>
+    <color name="color_bottom_nav_bg">#FFFFFF</color>
 </resources>
