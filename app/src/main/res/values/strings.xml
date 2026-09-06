@@ -109,13 +109,15 @@
     <!-- Home Summary -->
     <string name="title_todays_summary">TODAY\'S SUMMARY</string>
     <string name="label_trips_completed">TRIPS COMPLETED</string>
-    <string name="label_distance_covered">DISTANCE COVERED</string>
+    <string name="label_share">YOUR SHARE</string>
+    <string name="label_driver_share">DRIVER SHARE</string>
+    <string name="label_pao_share">PAO SHARE</string>
     <string name="label_gross_collected">GROSS COLLECTED</string>
-    <string name="label_net_remittance">NET REMITTANCE</string>
+    <string name="label_net_remittance">NET INCOME</string>
     <string name="unit_trips">trips</string>
     <string name="unit_km">km</string>
     <string name="unit_today">today</string>
-    <string name="unit_due">due</string>
+    <string name="unit_due">today</string>
 
     <!-- Status -->
     <string name="status_unassigned">UNASSIGNED</string>

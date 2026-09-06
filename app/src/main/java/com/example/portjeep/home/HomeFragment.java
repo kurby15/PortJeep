@@ -70,6 +70,7 @@ public class HomeFragment extends Fragment {
     private MaterialCardView cardTodayAssignment;
     private View llTodaysSummary;
     private TextView tvSummaryTrips, tvSummaryDistance, tvSummaryGross, tvSummaryNet;
+    private TextView tvSummaryShareLabel, tvSummaryShareUnit;
 
     // ViewPager2 Status Carousel References
     private ViewPager2 vpStatusCarousel;
@@ -144,6 +145,8 @@ public class HomeFragment extends Fragment {
         tvSummaryDistance = view.findViewById(R.id.tv_summary_distance);
         tvSummaryGross = view.findViewById(R.id.tv_summary_gross);
         tvSummaryNet = view.findViewById(R.id.tv_summary_net);
+        tvSummaryShareLabel = view.findViewById(R.id.tv_summary_share_label);
+        tvSummaryShareUnit = view.findViewById(R.id.tv_summary_share_unit);
 
         // Bind ViewPager2 Carousel Views
         vpStatusCarousel = view.findViewById(R.id.vp_status_carousel);
@@ -860,8 +863,23 @@ public class HomeFragment extends Fragment {
         String gross = summary.optString("gross_collected", "₱ 0");
         String net = summary.optString("net_remittance", "₱ 0");
 
+        // Dynamically handle Share based on Role
+        if (userRole.contains("DRIVER")) {
+            if (tvSummaryShareLabel != null) tvSummaryShareLabel.setText(getString(R.string.label_driver_share));
+            if (tvSummaryShareUnit != null) tvSummaryShareUnit.setText(getString(R.string.unit_today));
+            String driverShare = summary.optString("driver_share", "₱ 0");
+            if (tvSummaryDistance != null) tvSummaryDistance.setText(driverShare);
+        } else if (userRole.contains("PAO") || userRole.contains("PUBLIC ASSISTANT")) {
+            if (tvSummaryShareLabel != null) tvSummaryShareLabel.setText(getString(R.string.label_pao_share));
+            if (tvSummaryShareUnit != null) tvSummaryShareUnit.setText(getString(R.string.unit_today));
+            String paoShare = summary.optString("pao_share", "₱ 0");
+            if (tvSummaryDistance != null) tvSummaryDistance.setText(paoShare);
+        } else {
+            // Default to distance for other roles
+            if (tvSummaryShareLabel != null) tvSummaryShareLabel.setText(getString(R.string.label_share));
+        }
+
         if (tvSummaryTrips != null) tvSummaryTrips.setText(trips);
-        if (tvSummaryDistance != null) tvSummaryDistance.setText(distance);
         if (tvSummaryGross != null) tvSummaryGross.setText(gross);
         if (tvSummaryNet != null) tvSummaryNet.setText(net);
     }

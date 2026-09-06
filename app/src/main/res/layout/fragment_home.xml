@@ -507,7 +507,7 @@
                                 </LinearLayout>
                             </com.google.android.material.card.MaterialCardView>
 
-                            <!-- Distance Covered -->
+                            <!-- Share Card (Replaced Distance Covered) -->
                             <com.google.android.material.card.MaterialCardView
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
@@ -526,9 +526,10 @@
                                     android:orientation="vertical"
                                     android:padding="20dp">
                                     <TextView
+                                        android:id="@+id/tv_summary_share_label"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:text="@string/label_distance_covered"
+                                        android:text="@string/label_share"
                                         android:textColor="@color/color_text_muted"
                                         android:textSize="10sp"
                                         android:textStyle="bold"
@@ -538,15 +539,17 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_marginTop="8dp"
-                                        android:text="48.2"
+                                        android:text="₱ 450"
                                         android:textColor="@color/color_text_primary"
                                         android:textSize="24sp"
-                                        android:textStyle="bold" />
+                                        android:textStyle="bold"
+                                        tools:text="₱ 450" />
                                     <TextView
+                                        android:id="@+id/tv_summary_share_unit"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_marginTop="2dp"
-                                        android:text="@string/unit_km"
+                                        android:text="@string/unit_today"
                                         android:textColor="@color/color_brand_primary"
                                         android:textSize="12sp" />
                                 </LinearLayout>
