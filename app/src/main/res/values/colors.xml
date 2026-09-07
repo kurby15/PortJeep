@@ -65,6 +65,6 @@
     <color name="color_error_bg">#FFF1F2</color>
     <color name="color_error_text">#BE123C</color>
 
-    <!-- Bottom Nav -->
-    <color name="color_bottom_nav_bg">#FFFFFF</color>
+    <!-- Bottom Nav (Swapped with Dark Mode) -->
+    <color name="color_bottom_nav_bg">#1E293B</color>
 </resources>
