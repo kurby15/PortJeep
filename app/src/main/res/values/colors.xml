@@ -5,17 +5,30 @@
     <color name="white">#FFFFFFFF</color>
 
     <!-- Modern Brand Colors -->
-    <color name="color_brand_primary">#2563EB</color>
-    <color name="color_brand_secondary">#7C3AED</color>
+    <color name="color_brand_primary">#3B82F6</color>
+    <color name="color_brand_secondary">#8B5CF6</color>
     <color name="color_brand_accent">#F43F5E</color>
 
-    <!-- Modern Shadow Colors (Light Mode Blue Tint) -->
-    <color name="color_card_shadow_ambient">#1A2563EB</color>
-    <color name="color_card_shadow_spot">#332563EB</color>
+    <!-- Modern Gradient Pairs - Light Mode -->
+    <color name="color_gradient_primary_start">#3B82F6</color>
+    <color name="color_gradient_primary_end">#6366F1</color>
 
-    <!-- Semantic Colors - Light Mode (Modern) -->
-    <color name="color_background_primary">#FFFFFF</color>
-    <color name="color_background_secondary">#E0F2FE</color>
+    <color name="color_gradient_accent_start">#F43F5E</color>
+    <color name="color_gradient_accent_end">#FB7185</color>
+
+    <color name="color_gradient_surface_start">#FFFFFF</color>
+    <color name="color_gradient_surface_end">#F8FAFC</color>
+
+    <color name="color_gradient_card_start">#FFFFFF</color>
+    <color name="color_gradient_card_end">#F1F5F9</color>
+
+    <!-- Modern Shadow Colors -->
+    <color name="color_card_shadow_ambient">#0D1E293B</color>
+    <color name="color_card_shadow_spot">#1A1E293B</color>
+
+    <!-- Semantic Colors - Light Mode -->
+    <color name="color_background_primary">#F8FAFC</color>
+    <color name="color_background_secondary">#F1F5F9</color>
     <color name="color_surface">#FFFFFF</color>
     <color name="color_surface_variant">#F8FAFC</color>
 
@@ -23,49 +36,65 @@
     <color name="color_text_secondary">#475569</color>
     <color name="color_text_muted">#94A3B8</color>
 
-    <color name="color_divider">#F1F5F9</color>
+    <color name="color_divider">#E2E8F0</color>
     <color name="color_card_border">#E2E8F0</color>
 
-    <color name="color_icon_primary">#2563EB</color>
+    <color name="color_icon_primary">#3B82F6</color>
     <color name="color_icon_secondary">#64748B</color>
 
-    <!-- Skeleton Color -->
-    <color name="color_skeleton">#E2E8F0</color>
-
-    <!-- Quick Access Adaptive Fill -->
-    <color name="color_quick_access_fill">#F1F5F9</color>
-
-    <!-- Logo Tint -->
-    <color name="color_logo_tint">@color/color_brand_primary</color>
-
-    <!-- Status & Badges -->
+    <!-- Status Colors - Light Mode -->
+    <!-- Active -->
     <color name="color_status_active_bg">#DCFCE7</color>
     <color name="color_status_active_text">#166534</color>
+    <color name="color_status_active_start">#DCFCE7</color>
+    <color name="color_status_active_end">#BBF7D0</color>
 
+    <!-- Assigned -->
     <color name="color_status_assigned_bg">#DBEAFE</color>
     <color name="color_status_assigned_text">#1E40AF</color>
+    <color name="color_status_assigned_start">#DBEAFE</color>
+    <color name="color_status_assigned_end">#BFDBFE</color>
 
-    <!-- Adaptive Status Text -->
-    <color name="color_status_badge_text">#000000</color>
-    <color name="color_status_badge_stroke">#3B82F6</color>
+    <!-- Scheduled -->
+    <color name="color_status_scheduled_bg">#E0F2FE</color>
+    <color name="color_status_scheduled_text">#0284C7</color>
+    <color name="color_status_scheduled_start">#E0F2FE</color>
+    <color name="color_status_scheduled_end">#BAE6FD</color>
 
-    <!-- Blue Gradient for Rest -->
-    <color name="color_status_rest_start">#DBEAFE</color>
-    <color name="color_status_rest_end">#BFDBFE</color>
+    <!-- Completed -->
+    <color name="color_status_completed_bg">#F1F5F9</color>
+    <color name="color_status_completed_text">#475569</color>
+    <color name="color_status_completed_start">#F1F5F9</color>
+    <color name="color_status_completed_end">#E2E8F0</color>
 
-    <!-- Blue Gradient for Recorded -->
+    <!-- Rest -->
+    <color name="color_status_rest_bg">#F1F5F9</color>
+    <color name="color_status_rest_text">#475569</color>
+    <color name="color_status_rest_start">#F1F5F9</color>
+    <color name="color_status_rest_end">#E2E8F0</color>
+
+    <!-- Recorded -->
     <color name="color_status_recorded_bg">#F1F5F9</color>
-    <color name="color_status_recorded_text">#334155</color>
+    <color name="color_status_recorded_text">#0369A1</color>
     <color name="color_status_recorded_start">#E0F2FE</color>
     <color name="color_status_recorded_end">#BAE6FD</color>
+
+    <!-- General Status Badge -->
+    <color name="color_status_badge_text">#0F172A</color>
+    <color name="color_status_badge_stroke">#E2E8F0</color>
+
+    <!-- Warning/Error Colors -->
+    <color name="color_error_bg">#FFF1F2</color>
+    <color name="color_error_text">#BE123C</color>
+    <color name="color_warning_bg">#FFFBEB</color>
+    <color name="color_warning_text">#B45309</color>
 
     <!-- Specific Highlights -->
     <color name="color_summary_highlight">#F0F9FF</color>
 
-    <!-- Light Mode Warning -->
-    <color name="color_error_bg">#FFF1F2</color>
-    <color name="color_error_text">#BE123C</color>
-
-    <!-- Bottom Nav (Swapped with Dark Mode) -->
+    <!-- Skeleton & Misc -->
+    <color name="color_skeleton">#E2E8F0</color>
+    <color name="color_quick_access_fill">#F1F5F9</color>
+    <color name="color_logo_tint">@color/color_brand_primary</color>
     <color name="color_bottom_nav_bg">#1E293B</color>
 </resources>
