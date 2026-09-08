@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ScrollView
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@android:color/transparent"
@@ -32,9 +32,8 @@
                     android:layout_height="wrap_content"
                     android:background="@drawable/bg_header_gradient"
                     android:orientation="vertical"
-                    android:paddingStart="22dp"
+                    android:paddingHorizontal="@dimen/screen_margin_large"
                     android:paddingTop="30dp"
-                    android:paddingEnd="22dp"
                     android:paddingBottom="42dp">
 
                     <TextView
@@ -65,8 +64,7 @@
                     android:layout_marginTop="-22dp"
                     android:clipChildren="false"
                     android:orientation="vertical"
-                    android:paddingStart="20dp"
-                    android:paddingEnd="20dp"
+                    android:paddingHorizontal="20dp"
                     android:paddingBottom="36dp">
 
                     <FrameLayout
@@ -97,7 +95,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 app:cardBackgroundColor="@color/color_surface"
-                                app:cardCornerRadius="32dp"
+                                app:cardCornerRadius="@dimen/card_corner_radius_xlarge"
                                 app:cardElevation="10dp"
                                 app:strokeColor="@color/color_divider"
                                 app:strokeWidth="1dp"
@@ -154,10 +152,8 @@
                                             android:layout_height="wrap_content"
                                             android:layout_marginTop="8dp"
                                             android:background="@drawable/bg_status_active_gradient"
-                                            android:paddingStart="12dp"
-                                            android:paddingTop="6dp"
-                                            android:paddingEnd="12dp"
-                                            android:paddingBottom="6dp"
+                                            android:paddingHorizontal="12dp"
+                                            android:paddingVertical="6dp"
                                             android:text="●  Active"
                                             android:textColor="@color/color_status_active_text"
                                             android:textSize="11sp"
@@ -182,7 +178,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 app:cardBackgroundColor="@color/color_surface"
-                                app:cardCornerRadius="28dp"
+                                app:cardCornerRadius="@dimen/card_corner_radius_large"
                                 app:cardElevation="6dp"
                                 app:strokeColor="@color/color_divider"
                                 app:strokeWidth="1dp"
@@ -383,7 +379,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 app:cardBackgroundColor="@color/color_surface"
-                                app:cardCornerRadius="28dp"
+                                app:cardCornerRadius="@dimen/card_corner_radius_large"
                                 app:cardElevation="6dp"
                                 app:strokeColor="@color/color_divider"
                                 app:strokeWidth="1dp"
@@ -486,7 +482,7 @@
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:gravity="center_vertical"
-                                        android:padding="20dp">
+                                android:padding="20dp">
 
                                         <ImageView
                                             android:layout_width="42dp"
@@ -565,7 +561,7 @@
                     </FrameLayout>
                 </LinearLayout>
             </LinearLayout>
-        </ScrollView>
+        </androidx.core.widget.NestedScrollView>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <!-- Fragment Container for No Internet -->

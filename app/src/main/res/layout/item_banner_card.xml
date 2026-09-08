@@ -12,12 +12,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
-        android:layout_marginStart="6dp"
+        android:layout_marginHorizontal="6dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="6dp"
         android:layout_marginBottom="24dp"
         app:cardBackgroundColor="@color/color_surface"
-        app:cardCornerRadius="32dp"
+        app:cardCornerRadius="@dimen/card_corner_radius_xlarge"
         app:cardElevation="8dp"
         app:strokeColor="@color/color_divider"
         app:strokeWidth="1dp"
@@ -62,6 +61,7 @@
                         android:textColor="@color/color_text_primary"
                         android:textSize="18sp"
                         android:textStyle="bold"
+                        app:layout_constrainedWidth="true"
                         tools:text="Schedule Log" />
 
                     <TextView

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="12dp"
@@ -13,9 +14,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif-medium"
-        android:text="#1 • Aug 8, 6:14 AM"
         android:textColor="#5C6BC0"
-        android:textSize="11sp" />
+        android:textSize="11sp"
+        tools:text="#1 • Aug 8, 6:14 AM" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -32,7 +33,7 @@
             android:textColor="#B0BEC5"
             android:textSize="9sp"
             android:textStyle="bold"
-            app:layout_constraintEnd_toStartOf="@+id/tv_label_partial_expenses"
+            app:layout_constraintEnd_toStartOf="@+id/tv_partial_minus"
             app:layout_constraintHorizontal_weight="1"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -47,9 +48,9 @@
             android:textColor="#B0BEC5"
             android:textSize="9sp"
             android:textStyle="bold"
-            app:layout_constraintEnd_toStartOf="@+id/tv_label_partial_net"
+            app:layout_constraintEnd_toStartOf="@+id/tv_partial_equal"
             app:layout_constraintHorizontal_weight="1"
-            app:layout_constraintStart_toEndOf="@+id/tv_label_partial_amount"
+            app:layout_constraintStart_toEndOf="@+id/tv_partial_minus"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
@@ -64,7 +65,7 @@
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_weight="1"
-            app:layout_constraintStart_toEndOf="@+id/tv_label_partial_expenses"
+            app:layout_constraintStart_toEndOf="@+id/tv_partial_equal"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
@@ -79,7 +80,8 @@
             android:textSize="14sp"
             app:layout_constraintEnd_toEndOf="@+id/tv_label_partial_amount"
             app:layout_constraintStart_toStartOf="@+id/tv_label_partial_amount"
-            app:layout_constraintTop_toBottomOf="@id/tv_label_partial_amount" />
+            app:layout_constraintTop_toBottomOf="@id/tv_label_partial_amount"
+            app:layout_constrainedWidth="true" />
 
         <TextView
             android:id="@+id/tv_partial_minus"
@@ -89,9 +91,10 @@
             android:textColor="#B0BEC5"
             android:textSize="14sp"
             android:textStyle="bold"
+            android:paddingHorizontal="4dp"
             app:layout_constraintBottom_toBottomOf="@+id/tv_val_partial_amount"
-            app:layout_constraintEnd_toStartOf="@+id/tv_val_partial_expenses"
-            app:layout_constraintStart_toEndOf="@+id/tv_val_partial_amount"
+            app:layout_constraintEnd_toStartOf="@+id/tv_label_partial_expenses"
+            app:layout_constraintStart_toEndOf="@+id/tv_label_partial_amount"
             app:layout_constraintTop_toTopOf="@+id/tv_val_partial_amount" />
 
         <TextView
@@ -106,7 +109,8 @@
             android:textSize="14sp"
             app:layout_constraintEnd_toEndOf="@+id/tv_label_partial_expenses"
             app:layout_constraintStart_toStartOf="@+id/tv_label_partial_expenses"
-            app:layout_constraintTop_toBottomOf="@id/tv_label_partial_expenses" />
+            app:layout_constraintTop_toBottomOf="@id/tv_label_partial_expenses"
+            app:layout_constrainedWidth="true" />
 
         <TextView
             android:id="@+id/tv_partial_equal"
@@ -116,9 +120,10 @@
             android:textColor="#B0BEC5"
             android:textSize="14sp"
             android:textStyle="bold"
+            android:paddingHorizontal="4dp"
             app:layout_constraintBottom_toBottomOf="@+id/tv_val_partial_expenses"
-            app:layout_constraintEnd_toStartOf="@+id/tv_val_partial_net"
-            app:layout_constraintStart_toEndOf="@+id/tv_val_partial_expenses"
+            app:layout_constraintEnd_toStartOf="@+id/tv_label_partial_net"
+            app:layout_constraintStart_toEndOf="@+id/tv_label_partial_expenses"
             app:layout_constraintTop_toTopOf="@+id/tv_val_partial_expenses" />
 
         <TextView
@@ -133,7 +138,8 @@
             android:textSize="14sp"
             app:layout_constraintEnd_toEndOf="@+id/tv_label_partial_net"
             app:layout_constraintStart_toStartOf="@+id/tv_label_partial_net"
-            app:layout_constraintTop_toBottomOf="@id/tv_label_partial_net" />
+            app:layout_constraintTop_toBottomOf="@id/tv_label_partial_net"
+            app:layout_constrainedWidth="true" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>

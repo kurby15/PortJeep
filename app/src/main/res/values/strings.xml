@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">PortJeep</string>
     <!-- TODO: Remove or change this placeholder text -->
@@ -5,6 +6,17 @@
     <string name="req_different_from_current">New password is different from current</string>
     <string name="req_lowercase">One lowercase letter (a-z)</string>
     <string name="req_8chars">At least 8 characters</string>
+
+    <!-- Login Screen -->
+    <string name="login_welcome_back">Welcome back</string>
+    <string name="login_subtitle">Sign in to continue to Port Jeep</string>
+    <string name="login_email_hint">Email Address</string>
+    <string name="login_password_hint">Password</string>
+    <string name="login_forgot_password">Forgot Password?</string>
+    <string name="login_btn_sign_in">Sign In</string>
+    <string name="login_biometric_text">Login with screen lock</string>
+    <string name="login_copyright">© 2026 Sapang Palay Minuyan Cooperative</string>
+    <string name="desc_login_logo">PortJeep Logo</string>
 
     <!-- Settings -->
     <string name="settings_display">DISPLAY</string>

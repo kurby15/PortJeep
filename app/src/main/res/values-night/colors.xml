@@ -24,6 +24,7 @@
     <color name="color_text_muted">#64748B</color>
 
     <color name="color_divider">#334155</color>
+    <color name="color_card_border">@android:color/transparent</color>
 
     <color name="color_icon_primary">#60A5FA</color>
     <color name="color_icon_secondary">#94A3B8</color>

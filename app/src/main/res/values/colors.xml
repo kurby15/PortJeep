@@ -24,6 +24,7 @@
     <color name="color_text_muted">#94A3B8</color>
 
     <color name="color_divider">#F1F5F9</color>
+    <color name="color_card_border">#E2E8F0</color>
 
     <color name="color_icon_primary">#2563EB</color>
     <color name="color_icon_secondary">#64748B</color>
@@ -35,7 +36,7 @@
     <color name="color_quick_access_fill">#F1F5F9</color>
 
     <!-- Logo Tint -->
-    <color name="color_logo_tint">@android:color/transparent</color>
+    <color name="color_logo_tint">@color/color_brand_primary</color>
 
     <!-- Status & Badges -->
     <color name="color_status_active_bg">#DCFCE7</color>

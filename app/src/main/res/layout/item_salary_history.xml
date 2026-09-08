@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mcv_salary_item"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -9,7 +10,7 @@
     android:focusable="true"
     android:foreground="?attr/selectableItemBackground"
     app:cardBackgroundColor="@android:color/transparent"
-    app:cardCornerRadius="28dp"
+    app:cardCornerRadius="@dimen/card_corner_radius_large"
     app:cardElevation="4dp"
     app:strokeColor="@color/color_divider"
     app:strokeWidth="1dp"
@@ -23,50 +24,57 @@
         android:orientation="vertical"
         android:padding="22dp">
 
-        <RelativeLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:id="@+id/ll_header_text"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/ll_badges_container"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
                 <TextView
                     android:id="@+id/tv_history_date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Saturday, Aug 8"
                     android:textColor="@color/color_text_primary"
                     android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    app:layout_constrainedWidth="true"
+                    tools:text="Saturday, Aug 8" />
 
                 <TextView
                     android:id="@+id/tv_trip_count"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:text="4 trips recorded"
                     android:textColor="@color/color_brand_secondary"
                     android:textSize="12sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    tools:text="4 trips recorded" />
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/ll_badges_container"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
                 android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
                 <LinearLayout
                     android:id="@+id/ll_status_badge"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
+
                     <TextView
                         android:id="@+id/tv_status_label"
                         android:layout_width="wrap_content"
@@ -102,7 +110,7 @@
                     android:src="@drawable/chevron"
                     app:tint="@color/color_text_muted" />
             </LinearLayout>
-        </RelativeLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <LinearLayout
             android:id="@+id/ll_detail_section"
@@ -121,8 +129,8 @@
                 android:id="@+id/ll_partial_reports_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginTop="8dp" />
+                android:layout_marginTop="8dp"
+                android:orientation="vertical" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -135,7 +143,9 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:paddingHorizontal="2dp">
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -143,6 +153,7 @@
                         android:textColor="@color/color_text_muted"
                         android:textSize="9sp"
                         android:textStyle="bold" />
+
                     <TextView
                         android:id="@+id/tv_history_val_gross"
                         android:layout_width="wrap_content"
@@ -150,7 +161,9 @@
                         android:text="₱ 1,680"
                         android:textColor="@color/color_brand_primary"
                         android:textSize="15sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:ellipsize="end"
+                        android:maxLines="1" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -158,7 +171,9 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:paddingHorizontal="2dp">
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -166,14 +181,18 @@
                         android:textColor="@color/color_text_muted"
                         android:textSize="9sp"
                         android:textStyle="bold" />
+
                     <TextView
                         android:id="@+id/tv_history_val_boundary_fuel"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
                         android:text="₱ 780"
                         android:textColor="@color/color_brand_primary"
                         android:textSize="15sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:ellipsize="end"
+                        android:maxLines="1" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -181,7 +200,9 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="end"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:paddingHorizontal="2dp">
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -189,6 +210,7 @@
                         android:textColor="@color/color_text_muted"
                         android:textSize="9sp"
                         android:textStyle="bold" />
+
                     <TextView
                         android:id="@+id/tv_history_val_net"
                         android:layout_width="wrap_content"
@@ -196,7 +218,9 @@
                         android:text="₱ 900"
                         android:textColor="@color/color_brand_primary"
                         android:textSize="15sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:ellipsize="end"
+                        android:maxLines="1" />
                 </LinearLayout>
 
             </LinearLayout>

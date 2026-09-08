@@ -11,9 +11,9 @@ import android.util.Log;
 import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewParent;
 import android.view.ViewTreeObserver;
 import android.view.inputmethod.EditorInfo;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,6 +27,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.core.widget.NestedScrollView;
 import androidx.security.crypto.EncryptedSharedPreferences;
 import androidx.security.crypto.MasterKey;
 
@@ -48,7 +49,7 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 
 public class LogInActivity extends AppCompatActivity {
-    private ScrollView scrollView;
+    private NestedScrollView scrollView;
     private TextInputLayout tilEmail, tilPassword;
     private TextInputEditText etEmail, etPassword;
     private TextView tvError, tvForgotPassword;
@@ -77,7 +78,8 @@ public class LogInActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
-        scrollView = findViewById(R.id.main);
+        // Fix: Use the correct ID for the NestedScrollView to avoid ClassCastException
+        scrollView = findViewById(R.id.login_scroll_view);
         tilEmail = findViewById(R.id.tilEmail);
         tilPassword = findViewById(R.id.tilPassword);
         etEmail = findViewById(R.id.etEmail);
@@ -109,29 +111,34 @@ public class LogInActivity extends AppCompatActivity {
         });
 
         // Dynamically adjust padding for EdgeToEdge + IME (Keyboard)
-        ViewCompat.setOnApplyWindowInsetsListener(scrollView, (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            Insets ime = insets.getInsets(WindowInsetsCompat.Type.ime());
+        if (scrollView != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(scrollView, (v, insets) -> {
+                Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                Insets ime = insets.getInsets(WindowInsetsCompat.Type.ime());
 
-            int bottomPadding = Math.max(systemBars.bottom, ime.bottom);
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, bottomPadding);
-            return insets;
-        });
+                int bottomPadding = Math.max(systemBars.bottom, ime.bottom);
+                v.setPadding(systemBars.left, systemBars.top, systemBars.right, bottomPadding);
+                return insets;
+            });
 
-        // Automatically scroll to reveal active input & login button when keyboard pops up
-        scrollView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                Rect r = new Rect();
-                scrollView.getWindowVisibleDisplayFrame(r);
-                int screenHeight = scrollView.getRootView().getHeight();
-                int keypadHeight = screenHeight - r.bottom;
+            // Automatically scroll to reveal active input when keyboard pops up
+            scrollView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    Rect r = new Rect();
+                    scrollView.getWindowVisibleDisplayFrame(r);
+                    int screenHeight = scrollView.getRootView().getHeight();
+                    int keypadHeight = screenHeight - r.bottom;
 
-                if (keypadHeight > screenHeight * 0.15) {
-                    scrollView.postDelayed(() -> scrollView.smoothScrollTo(0, btnLogin.getBottom()), 100);
+                    if (keypadHeight > screenHeight * 0.15) {
+                        View focusedView = getCurrentFocus();
+                        if (focusedView != null) {
+                            scrollToView(focusedView);
+                        }
+                    }
                 }
-            }
-        });
+            });
+        }
 
         // FORGOT PASSWORD BUTTON
         tvForgotPassword.setOnClickListener(view -> showResetPasswordDialog());
@@ -141,6 +148,26 @@ public class LogInActivity extends AppCompatActivity {
 
         // BIOMETRIC BUTTON
         btnBiometric.setOnClickListener(view -> biometricPrompt.authenticate(promptInfo));
+    }
+
+    private void scrollToView(View view) {
+        if (view == null || scrollView == null) return;
+        scrollView.postDelayed(() -> {
+            View target = view;
+            // Find the TextInputLayout parent to scroll the entire field into view
+            ViewParent parent = view.getParent();
+            while (parent != null && parent instanceof View) {
+                if (parent instanceof TextInputLayout) {
+                    target = (View) parent;
+                    break;
+                }
+                parent = parent.getParent();
+            }
+            
+            // Scroll to the top of the field with a comfortable offset
+            int targetTop = target.getTop();
+            scrollView.smoothScrollTo(0, Math.max(0, targetTop - 100));
+        }, 100);
     }
 
     private void setupBiometricAuth() {
@@ -304,25 +331,18 @@ public class LogInActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {}
         };
 
-        View.OnClickListener clickClearListener = v -> clearErrors();
-
-        // This ensures the error clears on the first tap when the field isn't yet focused
         View.OnFocusChangeListener focusClearListener = (v, hasFocus) -> {
-            if (hasFocus) clearErrors();
+            if (hasFocus) {
+                clearErrors();
+                scrollToView(v);
+            }
         };
 
         etEmail.addTextChangedListener(errorClearWatcher);
         etPassword.addTextChangedListener(errorClearWatcher);
 
-        etEmail.setOnClickListener(clickClearListener);
-        etPassword.setOnClickListener(clickClearListener);
-
         etEmail.setOnFocusChangeListener(focusClearListener);
         etPassword.setOnFocusChangeListener(focusClearListener);
-
-        // Also clear if clicking the surrounding box
-        tilEmail.setOnClickListener(clickClearListener);
-        tilPassword.setOnClickListener(clickClearListener);
     }
 
     private void clearErrors() {
@@ -341,11 +361,6 @@ public class LogInActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         checkBiometricAvailability();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser != null) {
-            setLoadingState(true);
-            validateUserRoleAndProceed(currentUser, true);
-        }
     }
 
     private void handleLogin() {

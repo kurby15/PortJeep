@@ -14,11 +14,11 @@
     <!-- Modern Floating Pill Navigation Bar -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/nav_card_container"
-        android:layout_width="280dp"
-        android:layout_height="64dp"
+        android:layout_width="@dimen/bottom_nav_width"
+        android:layout_height="@dimen/bottom_nav_height"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="40dp"
+        android:layout_marginBottom="@dimen/bottom_nav_margin_bottom"
         app:cardCornerRadius="32dp"
         app:cardElevation="12dp"
         app:cardBackgroundColor="@color/color_bottom_nav_bg"
@@ -34,7 +34,7 @@
             android:background="@android:color/transparent"
             app:elevation="0dp"
             app:labelVisibilityMode="unlabeled"
-            app:itemIconSize="26dp"
+            app:itemIconSize="@dimen/bottom_nav_icon_size"
             app:itemIconTint="@color/bottom_nav_color_selector"
             app:itemBackground="@drawable/nav_item_background"
             app:itemRippleColor="@android:color/transparent"

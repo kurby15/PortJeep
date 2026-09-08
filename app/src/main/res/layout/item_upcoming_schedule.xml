@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="?attr/selectableItemBackground"
@@ -8,10 +9,8 @@
     android:focusable="true"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:paddingStart="18dp"
-    android:paddingTop="16dp"
-    android:paddingEnd="18dp"
-    android:paddingBottom="16dp">
+    android:paddingHorizontal="18dp"
+    android:paddingVertical="16dp">
 
     <!-- Calendar Icon Unit -->
     <ImageView
@@ -36,19 +35,20 @@
             android:id="@+id/tv_schedule_day"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Friday"
             android:textColor="@color/color_text_primary"
             android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            app:layout_constrainedWidth="true"
+            tools:text="Friday" />
 
         <TextView
             android:id="@+id/tv_schedule_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
-            android:text="August 14, 2026"
             android:textColor="@color/color_text_secondary"
-            android:textSize="13sp" />
+            android:textSize="13sp"
+            tools:text="August 14, 2026" />
 
     </LinearLayout>
 
@@ -57,16 +57,14 @@
         android:id="@+id/tv_schedule_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="12dp"
+        android:layout_marginHorizontal="8dp"
         android:background="@drawable/bg_status_assigned"
-        android:paddingStart="12dp"
-        android:paddingTop="7dp"
-        android:paddingEnd="12dp"
-        android:paddingBottom="7dp"
-        android:text="●  Assigned"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="7dp"
         android:textColor="@color/color_status_assigned_text"
         android:textSize="11sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        tools:text="●  Assigned" />
 
     <!-- Chevron Indicator -->
     <ImageView

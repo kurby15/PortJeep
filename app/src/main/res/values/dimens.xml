@@ -6,16 +6,44 @@
     <dimen name="spacing_compact">12dp</dimen>
     <dimen name="spacing_standard">16dp</dimen>
     <dimen name="spacing_section">24dp</dimen>
+    <dimen name="spacing_medium">24dp</dimen>
     <dimen name="spacing_large">32dp</dimen>
+    <dimen name="spacing_extra_large">48dp</dimen>
 
     <!-- App-wide Screen Margins -->
     <dimen name="screen_padding_horizontal">16dp</dimen>
     <dimen name="screen_padding_vertical">16dp</dimen>
+    <dimen name="screen_margin_large">24dp</dimen>
 
     <!-- Card/Input Elements -->
     <dimen name="card_padding_standard">16dp</dimen>
     <dimen name="card_corner_radius_standard">16dp</dimen>
+    <dimen name="card_corner_radius_large">28dp</dimen>
+    <dimen name="card_corner_radius_xlarge">32dp</dimen>
 
-    // bottom navigation
+    <!-- Responsive Sizes -->
+    <dimen name="login_card_max_width">480dp</dimen>
+    <dimen name="dialog_max_width">400dp</dimen>
+    <dimen name="bottom_nav_width">280dp</dimen>
+    <dimen name="splash_lottie_size">300dp</dimen>
+    <dimen name="logo_width_login">230dp</dimen>
+    <dimen name="logo_height_login">180dp</dimen>
+    <dimen name="button_height_standard">54dp</dimen>
+    <dimen name="login_form_padding_horizontal">32dp</dimen>
+
+    <!-- Text Sizes -->
+    <dimen name="text_size_micro">11sp</dimen>
+    <dimen name="text_size_small">12sp</dimen>
+    <dimen name="text_size_caption">13sp</dimen>
+    <dimen name="text_size_body">14sp</dimen>
+    <dimen name="text_size_body_large">15sp</dimen>
+    <dimen name="text_size_medium">16sp</dimen>
+    <dimen name="text_size_heading">22sp</dimen>
+    <dimen name="text_size_large">24sp</dimen>
+    <dimen name="text_size_xlarge">26sp</dimen>
+
+    <!-- Bottom Navigation -->
     <dimen name="bottom_nav_icon_size">26dp</dimen>
+    <dimen name="bottom_nav_height">64dp</dimen>
+    <dimen name="bottom_nav_margin_bottom">40dp</dimen>
 </resources>

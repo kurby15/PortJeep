@@ -81,7 +81,7 @@ public class HomeFragment extends Fragment {
     // View References
     private TextView tvGreeting, tvDriverName, tvRoleBadge;
     private ImageView ivRobot;
-    private TextView tvUnitNo, tvPlateNo, tvDriverFullName, tvPaoFullName;
+    private TextView tvUnitNo, tvPlateNo, tvDriverFullName, tvPaoFullName, tvTodayRoute;
     private TextView tvTodayDate, tvJeepStatus, tvAssignmentStatus;
     private MaterialCardView cardMySchedule, cardSalary;
     private LinearLayout containerUpcoming;
@@ -168,6 +168,7 @@ public class HomeFragment extends Fragment {
 
         tvUnitNo = view.findViewById(R.id.tv_unit_no);
         tvPlateNo = view.findViewById(R.id.tv_plate_no);
+        tvTodayRoute = view.findViewById(R.id.tv_today_route);
         tvJeepStatus = view.findViewById(R.id.tv_jeep_status);
         tvAssignmentStatus = view.findViewById(R.id.tv_assignment_status);
         tvDriverFullName = view.findViewById(R.id.tv_driver_fullname);
@@ -924,6 +925,7 @@ public class HomeFragment extends Fragment {
         if (!isAdded()) return;
 
         String rawJeep = doc.optString("jeep", "N/A");
+        String route = doc.optString("route", "Minuyan - Starmall Loop");
         String secretKey = BuildConfig.CRYPTO_SECRET_KEY;
 
         // Driver details extraction
@@ -983,6 +985,7 @@ public class HomeFragment extends Fragment {
 
         if (tvUnitNo != null) tvUnitNo.setText(unitDisplay);
         if (tvPlateNo != null) tvPlateNo.setText(plateDisplay);
+        if (tvTodayRoute != null) tvTodayRoute.setText(route);
 
         if (tvAssignmentStatus != null) tvAssignmentStatus.setText("●  Assigned");
         if (tvJeepStatus != null) tvJeepStatus.setText("●  Active");
@@ -1052,6 +1055,7 @@ public class HomeFragment extends Fragment {
             String dayText = doc.optString("day", "Scheduled");
             String dateText = doc.optString("date", "N/A");
             String jeepUnit = doc.optString("jeep", "Unassigned Unit");
+            String route = doc.optString("route", "Minuyan - Starmall Loop");
             String driverName = parseName(doc, "driver", "Unassigned Driver");
             String paoName = parseName(doc, "pao", "Unassigned PAO");
 
@@ -1075,7 +1079,7 @@ public class HomeFragment extends Fragment {
                 plateDisplay = parts[1];
             }
 
-            itemView.setOnClickListener(v -> showScheduleDetailsModal(dayText, dateText, jeepUnit, driverName, paoName));
+            itemView.setOnClickListener(v -> showScheduleDetailsModal(dayText, dateText, jeepUnit, route, driverName, paoName));
 
             containerUpcoming.addView(itemView);
         }
@@ -1117,7 +1121,7 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    private void showScheduleDetailsModal(String dayText, String dateText, String jeepUnit, String driverName, String paoName) {
+    private void showScheduleDetailsModal(String dayText, String dateText, String jeepUnit, String route, String driverName, String paoName) {
         Context context = getContext();
         if (context == null || !isAdded()) return;
 
@@ -1128,6 +1132,7 @@ public class HomeFragment extends Fragment {
         TextView tvModalStatus = dialogView.findViewById(R.id.tv_schedule_status);
         TextView tvModalJeepUnit = dialogView.findViewById(R.id.tv_jeep_unit);
         TextView tvModalPlateNo = dialogView.findViewById(R.id.tv_plate_no);
+        TextView tvModalRoute = dialogView.findViewById(R.id.tv_schedule_route);
         TextView tvModalDriverName = dialogView.findViewById(R.id.tv_driver_name);
         TextView tvModalPaoName = dialogView.findViewById(R.id.tv_pao_name);
 
@@ -1153,6 +1158,7 @@ public class HomeFragment extends Fragment {
 
         if (tvModalJeepUnit != null) tvModalJeepUnit.setText(unitDisplay);
         if (tvModalPlateNo != null) tvModalPlateNo.setText(plateDisplay);
+        if (tvModalRoute != null) tvModalRoute.setText(route);
         if (tvModalDriverName != null) tvModalDriverName.setText(driverName);
         if (tvModalPaoName != null) tvModalPaoName.setText(paoName);
 
@@ -1208,6 +1214,7 @@ public class HomeFragment extends Fragment {
     private void setNoAssignmentUI() {
         if (tvUnitNo != null) tvUnitNo.setText("No Unit");
         if (tvPlateNo != null) tvPlateNo.setText("No Duty Today");
+        if (tvTodayRoute != null) tvTodayRoute.setText("No Route");
         if (tvJeepStatus != null) tvJeepStatus.setText("●  Off Duty");
         if (tvAssignmentStatus != null) tvAssignmentStatus.setText("●  Off Duty");
         if (tvDriverFullName != null) tvDriverFullName.setText("Rest Day / Unassigned");

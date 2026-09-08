@@ -6,12 +6,11 @@
     android:layout_height="match_parent"
     android:background="@color/color_surface">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/main_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@android:color/transparent"
-        android:orientation="vertical">
+        android:background="@android:color/transparent">
 
         <!-- Modern Header Section -->
         <LinearLayout
@@ -19,22 +18,20 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/bg_header_gradient"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            app:layout_constraintTop_toTopOf="parent">
 
             <View
                 android:id="@+id/status_bar_spacer"
                 android:layout_width="match_parent"
                 android:layout_height="0dp" />
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/header_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingStart="22dp"
+                android:paddingHorizontal="@dimen/screen_margin_large"
                 android:paddingTop="30dp"
-                android:paddingEnd="22dp"
                 android:paddingBottom="50dp">
 
                 <ImageView
@@ -45,40 +42,49 @@
                     android:padding="4dp"
                     android:src="@drawable/chevron"
                     android:rotation="180"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
                     app:tint="@color/white"
                     android:contentDescription="Back" />
 
                 <TextView
                     android:id="@+id/tv_header_title"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
                     android:text="@string/header_change_mobile"
                     android:textColor="@color/white"
                     android:textSize="22sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/btn_back"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </LinearLayout>
 
-        <ScrollView
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="20dp"
+            android:layout_height="0dp"
             android:fillViewport="true"
-            android:overScrollMode="never">
+            android:overScrollMode="never"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/header_container">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:paddingHorizontal="20dp"
+                android:paddingTop="20dp"
                 android:paddingBottom="40dp">
 
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:cardBackgroundColor="@color/color_surface"
-                    app:cardCornerRadius="32dp"
+                    app:cardCornerRadius="@dimen/card_corner_radius_xlarge"
                     app:cardElevation="10dp"
                     app:strokeColor="@color/color_divider"
                     app:strokeWidth="1dp"
@@ -97,7 +103,8 @@
                             android:text="@string/mobile_change_title"
                             android:textColor="@color/color_text_primary"
                             android:textSize="20sp"
-                            android:textStyle="bold" />
+                            android:textStyle="bold"
+                            app:layout_constrainedWidth="true" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -142,9 +149,10 @@
 
                             <TextView
                                 android:id="@+id/tv_current_mobile"
-                                android:layout_width="wrap_content"
+                                android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="14dp"
+                                android:layout_weight="1"
                                 tools:text="+63 912 345 6789"
                                 android:textColor="@color/color_text_primary"
                                 android:textSize="18sp"
@@ -158,7 +166,7 @@
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_change_mobile_action"
                     android:layout_width="match_parent"
-                    android:layout_height="58dp"
+                    android:layout_height="@dimen/button_height_standard"
                     android:layout_marginTop="32dp"
                     android:background="@drawable/bg_button_gradient"
                     android:text="@string/btn_change_mobile_action"
@@ -171,8 +179,8 @@
                     app:elevation="4dp" />
 
             </LinearLayout>
-        </ScrollView>
-    </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- Fragment Container for Maintenance/Overlay -->
     <FrameLayout
