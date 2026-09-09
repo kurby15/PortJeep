@@ -1,67 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/maintenance_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_main_gradient"
-    android:clickable="true"
-    android:focusable="true">
+    android:fillViewport="true"
+    android:background="@drawable/bg_main_gradient">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/maintenance_root"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:orientation="vertical"
+        android:clickable="true"
+        android:focusable="true"
         android:padding="@dimen/spacing_large">
 
         <com.airbnb.lottie.LottieAnimationView
             android:id="@+id/lottie_maintenance"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:maxWidth="300dp"
-            app:layout_constrainedHeight="true"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toTopOf="@+id/tv_maintenance_title"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed"
+            app:layout_constraintWidth_max="260dp"
+            app:layout_constraintWidth_percent="0.6"
             app:lottie_autoPlay="true"
             app:lottie_loop="true"
             app:lottie_rawRes="@raw/maintenance" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/tv_maintenance_title"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_standard"
+            android:layout_marginTop="32dp"
+            android:gravity="center"
             android:text="Under Maintenance"
             android:textColor="@color/color_text_primary"
-            android:textSize="24sp"
+            android:textSize="20sp"
             android:textStyle="bold"
-            android:gravity="center" />
+            app:layout_constraintBottom_toTopOf="@+id/tv_maintenance_desc"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/lottie_maintenance"
+            app:layout_constraintWidth_percent="0.9" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/tv_maintenance_desc"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_small"
+            android:layout_marginTop="12dp"
             android:alpha="0.8"
             android:gravity="center"
             android:text="This feature is currently unavailable.\nPlease try again later."
             android:textColor="@color/color_text_secondary"
-            android:textSize="15sp" />
+            android:textSize="14sp"
+            app:layout_constraintBottom_toTopOf="@+id/btn_back_maintenance"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_maintenance_title"
+            app:layout_constraintWidth_percent="0.85" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_back_maintenance"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/button_height_standard"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
             android:layout_marginTop="40dp"
-            android:maxWidth="280dp"
             android:background="@drawable/bg_button_gradient"
             android:text="GO BACK"
             android:textAllCaps="false"
             android:textColor="@color/white"
-            android:textSize="16sp"
+            android:textSize="15sp"
             android:textStyle="bold"
             app:backgroundTint="@null"
-            app:cornerRadius="28dp"
-            app:elevation="4dp" />
+            app:cornerRadius="24dp"
+            app:elevation="4dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_maintenance_desc"
+            app:layout_constraintWidth_max="200dp"
+            app:layout_constraintWidth_min="140dp"
+            app:layout_constraintWidth_percent="0.5" />
 
-    </LinearLayout>
-</FrameLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>
