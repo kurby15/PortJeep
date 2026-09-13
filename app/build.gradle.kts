@@ -25,9 +25,12 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        // Inject secret key from local.properties into BuildConfig
+        // Inject keys from local.properties into BuildConfig
         val secretKey = localProperties.getProperty("CRYPTO_SECRET_KEY") ?: "\"\""
         buildConfigField("String", "CRYPTO_SECRET_KEY", secretKey)
+
+        val recaptchaKey = localProperties.getProperty("RECAPTCHA_SITE_KEY") ?: "\"\""
+        buildConfigField("String", "RECAPTCHA_SITE_KEY", recaptchaKey)
     }
 
     androidResources {
@@ -65,6 +68,9 @@ dependencies {
     // Biometric & Security
     implementation("androidx.biometric:biometric:1.1.0")
     implementation("androidx.security:security-crypto:1.1.0")
+
+    // reCAPTCHA Enterprise
+    implementation(libs.recaptcha)
 
     // Lottie Animation Library
     implementation("com.airbnb.android:lottie:6.7.1")

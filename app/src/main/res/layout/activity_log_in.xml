@@ -11,7 +11,7 @@
     android:orientation="vertical"
     tools:context="com.example.portjeep.auth.LogInActivity">
 
-    <!-- Logo Section - Larger layout size -->
+    <!-- Logo Section -->
     <LinearLayout
         android:id="@+id/layout_top_logo"
         android:layout_width="match_parent"
@@ -36,11 +36,9 @@
         android:id="@+id/login_scroll_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="2"
+        android:layout_weight="2.2"
         android:background="@drawable/bg_bottom_sheet_card"
         android:fillViewport="true"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
         android:scrollbars="none">
 
         <LinearLayout
@@ -48,8 +46,8 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingHorizontal="@dimen/login_form_padding_horizontal"
-            android:paddingTop="36dp"
-            android:paddingBottom="48dp">
+            android:paddingTop="32dp"
+            android:paddingBottom="32dp">
 
             <TextView
                 android:id="@+id/tv_login_title"
@@ -66,20 +64,20 @@
                 android:id="@+id/tv_login_subtitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
+                android:layout_marginTop="4dp"
                 android:alpha="0.7"
                 android:gravity="center"
                 android:text="@string/login_subtitle"
                 android:textColor="@color/color_text_secondary"
                 android:textSize="@dimen/text_size_body" />
 
-            <!-- Email Input Field -->
+            <!-- Email Field -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilEmail"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
+                android:layout_marginTop="28dp"
                 android:hint="@string/login_email_hint"
                 app:boxCornerRadiusBottomEnd="24dp"
                 app:boxCornerRadiusBottomStart="24dp"
@@ -87,14 +85,12 @@
                 app:boxCornerRadiusTopStart="24dp"
                 app:boxStrokeColor="@color/color_brand_primary"
                 app:errorEnabled="true"
-                app:errorIconDrawable="@null"
-                app:hintTextColor="@color/color_brand_primary">
+                app:errorIconDrawable="@null">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etEmail"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:importantForAutofill="no"
                     android:imeOptions="actionNext"
                     android:inputType="textEmailAddress"
                     android:maxLines="1"
@@ -103,13 +99,13 @@
                     android:textSize="15sp" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Password Input Field -->
+            <!-- Password Field -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilPassword"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="0dp"
                 android:hint="@string/login_password_hint"
                 app:boxCornerRadiusBottomEnd="24dp"
                 app:boxCornerRadiusBottomStart="24dp"
@@ -117,16 +113,13 @@
                 app:boxCornerRadiusTopStart="24dp"
                 app:boxStrokeColor="@color/color_brand_primary"
                 app:endIconMode="password_toggle"
-                app:endIconTint="@color/color_text_secondary"
                 app:errorEnabled="true"
-                app:errorIconDrawable="@null"
-                app:hintTextColor="@color/color_brand_primary">
+                app:errorIconDrawable="@null">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etPassword"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:importantForAutofill="no"
                     android:imeOptions="actionDone"
                     android:inputType="textPassword"
                     android:maxLines="1"
@@ -140,9 +133,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
-                android:clickable="true"
-                android:focusable="true"
-                android:padding="@dimen/spacing_extra_small"
+                android:padding="8dp"
                 android:text="@string/login_forgot_password"
                 android:textColor="@color/color_brand_accent"
                 android:textSize="@dimen/text_size_caption"
@@ -153,22 +144,22 @@
                 android:id="@+id/tvError"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_standard"
+                android:layout_marginTop="8dp"
                 android:background="@drawable/bg_error_banner"
                 android:drawableStart="@drawable/warning"
                 android:drawablePadding="10dp"
                 android:padding="12dp"
                 android:textColor="@color/color_error_text"
-                android:textSize="@dimen/text_size_caption"
+                android:textSize="12sp"
                 android:visibility="gone"
-                tools:text="Invalid credentials"
+                tools:text="Verification Error"
                 tools:visibility="visible" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnLogin"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/button_height_standard"
-                android:layout_marginTop="@dimen/spacing_medium"
+                android:layout_marginTop="16dp"
                 android:background="@drawable/bg_button_gradient"
                 android:elevation="4dp"
                 android:text="@string/login_btn_sign_in"
@@ -185,7 +176,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginTop="@dimen/spacing_compact"
+                android:layout_marginTop="8dp"
                 android:text="@string/login_biometric_text"
                 android:textAllCaps="false"
                 android:textColor="@color/color_brand_primary"
@@ -193,18 +184,28 @@
                 android:textStyle="bold"
                 android:visibility="gone"
                 app:icon="@drawable/fingerprint"
-                app:iconGravity="textStart"
-                app:iconPadding="@dimen/spacing_small"
-                app:iconSize="20dp"
                 app:iconTint="@color/color_brand_primary"
                 tools:visibility="visible" />
+
+            <!-- reCAPTCHA Notice (Added as requested) -->
+            <TextView
+                android:id="@+id/tv_recaptcha_notice"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:alpha="0.5"
+                android:gravity="center"
+                android:lineSpacingExtra="2dp"
+                android:text="@string/login_recaptcha_notice"
+                android:textColor="@color/color_text_muted"
+                android:textSize="10sp" />
 
             <TextView
                 android:id="@+id/tvCopyright"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="40dp"
-                android:alpha="0.6"
+                android:layout_marginTop="12dp"
+                android:alpha="0.5"
                 android:gravity="center"
                 android:text="@string/login_copyright"
                 android:textColor="@color/color_text_muted"

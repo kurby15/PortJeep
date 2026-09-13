@@ -16,6 +16,7 @@
     <string name="login_btn_sign_in">Sign In</string>
     <string name="login_biometric_text">Login with screen lock</string>
     <string name="login_copyright">© 2026 Sapang Palay Minuyan Cooperative</string>
+    <string name="login_recaptcha_notice">This app is protected by reCAPTCHA and the Google \n&lt;a href=\"https://policies.google.com/privacy\"&gt;Privacy Policy&lt;/a&gt; and &lt;a href=\"https://policies.google.com/terms\"&gt;Terms of Service&lt;/a&gt; apply.</string>
     <string name="desc_login_logo">PortJeep Logo</string>
 
     <!-- Settings -->
