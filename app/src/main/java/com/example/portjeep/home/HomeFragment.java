@@ -197,6 +197,20 @@ public class HomeFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadRemittanceSummary();
+    }
+
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        if (!hidden) {
+            loadRemittanceSummary();
+        }
+    }
+
     private void loadRemittanceSummary() {
         Context context = getContext();
         if (context == null) return;
@@ -281,17 +295,31 @@ public class HomeFragment extends Fragment {
             }
 
             final int finalTrips = tripCount;
-            final String grossStr = "₱" + df.format(sumGross);
-            final String netStr = "₱" + df.format(sumNet);
-            final String shareStr = "₱" + df.format(sumShare);
+            final double finalGross = sumGross;
+            final double finalNet = sumNet;
+            final double finalShare = sumShare;
 
             handler.post(() -> {
                 if (!isAdded()) return;
+                Context context = getContext();
+                boolean isVisible = true;
+                if (context != null) {
+                    String userId = PreferenceManager.getCurrentUserId(context);
+                    String key = "is_visible_" + userId;
+                    android.content.SharedPreferences prefs = context.getSharedPreferences("salary_prefs", Context.MODE_PRIVATE);
+                    isVisible = prefs.getBoolean(key, true);
+                }
+
+                final String hiddenText = "₱ ••••";
+                final String grossStr = isVisible ? "₱" + df.format(finalGross) : hiddenText;
+                final String netStr = isVisible ? "₱" + df.format(finalNet) : hiddenText;
+                final String shareStr = isVisible ? "₱" + df.format(finalShare) : hiddenText;
+
                 if (tvSummaryTrips != null) tvSummaryTrips.setText(String.valueOf(finalTrips));
                 if (tvSummaryGross != null) tvSummaryGross.setText(grossStr);
                 if (tvSummaryNet != null) tvSummaryNet.setText(netStr);
 
-                String role = PreferenceManager.getUserRole(getContext());
+                String role = PreferenceManager.getUserRole(context);
                 if (role != null && role.toUpperCase().contains("DRIVER")) {
                     String name = (tvDriverFullName != null) ? tvDriverFullName.getText().toString() : "Driver";
                     if (name.isEmpty() || name.contains("Unassigned") || name.contains("Duty")) name = "Driver";

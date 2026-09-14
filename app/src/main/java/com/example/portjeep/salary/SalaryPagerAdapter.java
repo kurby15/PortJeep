@@ -23,7 +23,6 @@ import org.json.JSONObject;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -37,7 +36,7 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private static final String KEY_VISIBLE = "is_visible";
 
     private boolean isSalaryVisible = true;
-    private final String hiddenText = "₱ ••••••";
+    private final String hiddenText = "₱ ••••";
     private final DecimalFormat df = new DecimalFormat("#,##0.00");
 
     private JSONArray remittanceData;
@@ -92,6 +91,7 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 p.edit().putBoolean(k, isSalaryVisible).apply();
                 
                 updateSummaryUI(summaryHolder);
+                notifyItemChanged(TYPE_HISTORY);
             });
         } else if (holder instanceof HistoryViewHolder) {
             setupHistoryList((HistoryViewHolder) holder);
@@ -194,6 +194,7 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         }
 
         HistoryAdapter historyAdapter = new HistoryAdapter(items);
+        historyAdapter.setVisible(isSalaryVisible);
         holder.rvHistory.setLayoutManager(new LinearLayoutManager(holder.itemView.getContext()));
         holder.rvHistory.setAdapter(historyAdapter);
     }
@@ -253,21 +254,6 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             }
         }
 
-        safeSetText(holder.tvGross, grossStr);
-        safeSetText(holder.tvRemittance, expensesStr);
-
-        String role = PreferenceManager.getUserRole(context);
-        if (role != null && role.toUpperCase().contains("DRIVER")) {
-            safeSetText(holder.tvDeductions, shareStr);
-            safeSetText(holder.tvIncentives, "₱ 0.00");
-        } else if (role != null && (role.toUpperCase().contains("PAO") || role.toUpperCase().contains("ASSISTANT"))) {
-            safeSetText(holder.tvDeductions, "₱ 0.00");
-            safeSetText(holder.tvIncentives, shareStr);
-        } else {
-            safeSetText(holder.tvDeductions, "₱ 0.00");
-            safeSetText(holder.tvIncentives, "₱ 0.00");
-        }
-
         safeSetText(holder.tvLastPartial, lastPartialTime);
         safeSetText(holder.tvTrend, tripCountTrend);
 
@@ -279,18 +265,44 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         populateScheduleContext(holder, context, scheduleId);
 
         if (isSalaryVisible) {
+            safeSetText(holder.tvGross, grossStr);
+            safeSetText(holder.tvRemittance, expensesStr);
+
+            String role = PreferenceManager.getUserRole(context);
+            if (role != null && role.toUpperCase().contains("DRIVER")) {
+                safeSetText(holder.tvDeductions, shareStr);
+                safeSetText(holder.tvIncentives, "₱ 0.00");
+            } else if (role != null && (role.toUpperCase().contains("PAO") || role.toUpperCase().contains("ASSISTANT"))) {
+                safeSetText(holder.tvDeductions, "₱ 0.00");
+                safeSetText(holder.tvIncentives, shareStr);
+            } else {
+                safeSetText(holder.tvDeductions, "₱ 0.00");
+                safeSetText(holder.tvIncentives, "₱ 0.00");
+            }
+
             safeSetText(holder.tvTotalNet, totalNetStr);
             safeSetText(holder.tvNetBottom, totalNetStr);
+            
+            safeSetText(holder.tvScheduleGross, grossStr.replace("₱ ", "₱"));
+            safeSetText(holder.tvScheduleExpenses, expensesStr.replace("- ₱ ", "₱"));
+            safeSetText(holder.tvScheduleNet, totalNetStr.replace("₱ ", "₱"));
+            
             holder.ivToggleVisibility.setImageResource(R.drawable.view);
         } else {
+            safeSetText(holder.tvGross, hiddenText);
+            safeSetText(holder.tvRemittance, hiddenText);
+            safeSetText(holder.tvDeductions, hiddenText);
+            safeSetText(holder.tvIncentives, hiddenText);
+            
             safeSetText(holder.tvTotalNet, hiddenText);
             safeSetText(holder.tvNetBottom, hiddenText);
+            
+            safeSetText(holder.tvScheduleGross, hiddenText);
+            safeSetText(holder.tvScheduleExpenses, hiddenText);
+            safeSetText(holder.tvScheduleNet, hiddenText);
+            
             holder.ivToggleVisibility.setImageResource(R.drawable.hide);
         }
-
-        safeSetText(holder.tvScheduleGross, grossStr.replace("₱ ", "₱"));
-        safeSetText(holder.tvScheduleExpenses, expensesStr.replace("- ₱ ", "₱"));
-        safeSetText(holder.tvScheduleNet, totalNetStr.replace("₱ ", "₱"));
     }
 
     private void populateScheduleContext(SummaryViewHolder holder, Context context, String scheduleId) {

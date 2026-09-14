@@ -18,9 +18,16 @@ import java.util.List;
 public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHolder> {
 
     private final List<HistoryItem> items;
+    private boolean isVisible = true;
+    private final String hiddenText = "₱ ••••";
 
     public HistoryAdapter(List<HistoryItem> items) {
         this.items = items;
+    }
+
+    public void setVisible(boolean visible) {
+        this.isVisible = visible;
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -55,9 +62,15 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
             
             DecimalFormat df = new DecimalFormat("#,##0.00");
             // Detail values
-            holder.tvValGross.setText("₱ " + df.format(item.getGrossValue()));
-            holder.tvValBoundaryFuel.setText("₱ " + df.format(item.getExpensesValue()));
-            holder.tvValNet.setText("₱ " + df.format(item.getNetValue()));
+            if (isVisible) {
+                holder.tvValGross.setText("₱ " + df.format(item.getGrossValue()));
+                holder.tvValBoundaryFuel.setText("₱ " + df.format(item.getExpensesValue()));
+                holder.tvValNet.setText("₱ " + df.format(item.getNetValue()));
+            } else {
+                holder.tvValGross.setText(hiddenText);
+                holder.tvValBoundaryFuel.setText(hiddenText);
+                holder.tvValNet.setText(hiddenText);
+            }
 
             // Populate partial reports
             holder.llPartialContainer.removeAllViews();
@@ -65,9 +78,21 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
             for (PartialReport report : item.partialReports) {
                 View reportView = inflater.inflate(R.layout.item_partial_report, holder.llPartialContainer, false);
                 ((TextView) reportView.findViewById(R.id.tv_partial_header)).setText(report.header);
-                ((TextView) reportView.findViewById(R.id.tv_val_partial_amount)).setText("₱ " + report.amount);
-                ((TextView) reportView.findViewById(R.id.tv_val_partial_expenses)).setText("₱ " + report.expenses);
-                ((TextView) reportView.findViewById(R.id.tv_val_partial_net)).setText("₱ " + report.net);
+                
+                TextView tvAmount = reportView.findViewById(R.id.tv_val_partial_amount);
+                TextView tvExpenses = reportView.findViewById(R.id.tv_val_partial_expenses);
+                TextView tvNet = reportView.findViewById(R.id.tv_val_partial_net);
+                
+                if (isVisible) {
+                    tvAmount.setText("₱ " + report.amount);
+                    tvExpenses.setText("₱ " + report.expenses);
+                    tvNet.setText("₱ " + report.net);
+                } else {
+                    tvAmount.setText(hiddenText);
+                    tvExpenses.setText(hiddenText);
+                    tvNet.setText(hiddenText);
+                }
+
                 holder.llPartialContainer.addView(reportView);
             }
 
