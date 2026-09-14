@@ -10,8 +10,11 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.portjeep.MainActivity;
 import com.example.portjeep.R;
 import com.example.portjeep.auth.LogInActivity;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class SplashLoading extends AppCompatActivity {
     private final Handler handler = new Handler();
@@ -28,13 +31,24 @@ public class SplashLoading extends AppCompatActivity {
             return insets;
         });
 
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+
         runnable = () -> {
-            startActivity(new Intent(this, LogInActivity.class));
+            if (currentUser != null) {
+                // User is already logged in, navigate to MainActivity
+                Intent intent = new Intent(SplashLoading.this, MainActivity.class);
+                intent.putExtra("USER_UID", currentUser.getUid());
+                startActivity(intent);
+            } else {
+                // No user logged in, navigate to LogInActivity
+                startActivity(new Intent(SplashLoading.this, LogInActivity.class));
+            }
             finish();
         };
-        // Reduced delay to 2.5 seconds for a better user experience
-        handler.postDelayed(runnable, 7100);
 
+        // Determine delay based on login status
+        long delay = (currentUser != null) ? 4500 : 7100;
+        handler.postDelayed(runnable, delay);
     }
 
     @Override
