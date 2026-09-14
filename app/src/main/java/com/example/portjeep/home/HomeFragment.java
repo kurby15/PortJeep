@@ -44,6 +44,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -59,6 +60,8 @@ public class HomeFragment extends Fragment {
 
     private static final String TAG = "HomeFragment";
     private static final String API_URL = "https://port-jeep.vercel.app/api/mobile/schedules";
+    private static final String REMITTANCE_API_URL = "https://port-jeep.vercel.app/api/mobile/remittances";
+    private static final long CACHE_DURATION = 60 * 60 * 1000; // 1 hour
 
     // Loading Skeletons
     private ShimmerFrameLayout shimmerContainer, shimmerHeader, shimmerSummary;
@@ -91,6 +94,8 @@ public class HomeFragment extends Fragment {
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private final Handler handler = new Handler(Looper.getMainLooper());
+    private final DecimalFormat df = new DecimalFormat("#,##0.00");
 
     // User Profile & Unassigned Schedule Data State
     private final List<String> userRestDays = new ArrayList<>();
@@ -118,6 +123,7 @@ public class HomeFragment extends Fragment {
                 updateDynamicGreeting();
                 loadUserProfile();
                 loadSchedulesFromApi();
+                loadRemittanceSummary();
             });
         }
 
@@ -196,10 +202,125 @@ public class HomeFragment extends Fragment {
         updateDynamicGreeting();
         loadUserProfile();
         loadSchedulesFromApi();
+        loadRemittanceSummary();
 
         setupClickListeners();
 
         return view;
+    }
+
+    private void loadRemittanceSummary() {
+        Context context = getContext();
+        if (context == null) return;
+
+        String cachedSalary = PreferenceManager.getSalaryCache(context);
+        long lastFetch = PreferenceManager.getSalaryLastFetchTime(context);
+        long now = System.currentTimeMillis();
+
+        if (cachedSalary != null) {
+            try {
+                processRemittanceSummary(new JSONArray(cachedSalary));
+                // If cache is fresh, skip network
+                if (now - lastFetch < CACHE_DURATION) return;
+            } catch (Exception ignored) {}
+        }
+
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user != null) {
+            user.getIdToken(false).addOnSuccessListener(result -> fetchRemittancesForHome(result.getToken()));
+        }
+    }
+
+    private void fetchRemittancesForHome(String token) {
+        executor.execute(() -> {
+            HttpURLConnection connection = null;
+            try {
+                URL url = new URL(REMITTANCE_API_URL);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestProperty("Authorization", "Bearer " + token);
+                connection.setConnectTimeout(10000);
+                connection.setReadTimeout(10000);
+
+                int code = connection.getResponseCode();
+                if (code == HttpURLConnection.HTTP_OK) {
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                    StringBuilder sb = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) sb.append(line);
+                    reader.close();
+
+                    String raw = sb.toString();
+                    handler.post(() -> {
+                        if (!isAdded()) return;
+                        try {
+                            JSONObject root = new JSONObject(raw);
+                            if (root.optBoolean("success")) {
+                                JSONArray remittances = root.optJSONArray("remittances");
+                                if (remittances != null) {
+                                    PreferenceManager.saveSalaryCache(getContext(), remittances.toString());
+                                    processRemittanceSummary(remittances);
+                                }
+                            }
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error parsing remittance for summary", e);
+                        }
+                    });
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Error fetching remittance for summary", e);
+            } finally {
+                if (connection != null) connection.disconnect();
+            }
+        });
+    }
+
+    private void processRemittanceSummary(JSONArray remittances) {
+        if (remittances == null || remittances.length() == 0 || !isAdded()) return;
+
+        try {
+            // Index 0 is typically the most recent day (Today)
+            JSONObject latestGroup = remittances.optJSONObject(0);
+            if (latestGroup == null) return;
+
+            JSONArray partials = latestGroup.optJSONArray("remittances");
+            int tripCount = 0;
+            double sumGross = 0, sumNet = 0, sumShare = 0;
+
+            if (partials != null) {
+                tripCount = partials.length(); // Count of partial reports = trips
+                for (int i = 0; i < partials.length(); i++) {
+                    JSONObject p = partials.optJSONObject(i);
+                    sumGross += p.optDouble("gross", 0);
+                    sumNet += p.optDouble("net", 0);
+                    sumShare += p.optDouble("employeeCut", 0);
+                }
+            }
+
+            final int finalTrips = tripCount;
+            final String grossStr = "₱" + df.format(sumGross);
+            final String netStr = "₱" + df.format(sumNet);
+            final String shareStr = "₱" + df.format(sumShare);
+
+            handler.post(() -> {
+                if (!isAdded()) return;
+                if (tvSummaryTrips != null) tvSummaryTrips.setText(String.valueOf(finalTrips));
+                if (tvSummaryGross != null) tvSummaryGross.setText(grossStr);
+                if (tvSummaryNet != null) tvSummaryNet.setText(netStr);
+
+                String role = PreferenceManager.getUserRole(getContext());
+                if (role != null && role.toUpperCase().contains("DRIVER")) {
+                    if (tvSummaryShareLabel != null) tvSummaryShareLabel.setText("Driver Share");
+                    if (tvSummaryDistance != null) tvSummaryDistance.setText(shareStr);
+                } else if (role != null && (role.toUpperCase().contains("PAO") || role.toUpperCase().contains("ASSISTANT"))) {
+                    if (tvSummaryShareLabel != null) tvSummaryShareLabel.setText("PAO Share");
+                    if (tvSummaryDistance != null) tvSummaryDistance.setText(shareStr);
+                }
+                if (tvSummaryShareUnit != null) tvSummaryShareUnit.setText("Today");
+            });
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error processing summary UI", e);
+        }
     }
 
     private void loadOfflineUserProfile() {
@@ -632,6 +753,9 @@ public class HomeFragment extends Fragment {
             tvRoleBadge.setText(userRole);
             tvRoleBadge.setVisibility(View.VISIBLE);
         }
+
+        // Refresh summary to ensure labels like "Driver Share" match the new role
+        loadRemittanceSummary();
     }
 
     private void loadSchedulesFromApi() {
@@ -647,24 +771,18 @@ public class HomeFragment extends Fragment {
             parseAndDisplaySchedules(cachedData);
         }
 
-        currentUser.getIdToken(true)
+        currentUser.getIdToken(false)
                 .addOnSuccessListener(result -> {
                     if (!isAdded()) return;
                     fetchSchedulesFromApi(result.getToken());
                 })
                 .addOnFailureListener(e -> {
                     if (!isAdded()) return;
-                    // Cache already loaded from above
-                    if (PreferenceManager.getSchedulesCache(getContext()) == null) {
-                        setNoAssignmentUI();
-                    }
                     hideLoadingSkeleton();
                 });
     }
 
     private void fetchSchedulesFromApi(String idToken) {
-        Handler handler = new Handler(Looper.getMainLooper());
-
         executor.execute(() -> {
             HttpURLConnection connection = null;
             try {
@@ -672,7 +790,6 @@ public class HomeFragment extends Fragment {
                 connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("GET");
                 connection.setRequestProperty("Authorization", "Bearer " + idToken);
-                connection.setRequestProperty("Content-Type", "application/json");
                 connection.setConnectTimeout(10000);
                 connection.setReadTimeout(10000);
 
@@ -684,31 +801,21 @@ public class HomeFragment extends Fragment {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
                 StringBuilder responseStr = new StringBuilder();
                 String line;
-
-                while ((line = reader.readLine()) != null) {
-                    responseStr.append(line);
-                }
+                while ((line = reader.readLine()) != null) responseStr.append(line);
                 reader.close();
 
                 String rawResult = responseStr.toString();
-
                 handler.post(() -> {
                     if (!isAdded()) return;
-
                     if (responseCode == HttpURLConnection.HTTP_OK) {
                         PreferenceManager.saveSchedulesCache(getContext(), rawResult);
                         parseAndDisplaySchedules(rawResult);
-                    } else {
-                        // Already showing cache from loadSchedulesFromApi
                     }
                     hideLoadingSkeleton();
                 });
-
             } catch (Exception e) {
                 handler.post(() -> {
-                    if (isAdded()) {
-                        hideLoadingSkeleton();
-                    }
+                    if (isAdded()) hideLoadingSkeleton();
                 });
             } finally {
                 if (connection != null) connection.disconnect();
@@ -728,8 +835,8 @@ public class HomeFragment extends Fragment {
                 return;
             }
 
-            // Update Summary Data if available in root
-            updateSummaryData(root.optJSONObject("summary"));
+            // Note: We are no longer using root.optJSONObject("summary") here 
+            // because we now fetch real summary data from the Remittance API.
 
             JSONArray schedules = root.optJSONArray("schedules");
             if (schedules == null || schedules.length() == 0) {
@@ -854,35 +961,6 @@ public class HomeFragment extends Fragment {
         } catch (Exception e) {
             setNoAssignmentUI();
         }
-    }
-
-    private void updateSummaryData(JSONObject summary) {
-        if (!isAdded() || summary == null) return;
-
-        String trips = summary.optString("trips_completed", "0");
-        String distance = summary.optString("distance_covered", "0.0");
-        String gross = summary.optString("gross_collected", "₱ 0");
-        String net = summary.optString("net_remittance", "₱ 0");
-
-        // Dynamically handle Share based on Role
-        if (userRole.contains("DRIVER")) {
-            if (tvSummaryShareLabel != null) tvSummaryShareLabel.setText(getString(R.string.label_driver_share));
-            if (tvSummaryShareUnit != null) tvSummaryShareUnit.setText(getString(R.string.unit_today));
-            String driverShare = summary.optString("driver_share", "₱ 0");
-            if (tvSummaryDistance != null) tvSummaryDistance.setText(driverShare);
-        } else if (userRole.contains("PAO") || userRole.contains("PUBLIC ASSISTANT")) {
-            if (tvSummaryShareLabel != null) tvSummaryShareLabel.setText(getString(R.string.label_pao_share));
-            if (tvSummaryShareUnit != null) tvSummaryShareUnit.setText(getString(R.string.unit_today));
-            String paoShare = summary.optString("pao_share", "₱ 0");
-            if (tvSummaryDistance != null) tvSummaryDistance.setText(paoShare);
-        } else {
-            // Default to distance for other roles
-            if (tvSummaryShareLabel != null) tvSummaryShareLabel.setText(getString(R.string.label_share));
-        }
-
-        if (tvSummaryTrips != null) tvSummaryTrips.setText(trips);
-        if (tvSummaryGross != null) tvSummaryGross.setText(gross);
-        if (tvSummaryNet != null) tvSummaryNet.setText(net);
     }
 
     private Date parseDateString(String rawDate, String[] patterns, int currentYear) {
@@ -1073,10 +1151,6 @@ public class HomeFragment extends Fragment {
                     plateDisplay = jeepUnit.substring(0, startParen).trim();
                     unitDisplay = jeepUnit.substring(startParen + 1, endParen).trim();
                 } catch (Exception ignored) {}
-            } else if (jeepUnit != null && jeepUnit.contains(" · ")) {
-                String[] parts = jeepUnit.split(" · ");
-                unitDisplay = parts[0];
-                plateDisplay = parts[1];
             }
 
             itemView.setOnClickListener(v -> showScheduleDetailsModal(dayText, dateText, jeepUnit, route, driverName, paoName));
@@ -1150,10 +1224,6 @@ public class HomeFragment extends Fragment {
                 plateDisplay = jeepUnit.substring(0, startParen).trim();
                 unitDisplay = jeepUnit.substring(startParen + 1, endParen).trim();
             } catch (Exception ignored) {}
-        } else if (jeepUnit != null && jeepUnit.contains(" · ")) {
-            String[] parts = jeepUnit.split(" · ");
-            unitDisplay = parts[0];
-            plateDisplay = parts[1];
         }
 
         if (tvModalJeepUnit != null) tvModalJeepUnit.setText(unitDisplay);
