@@ -2,24 +2,31 @@ package com.example.portjeep.salary;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.text.SpannableStringBuilder;
-import android.text.Spanned;
-import android.text.style.ForegroundColorSpan;
 import android.transition.TransitionManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.portjeep.R;
-import com.google.android.material.button.MaterialButton;
+import com.example.portjeep.utils.PreferenceManager;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -30,28 +37,17 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     private boolean isSalaryVisible = true;
     private final String hiddenText = "₱ ••••••";
+    private final DecimalFormat df = new DecimalFormat("#,##0.00");
 
-    // Values for display aligned with fragment_salary_summary.xml
-    private final String valTotalNet = "₱ 4,901.06";
-    private final String valGross = "₱ 8,120.00";
-    private final String valRemittance = "- ₱ 3,218.94";
-    private final String valFuelCostsBreakdown = "₱ 4,901.06";
-    private final String valDeductions = "₱ 1,126.40";
-    private final String valIncentives = "₱ 768.00";
-    
-    private final String valBoundaryDay = "Jillian";
-    private final String valJeepUnit = "UNIT 01";
-    private final String valFuelDay = "AAA-0000";
-    private final String valWorkingDays = "Micah";
+    private JSONArray remittanceData;
 
-    // Schedule Details Data (Aligned with the requested 3-column layout)
-    private final String valScheduleDate = "Sep 3, 12:00 AM";
-    private final String valLastPartial = "Sep 3, 11:36 PM";
-    
-    // New fields for the End Shift Report row
-    private final String valReportedAmount = "₱ 8,000";
-    private final String valReportedIncentive = "₱ 100";
-    private final String valReportedResult = "₱ 120";
+    public SalaryPagerAdapter() {
+    }
+
+    public void setRemittanceData(JSONArray data) {
+        this.remittanceData = data;
+        notifyDataSetChanged();
+    }
 
     @NonNull
     @Override
@@ -90,29 +86,63 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     private void setupHistoryList(HistoryViewHolder holder) {
         List<HistoryAdapter.HistoryItem> items = new ArrayList<>();
-        
-        // Saturday, Aug 8 with 4 partial reports as per image - Set to expanded by default
-        items.add(new HistoryAdapter.HistoryItem("Saturday, Aug 8", "1,680", "780", "900", false)
-                .addPartial("#1 · Aug 8, 6:14 AM", "420", "297.2", "122.8")
-                .addPartial("#2 · Aug 8, 8:02 AM", "390", "277.2", "112.8")
-                .addPartial("#3 · Aug 8, 9:55 AM", "450", "317.2", "132.8")
-                .addPartial("#4 · Aug 8, 11:40 AM", "420", "297.2", "122.8")
-                .setExpanded(true));
 
-        items.add(new HistoryAdapter.HistoryItem("Friday, Aug 7", "1,740", "780", "960", false)
-                .addPartial("#1 · Aug 7, 7:30 AM", "870", "390", "480")
-                .addPartial("#2 · Aug 7, 12:45 PM", "870", "390", "480"));
-                
-        items.add(new HistoryAdapter.HistoryItem("Thursday, Aug 6", "1,560", "780", "780", false)
-                .addPartial("#1 · Aug 6, 8:00 AM", "1,560", "780", "780"));
-                
-        items.add(new HistoryAdapter.HistoryItem("Wednesday, Aug 5", "1,480", "780", "700", false)
-                .addPartial("#1 · Aug 5, 9:00 AM", "1,480", "780", "700"));
-                
-        items.add(new HistoryAdapter.HistoryItem("Tuesday, Aug 4", "", "", "", true));
-        
-        items.add(new HistoryAdapter.HistoryItem("Monday, Aug 3", "1,620", "780", "840", false)
-                .addPartial("#1 · Aug 3, 6:00 AM", "1,620", "780", "840"));
+        // Safeguard against null or uninitialized remittanceData
+        if (remittanceData != null) {
+            for (int i = 0; i < remittanceData.length(); i++) {
+                try {
+                    JSONObject dayGroup = remittanceData.optJSONObject(i);
+                    if (dayGroup == null) continue;
+
+                    String dayName = dayGroup.optString("day", "N/A");
+                    JSONArray partialsArray = dayGroup.optJSONArray("remittances");
+
+                    double totalGross = 0, totalExpenses = 0, totalNet = 0;
+                    List<HistoryAdapter.PartialReport> reports = new ArrayList<>();
+
+                    if (partialsArray != null) {
+                        for (int j = 0; j < partialsArray.length(); j++) {
+                            JSONObject partial = partialsArray.optJSONObject(j);
+                            if (partial == null) continue;
+
+                            double g = partial.optDouble("gross", 0);
+                            double e = partial.optDouble("expenses", 0);
+                            double n = partial.optDouble("net", 0);
+                            String time = partial.optString("created_at", "");
+
+                            totalGross += g;
+                            totalExpenses += e;
+                            totalNet += n;
+
+                            reports.add(new HistoryAdapter.PartialReport(
+                                    "Report #" + (j + 1) + " · " + time,
+                                    df.format(g),
+                                    df.format(e),
+                                    df.format(n)
+                            ));
+                        }
+                    }
+
+                    HistoryAdapter.HistoryItem item = new HistoryAdapter.HistoryItem(
+                            dayName,
+                            df.format(totalGross),
+                            df.format(totalExpenses),
+                            df.format(totalNet),
+                            false
+                    );
+
+                    for (HistoryAdapter.PartialReport report : reports) {
+                        item.addPartial(report.header, report.amount, report.expenses, report.net);
+                    }
+
+                    if (i == 0) item.setExpanded(true);
+                    items.add(item);
+
+                } catch (Exception e) {
+                    Log.e("SalaryPagerAdapter", "Error parsing history group", e);
+                }
+            }
+        }
 
         HistoryAdapter historyAdapter = new HistoryAdapter(items);
         holder.rvHistory.setLayoutManager(new LinearLayoutManager(holder.itemView.getContext()));
@@ -122,40 +152,142 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private void updateSummaryUI(SummaryViewHolder holder) {
         if (holder == null) return;
 
-        // Populate breakdown data
-        safeSetText(holder.tvGross, valGross);
-        safeSetText(holder.tvRemittance, valRemittance);
-        safeSetText(holder.tvDeductions, valDeductions);
-        safeSetText(holder.tvIncentives, valIncentives);
+        Context context = holder.itemView.getContext();
+        String totalNetStr = "₱ 0.00";
+        String grossStr = "₱ 0.00";
+        String expensesStr = "- ₱ 0.00";
+        String shareStr = "₱ 0.00";
+        String lastPartialTime = "N/A";
+        String tripCountTrend = "0 partials";
+        String scheduleId = "";
 
-        // Populate stats row
-        safeSetText(holder.tvBoundaryDay, valBoundaryDay);
-        safeSetText(holder.tvJeepUnit, valJeepUnit);
-        safeSetText(holder.tvFuelDay, valFuelDay);
-        safeSetText(holder.tvWorkingDays, valWorkingDays);
+        if (remittanceData != null && remittanceData.length() > 0) {
+            try {
+                JSONObject latestGroup = remittanceData.optJSONObject(0);
+                if (latestGroup != null) {
+                    scheduleId = latestGroup.optString("schedule_id", "");
+                    JSONArray partialsArray = latestGroup.optJSONArray("remittances");
 
-        // Populate Schedule Timing
-        safeSetText(holder.tvScheduleDate, valScheduleDate);
-        safeSetText(holder.tvLastPartial, valLastPartial);
+                    double sumGross = 0, sumExpenses = 0, sumNet = 0, sumShare = 0;
+                    int count = 0;
 
-        // Populate End Shift Report
-        safeSetText(holder.tvScheduleGross, valReportedAmount);
-        safeSetText(holder.tvScheduleExpenses, valReportedIncentive);
-        safeSetText(holder.tvScheduleNet, valReportedResult);
-        
-        // Always show labels regardless of visibility toggle
-        safeSetText(holder.tvTrend, "2 partials");
-        safeSetText(holder.tvNetCalc, "Calculated from partial reports");
+                    if (partialsArray != null && partialsArray.length() > 0) {
+                        count = partialsArray.length();
+                        for (int j = 0; j < count; j++) {
+                            JSONObject p = partialsArray.optJSONObject(j);
+                            if (p == null) continue;
 
-        // Handle visibility toggling for sensitive values
+                            sumGross += p.optDouble("gross", 0);
+                            sumExpenses += p.optDouble("expenses", 0);
+                            sumNet += p.optDouble("net", 0);
+                            sumShare += p.optDouble("employeeCut", 0);
+
+                            if (j == count - 1) {
+                                lastPartialTime = p.optString("created_at", "N/A");
+                            }
+                        }
+                    }
+
+                    grossStr = "₱ " + df.format(sumGross);
+                    expensesStr = "- ₱ " + df.format(sumExpenses);
+                    totalNetStr = "₱ " + df.format(sumNet);
+                    shareStr = "₱ " + df.format(sumShare);
+                    tripCountTrend = count + (count == 1 ? " partial" : " partials");
+                }
+            } catch (Exception e) {
+                Log.e("SalaryPagerAdapter", "Error updating summary aggregation", e);
+            }
+        }
+
+        safeSetText(holder.tvGross, grossStr);
+        safeSetText(holder.tvRemittance, expensesStr);
+
+        String role = PreferenceManager.getUserRole(context);
+        if (role != null && role.toUpperCase().contains("DRIVER")) {
+            safeSetText(holder.tvDeductions, shareStr);
+            safeSetText(holder.tvIncentives, "₱ 0.00");
+        } else if (role != null && (role.toUpperCase().contains("PAO") || role.toUpperCase().contains("ASSISTANT"))) {
+            safeSetText(holder.tvDeductions, "₱ 0.00");
+            safeSetText(holder.tvIncentives, shareStr);
+        } else {
+            safeSetText(holder.tvDeductions, "₱ 0.00");
+            safeSetText(holder.tvIncentives, "₱ 0.00");
+        }
+
+        safeSetText(holder.tvLastPartial, lastPartialTime);
+        safeSetText(holder.tvTrend, tripCountTrend);
+
+        populateScheduleContext(holder, context, scheduleId);
+
         if (isSalaryVisible) {
-            safeSetText(holder.tvTotalNet, valTotalNet);
-            safeSetText(holder.tvNetBottom, valTotalNet);
+            safeSetText(holder.tvTotalNet, totalNetStr);
+            safeSetText(holder.tvNetBottom, totalNetStr);
             holder.ivToggleVisibility.setImageResource(R.drawable.view);
         } else {
             safeSetText(holder.tvTotalNet, hiddenText);
             safeSetText(holder.tvNetBottom, hiddenText);
             holder.ivToggleVisibility.setImageResource(R.drawable.hide);
+        }
+
+        safeSetText(holder.tvScheduleGross, grossStr.replace("₱ ", "₱"));
+        safeSetText(holder.tvScheduleExpenses, expensesStr.replace("- ₱ ", "₱"));
+        safeSetText(holder.tvScheduleNet, totalNetStr.replace("₱ ", "₱"));
+    }
+
+    private void populateScheduleContext(SummaryViewHolder holder, Context context, String scheduleId) {
+        String cachedSchedules = PreferenceManager.getSchedulesCache(context);
+        if (cachedSchedules == null) return;
+
+        try {
+            JSONObject root = new JSONObject(cachedSchedules);
+            JSONArray schedules = root.optJSONArray("schedules");
+            if (schedules == null) return;
+
+            String todayName = new SimpleDateFormat("EEEE", Locale.US).format(new Date());
+            
+            for (int i = 0; i < schedules.length(); i++) {
+                JSONObject sched = schedules.getJSONObject(i);
+                
+                // Try to match by ID first, then fallback to day name
+                boolean isMatch = false;
+                if (!scheduleId.isEmpty() && scheduleId.equals(sched.optString("id", sched.optString("_id", "")))) {
+                    isMatch = true;
+                } else if (scheduleId.isEmpty() && todayName.equalsIgnoreCase(sched.optString("day"))) {
+                    isMatch = true;
+                }
+
+                if (isMatch) {
+                    String jeep = sched.optString("jeep", "N/A");
+                    String driver = "Unassigned";
+                    String pao = "Unassigned";
+
+                    if (sched.has("driver") && !sched.isNull("driver")) {
+                        Object d = sched.get("driver");
+                        driver = (d instanceof JSONObject) ? ((JSONObject) d).optString("name", "Driver") : d.toString();
+                    }
+                    if (sched.has("pao") && !sched.isNull("pao")) {
+                        Object p = sched.get("pao");
+                        pao = (p instanceof JSONObject) ? ((JSONObject) p).optString("name", "PAO") : p.toString();
+                    }
+
+                    safeSetText(holder.tvBoundaryDay, driver);
+                    safeSetText(holder.tvWorkingDays, pao);
+                    
+                    if (jeep.contains("(") && jeep.contains(")")) {
+                        int s = jeep.indexOf("("), e = jeep.indexOf(")");
+                        safeSetText(holder.tvJeepUnit, jeep.substring(s + 1, e).trim());
+                        safeSetText(holder.tvFuelDay, jeep.substring(0, s).trim());
+                    } else {
+                        safeSetText(holder.tvJeepUnit, jeep);
+                        safeSetText(holder.tvFuelDay, "No Plate");
+                    }
+                    
+                    safeSetText(holder.tvScheduleDate, sched.optString("date", "Today"));
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            Log.e("SalaryPagerAdapter", "Error syncing schedule context", e);
         }
     }
 
@@ -172,7 +304,7 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     static class SummaryViewHolder extends RecyclerView.ViewHolder {
         TextView tvTotalNet, tvNetBottom, tvGross, tvRemittance, tvDeductions, tvIncentives;
         TextView tvScheduleDate, tvLastPartial;
-        TextView tvScheduleGross, tvScheduleExpenses, tvScheduleNet; // End Shift Report fields
+        TextView tvScheduleGross, tvScheduleExpenses, tvScheduleNet;
         TextView tvBoundaryDay, tvJeepUnit, tvFuelDay, tvWorkingDays, tvNetCalc, tvTrend;
         ImageView ivToggleVisibility;
 
@@ -188,7 +320,6 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             tvScheduleDate = itemView.findViewById(R.id.tv_val_schedule_date);
             tvLastPartial = itemView.findViewById(R.id.tv_val_last_partial);
             
-            // Map End Shift Report IDs
             tvScheduleGross = itemView.findViewById(R.id.tv_val_schedule_gross);
             tvScheduleExpenses = itemView.findViewById(R.id.tv_val_schedule_expenses);
             tvScheduleNet = itemView.findViewById(R.id.tv_val_schedule_net);
