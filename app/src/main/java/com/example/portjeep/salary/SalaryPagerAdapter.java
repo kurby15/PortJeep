@@ -217,6 +217,12 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         safeSetText(holder.tvLastPartial, lastPartialTime);
         safeSetText(holder.tvTrend, tripCountTrend);
 
+        // Pre-fill defaults to avoid hardcoded placeholders if no schedule match
+        safeSetText(holder.tvBoundaryDay, "Unassigned");
+        safeSetText(holder.tvWorkingDays, "Unassigned");
+        safeSetText(holder.tvDriverShareName, "Unassigned Driver");
+        safeSetText(holder.tvPaoShareName, "Unassigned PAO");
+
         populateScheduleContext(holder, context, scheduleId);
 
         if (isSalaryVisible) {
@@ -244,6 +250,7 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             if (schedules == null) return;
 
             String todayName = new SimpleDateFormat("EEEE", Locale.US).format(new Date());
+            String secretKey = com.example.portjeep.BuildConfig.CRYPTO_SECRET_KEY;
             
             for (int i = 0; i < schedules.length(); i++) {
                 JSONObject sched = schedules.getJSONObject(i);
@@ -265,13 +272,24 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                         Object d = sched.get("driver");
                         driver = (d instanceof JSONObject) ? ((JSONObject) d).optString("name", "Driver") : d.toString();
                     }
+                    driver = com.example.portjeep.utils.CryptoUtils.decrypt(driver, secretKey);
+                    if (driver == null || driver.isEmpty() || driver.equalsIgnoreCase("null")) {
+                        driver = "Unassigned Driver";
+                    }
+
                     if (sched.has("pao") && !sched.isNull("pao")) {
                         Object p = sched.get("pao");
                         pao = (p instanceof JSONObject) ? ((JSONObject) p).optString("name", "PAO") : p.toString();
                     }
+                    pao = com.example.portjeep.utils.CryptoUtils.decrypt(pao, secretKey);
+                    if (pao == null || pao.isEmpty() || pao.equalsIgnoreCase("null")) {
+                        pao = "Unassigned PAO";
+                    }
 
                     safeSetText(holder.tvBoundaryDay, driver);
                     safeSetText(holder.tvWorkingDays, pao);
+                    safeSetText(holder.tvDriverShareName, driver);
+                    safeSetText(holder.tvPaoShareName, pao);
                     
                     if (jeep.contains("(") && jeep.contains(")")) {
                         int s = jeep.indexOf("("), e = jeep.indexOf(")");
@@ -306,6 +324,7 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         TextView tvScheduleDate, tvLastPartial;
         TextView tvScheduleGross, tvScheduleExpenses, tvScheduleNet;
         TextView tvBoundaryDay, tvJeepUnit, tvFuelDay, tvWorkingDays, tvNetCalc, tvTrend;
+        TextView tvDriverShareName, tvPaoShareName;
         ImageView ivToggleVisibility;
 
         SummaryViewHolder(View itemView) {
@@ -330,6 +349,8 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             tvWorkingDays = itemView.findViewById(R.id.tv_val_working_days);
             tvNetCalc = itemView.findViewById(R.id.tv_net_income_calculation);
             tvTrend = itemView.findViewById(R.id.tv_income_trend);
+            tvDriverShareName = itemView.findViewById(R.id.tv_desc_gov_deductions);
+            tvPaoShareName = itemView.findViewById(R.id.tv_desc_attendance_incentive);
             ivToggleVisibility = itemView.findViewById(R.id.iv_toggle_visibility);
         }
     }
