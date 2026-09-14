@@ -53,7 +53,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
             String tripText = item.partialReports.size() + (item.partialReports.size() == 1 ? " trip recorded" : " trips recorded");
             holder.tvTripCount.setText(tripText);
             
-            DecimalFormat df = new DecimalFormat("#,###.##");
+            DecimalFormat df = new DecimalFormat("#,##0.00");
             // Detail values
             holder.tvValGross.setText("₱ " + df.format(item.getGrossValue()));
             holder.tvValBoundaryFuel.setText("₱ " + df.format(item.getExpensesValue()));

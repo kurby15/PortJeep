@@ -88,6 +88,10 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private void setupHistoryList(HistoryViewHolder holder) {
         List<HistoryAdapter.HistoryItem> items = new ArrayList<>();
 
+        String todayName = new SimpleDateFormat("EEEE", Locale.US).format(new Date());
+        String todayFormatted = new SimpleDateFormat("EEEE, MMM d", Locale.US).format(new Date());
+        boolean foundToday = false;
+
         if (remittanceData != null) {
             for (int i = 0; i < remittanceData.length(); i++) {
                 try {
@@ -95,20 +99,31 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     if (dayGroup == null) continue;
 
                     String dayName = dayGroup.optString("day", "N/A");
+                    String groupDate = dayGroup.optString("date", dayName);
+
+                    // Check if this entry matches today's day or date
+                    boolean isToday = dayName.equalsIgnoreCase(todayName) || groupDate.contains(todayFormatted) || groupDate.equalsIgnoreCase(todayName);
+
+                    if (!isToday) {
+                        continue; // Skip non-today entries to show ONLY today
+                    }
+
+                    foundToday = true;
                     JSONArray partialsArray = dayGroup.optJSONArray("remittances");
 
                     double totalGross = 0, totalExpenses = 0, totalNet = 0;
                     List<HistoryAdapter.PartialReport> reports = new ArrayList<>();
+                    boolean hasRemittances = partialsArray != null && partialsArray.length() > 0;
 
-                    if (partialsArray != null) {
+                    if (hasRemittances) {
                         List<JSONObject> sortedPartials = new ArrayList<>();
                         for (int k = 0; k < partialsArray.length(); k++) {
                             JSONObject p = partialsArray.optJSONObject(k);
                             if (p != null) sortedPartials.add(p);
                         }
-                        
+
                         // Sort by time ascending for chronological numbering
-                        Collections.sort(sortedPartials, (a, b) -> 
+                        Collections.sort(sortedPartials, (a, b) ->
                                 a.optString("created_at", "").compareTo(b.optString("created_at", "")));
 
                         for (int j = 0; j < sortedPartials.size(); j++) {
@@ -122,7 +137,6 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                             totalExpenses += e;
                             totalNet += n;
 
-                            // Add to the front of reports list so newest is at the top of sub-list
                             reports.add(0, new HistoryAdapter.PartialReport(
                                     "Report #" + (j + 1) + " · " + time,
                                     df.format(g),
@@ -133,24 +147,37 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     }
 
                     HistoryAdapter.HistoryItem item = new HistoryAdapter.HistoryItem(
-                            dayName,
+                            groupDate.isEmpty() ? todayFormatted : groupDate,
                             df.format(totalGross),
                             df.format(totalExpenses),
                             df.format(totalNet),
-                            false
+                            !hasRemittances
                     );
 
                     for (HistoryAdapter.PartialReport report : reports) {
                         item.addPartial(report.header, report.amount, report.expenses, report.net);
                     }
 
-                    if (i == 0) item.setExpanded(true);
+                    item.setExpanded(true);
                     items.add(item);
+                    break; // Stop after processing today's entry
 
                 } catch (Exception e) {
                     Log.e("SalaryPagerAdapter", "Error parsing history group", e);
                 }
             }
+        }
+
+        // If today has no record in remittanceData, display it as unassigned/rest
+        if (!foundToday) {
+            HistoryAdapter.HistoryItem unassignedItem = new HistoryAdapter.HistoryItem(
+                    todayFormatted,
+                    "0.00",
+                    "0.00",
+                    "0.00",
+                    true
+            );
+            items.add(unassignedItem);
         }
 
         HistoryAdapter historyAdapter = new HistoryAdapter(items);
@@ -255,6 +282,16 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     private void populateScheduleContext(SummaryViewHolder holder, Context context, String scheduleId) {
         String cachedSchedules = PreferenceManager.getSchedulesCache(context);
+
+        // Default text if no schedule matches today
+        safeSetText(holder.tvBoundaryDay, "Unassigned");
+        safeSetText(holder.tvWorkingDays, "Unassigned");
+        safeSetText(holder.tvDriverShareName, "Unassigned Driver");
+        safeSetText(holder.tvPaoShareName, "Unassigned PAO");
+        safeSetText(holder.tvJeepUnit, "Unassigned");
+        safeSetText(holder.tvFuelDay, "No Plate");
+        safeSetText(holder.tvScheduleDate, "Today");
+
         if (cachedSchedules == null) return;
 
         try {
@@ -262,15 +299,20 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             JSONArray schedules = root.optJSONArray("schedules");
             if (schedules == null) return;
 
+            // Get today's day name (e.g., "Monday") and formatted date for matching
             String todayName = new SimpleDateFormat("EEEE", Locale.US).format(new Date());
+            String todayDateStr = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
             String secretKey = com.example.portjeep.BuildConfig.CRYPTO_SECRET_KEY;
-            
+
             for (int i = 0; i < schedules.length(); i++) {
                 JSONObject sched = schedules.getJSONObject(i);
                 boolean isMatch = false;
-                if (!scheduleId.isEmpty() && scheduleId.equals(sched.optString("id", sched.optString("_id", "")))) {
-                    isMatch = true;
-                } else if (scheduleId.isEmpty() && todayName.equalsIgnoreCase(sched.optString("day"))) {
+
+                String schedDay = sched.optString("day", "");
+                String schedDate = sched.optString("date", "");
+
+                // Strictly check if it matches today's day or today's specific date
+                if (todayName.equalsIgnoreCase(schedDay) || todayDateStr.equals(schedDate)) {
                     isMatch = true;
                 }
 
@@ -297,14 +339,14 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     safeSetText(holder.tvWorkingDays, pao);
                     safeSetText(holder.tvDriverShareName, driver);
                     safeSetText(holder.tvPaoShareName, pao);
-                    
+
                     if (jeep.contains("(") && jeep.contains(")")) {
                         int s = jeep.indexOf("("), e = jeep.indexOf(")");
                         safeSetText(holder.tvJeepUnit, jeep.substring(s + 1, e).trim());
                         safeSetText(holder.tvFuelDay, jeep.substring(0, s).trim());
                     } else {
-                        safeSetText(holder.tvJeepUnit, jeep);
-                        safeSetText(holder.tvFuelDay, "No Plate");
+                        safeSetText(holder.tvJeepUnit, jeep.isEmpty() ? "Unassigned" : jeep);
+                        safeSetText(holder.tvFuelDay, jeep.isEmpty() ? "No Plate" : jeep);
                     }
                     safeSetText(holder.tvScheduleDate, sched.optString("date", "Today"));
                     break;

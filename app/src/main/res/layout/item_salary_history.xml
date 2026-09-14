@@ -132,99 +132,137 @@
                 android:layout_marginTop="8dp"
                 android:orientation="vertical" />
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:orientation="horizontal"
-                android:weightSum="3">
+                android:paddingHorizontal="16dp">
 
-                <LinearLayout
+                <TextView
+                    android:id="@+id/tv_label_history_gross"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:paddingHorizontal="2dp">
+                    android:fontFamily="sans-serif-black"
+                    android:gravity="start"
+                    android:text="GROSS"
+                    android:textColor="@color/color_text_muted"
+                    android:textSize="9sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toStartOf="@+id/tv_summary_minus"
+                    app:layout_constraintHorizontal_weight="1"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="GROSS"
-                        android:textColor="@color/color_text_muted"
-                        android:textSize="9sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tv_history_val_gross"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="₱ 1,680"
-                        android:textColor="@color/color_brand_primary"
-                        android:textSize="15sp"
-                        android:textStyle="bold"
-                        android:ellipsize="end"
-                        android:maxLines="1" />
-                </LinearLayout>
-
-                <LinearLayout
+                <TextView
+                    android:id="@+id/tv_history_val_gross"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
+                    android:layout_marginTop="4dp"
+                    android:ellipsize="end"
+                    android:fontFamily="sans-serif-black"
+                    android:gravity="start"
+                    android:maxLines="1"
+                    android:text="₱ 0.00"
+                    android:textColor="@color/color_brand_primary"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="@+id/tv_label_history_gross"
+                    app:layout_constraintStart_toStartOf="@+id/tv_label_history_gross"
+                    app:layout_constraintTop_toBottomOf="@id/tv_label_history_gross" />
+
+                <TextView
+                    android:id="@+id/tv_summary_minus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="4dp"
+                    android:text="−"
+                    android:textColor="@android:color/transparent"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="@+id/tv_history_val_gross"
+                    app:layout_constraintEnd_toStartOf="@+id/tv_label_history_expenses"
+                    app:layout_constraintStart_toEndOf="@+id/tv_label_history_gross"
+                    app:layout_constraintTop_toTopOf="@+id/tv_history_val_gross" />
+
+                <TextView
+                    android:id="@+id/tv_label_history_expenses"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-black"
                     android:gravity="center"
-                    android:orientation="vertical"
-                    android:paddingHorizontal="2dp">
+                    android:text="EXPENSES"
+                    android:textColor="@color/color_text_muted"
+                    android:textSize="9sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toStartOf="@+id/tv_summary_equal"
+                    app:layout_constraintHorizontal_weight="1"
+                    app:layout_constraintStart_toEndOf="@+id/tv_summary_minus"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="EXPENSES"
-                        android:textColor="@color/color_text_muted"
-                        android:textSize="9sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tv_history_val_boundary_fuel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:text="₱ 780"
-                        android:textColor="@color/color_brand_primary"
-                        android:textSize="15sp"
-                        android:textStyle="bold"
-                        android:ellipsize="end"
-                        android:maxLines="1" />
-                </LinearLayout>
-
-                <LinearLayout
+                <TextView
+                    android:id="@+id/tv_history_val_boundary_fuel"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
+                    android:layout_marginTop="4dp"
+                    android:ellipsize="end"
+                    android:fontFamily="sans-serif-black"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:text="₱ 0.00"
+                    android:textColor="@color/color_brand_primary"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="@+id/tv_label_history_expenses"
+                    app:layout_constraintStart_toStartOf="@+id/tv_label_history_expenses"
+                    app:layout_constraintTop_toBottomOf="@id/tv_label_history_expenses" />
+
+                <TextView
+                    android:id="@+id/tv_summary_equal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="4dp"
+                    android:text="="
+                    android:textColor="@android:color/transparent"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="@+id/tv_history_val_boundary_fuel"
+                    app:layout_constraintEnd_toStartOf="@+id/tv_label_history_net"
+                    app:layout_constraintStart_toEndOf="@+id/tv_label_history_expenses"
+                    app:layout_constraintTop_toTopOf="@+id/tv_history_val_boundary_fuel" />
+
+                <TextView
+                    android:id="@+id/tv_label_history_net"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-black"
                     android:gravity="end"
-                    android:orientation="vertical"
-                    android:paddingHorizontal="2dp">
+                    android:text="NET"
+                    android:textColor="@color/color_text_muted"
+                    android:textSize="9sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_weight="1"
+                    app:layout_constraintStart_toEndOf="@+id/tv_summary_equal"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-                    <TextView
-                        android:id="@+id/tv_label_history_net"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="NET"
-                        android:textColor="@color/color_text_muted"
-                        android:textSize="9sp"
-                        android:textStyle="bold" />
+                <TextView
+                    android:id="@+id/tv_history_val_net"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:ellipsize="end"
+                    android:fontFamily="sans-serif-black"
+                    android:gravity="end"
+                    android:maxLines="1"
+                    android:text="₱ 0.00"
+                    android:textColor="@color/color_brand_primary"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="@+id/tv_label_history_net"
+                    app:layout_constraintStart_toStartOf="@+id/tv_label_history_net"
+                    app:layout_constraintTop_toBottomOf="@id/tv_label_history_net" />
 
-                    <TextView
-                        android:id="@+id/tv_history_val_net"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="₱ 900"
-                        android:textColor="@color/color_brand_primary"
-                        android:textSize="15sp"
-                        android:textStyle="bold"
-                        android:ellipsize="end"
-                        android:maxLines="1" />
-                </LinearLayout>
-
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
