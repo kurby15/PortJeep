@@ -24,6 +24,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -87,7 +88,6 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private void setupHistoryList(HistoryViewHolder holder) {
         List<HistoryAdapter.HistoryItem> items = new ArrayList<>();
 
-        // Safeguard against null or uninitialized remittanceData
         if (remittanceData != null) {
             for (int i = 0; i < remittanceData.length(); i++) {
                 try {
@@ -101,10 +101,18 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     List<HistoryAdapter.PartialReport> reports = new ArrayList<>();
 
                     if (partialsArray != null) {
-                        for (int j = 0; j < partialsArray.length(); j++) {
-                            JSONObject partial = partialsArray.optJSONObject(j);
-                            if (partial == null) continue;
+                        List<JSONObject> sortedPartials = new ArrayList<>();
+                        for (int k = 0; k < partialsArray.length(); k++) {
+                            JSONObject p = partialsArray.optJSONObject(k);
+                            if (p != null) sortedPartials.add(p);
+                        }
+                        
+                        // Sort by time ascending for chronological numbering
+                        Collections.sort(sortedPartials, (a, b) -> 
+                                a.optString("created_at", "").compareTo(b.optString("created_at", "")));
 
+                        for (int j = 0; j < sortedPartials.size(); j++) {
+                            JSONObject partial = sortedPartials.get(j);
                             double g = partial.optDouble("gross", 0);
                             double e = partial.optDouble("expenses", 0);
                             double n = partial.optDouble("net", 0);
@@ -114,7 +122,8 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                             totalExpenses += e;
                             totalNet += n;
 
-                            reports.add(new HistoryAdapter.PartialReport(
+                            // Add to the front of reports list so newest is at the top of sub-list
+                            reports.add(0, new HistoryAdapter.PartialReport(
                                     "Report #" + (j + 1) + " · " + time,
                                     df.format(g),
                                     df.format(e),
@@ -163,6 +172,7 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
         if (remittanceData != null && remittanceData.length() > 0) {
             try {
+                // Latest group (usually today)
                 JSONObject latestGroup = remittanceData.optJSONObject(0);
                 if (latestGroup != null) {
                     scheduleId = latestGroup.optString("schedule_id", "");
@@ -170,6 +180,7 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
                     double sumGross = 0, sumExpenses = 0, sumNet = 0, sumShare = 0;
                     int count = 0;
+                    String maxTime = "";
 
                     if (partialsArray != null && partialsArray.length() > 0) {
                         count = partialsArray.length();
@@ -182,8 +193,10 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                             sumNet += p.optDouble("net", 0);
                             sumShare += p.optDouble("employeeCut", 0);
 
-                            if (j == count - 1) {
-                                lastPartialTime = p.optString("created_at", "N/A");
+                            // Dynamically find the latest partial time by comparison
+                            String currentTime = p.optString("created_at", "");
+                            if (currentTime.compareTo(maxTime) >= 0) {
+                                maxTime = currentTime;
                             }
                         }
                     }
@@ -193,6 +206,7 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     totalNetStr = "₱ " + df.format(sumNet);
                     shareStr = "₱ " + df.format(sumShare);
                     tripCountTrend = count + (count == 1 ? " partial" : " partials");
+                    lastPartialTime = maxTime.isEmpty() ? "N/A" : maxTime;
                 }
             } catch (Exception e) {
                 Log.e("SalaryPagerAdapter", "Error updating summary aggregation", e);
@@ -217,7 +231,6 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         safeSetText(holder.tvLastPartial, lastPartialTime);
         safeSetText(holder.tvTrend, tripCountTrend);
 
-        // Pre-fill defaults to avoid hardcoded placeholders if no schedule match
         safeSetText(holder.tvBoundaryDay, "Unassigned");
         safeSetText(holder.tvWorkingDays, "Unassigned");
         safeSetText(holder.tvDriverShareName, "Unassigned Driver");
@@ -254,8 +267,6 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             
             for (int i = 0; i < schedules.length(); i++) {
                 JSONObject sched = schedules.getJSONObject(i);
-                
-                // Try to match by ID first, then fallback to day name
                 boolean isMatch = false;
                 if (!scheduleId.isEmpty() && scheduleId.equals(sched.optString("id", sched.optString("_id", "")))) {
                     isMatch = true;
@@ -273,18 +284,14 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                         driver = (d instanceof JSONObject) ? ((JSONObject) d).optString("name", "Driver") : d.toString();
                     }
                     driver = com.example.portjeep.utils.CryptoUtils.decrypt(driver, secretKey);
-                    if (driver == null || driver.isEmpty() || driver.equalsIgnoreCase("null")) {
-                        driver = "Unassigned Driver";
-                    }
+                    if (driver == null || driver.isEmpty() || driver.equalsIgnoreCase("null")) driver = "Unassigned Driver";
 
                     if (sched.has("pao") && !sched.isNull("pao")) {
                         Object p = sched.get("pao");
                         pao = (p instanceof JSONObject) ? ((JSONObject) p).optString("name", "PAO") : p.toString();
                     }
                     pao = com.example.portjeep.utils.CryptoUtils.decrypt(pao, secretKey);
-                    if (pao == null || pao.isEmpty() || pao.equalsIgnoreCase("null")) {
-                        pao = "Unassigned PAO";
-                    }
+                    if (pao == null || pao.isEmpty() || pao.equalsIgnoreCase("null")) pao = "Unassigned PAO";
 
                     safeSetText(holder.tvBoundaryDay, driver);
                     safeSetText(holder.tvWorkingDays, pao);
@@ -299,7 +306,6 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                         safeSetText(holder.tvJeepUnit, jeep);
                         safeSetText(holder.tvFuelDay, "No Plate");
                     }
-                    
                     safeSetText(holder.tvScheduleDate, sched.optString("date", "Today"));
                     break;
                 }
