@@ -59,6 +59,7 @@ public class SalaryFragment extends Fragment {
     private final Handler handler = new Handler(Looper.getMainLooper());
 
     private static final long CACHE_DURATION = 60 * 60 * 1000; // 1 hour cache
+    private static boolean sessionRefreshed = false;
 
     public SalaryFragment() {
         // Required empty public constructor
@@ -111,8 +112,8 @@ public class SalaryFragment extends Fragment {
                     adapter.setRemittanceData(remittances);
                 }
                 
-                // If cache is fresh (less than 1 hour), don't fetch from network
-                if (now - lastFetch < CACHE_DURATION) {
+                // Use cache if fresh AND we have already refreshed once this session
+                if (now - lastFetch < CACHE_DURATION && sessionRefreshed) {
                     hideLoadingSkeleton();
                     return; 
                 }
@@ -121,7 +122,8 @@ public class SalaryFragment extends Fragment {
             }
         }
 
-        // If no cache or cache expired, fetch from server
+        // Fetch if no cache, expired, or first time in session
+        sessionRefreshed = true;
         showLoadingSkeleton();
         loadRemittanceData();
     }
@@ -202,7 +204,7 @@ public class SalaryFragment extends Fragment {
             return;
         }
 
-        currentUser.getIdToken(true)
+        currentUser.getIdToken(false)
                 .addOnSuccessListener(result -> {
                     if (!isAdded()) return;
                     fetchRemittancesFromApi(result.getToken());

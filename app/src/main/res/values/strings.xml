@@ -117,7 +117,7 @@
     <string name="terms_8_content">PortJeep reserves the right to suspend or terminate your access to the application at any time, without prior notice, for violations of these terms, breach of company policy, or upon the cessation of your professional engagement with the company.</string>
 
     <string name="terms_9_title">9. SUPPORT AND COMMUNICATION</string>
-    <string name="terms_9_content">If you require technical assistance, account support, or clarification on these terms, please reach out to our support team through the following:\n\n\u2022 Email: support@portjeep.ph\n\u2022 Office: Brgy, 187 Sitio Hulo, Bagong Buhay Ave, Sapang Palay, Proper, SJDM, Bulacan</string>
+    <string name="terms_9_content">If you require technical assistance, account support, or clarification on these terms, please reach us through the following:\n\n\u2022 Email: support@portjeep.ph\n\u2022 Office: Brgy, 187 Sitio Hulo, Bagong Buhay Ave, Sapang Palay, Proper, SJDM, Bulacan</string>
 
     <!-- Home Summary -->
     <string name="title_todays_summary">TODAY\'S SUMMARY</string>
@@ -131,6 +131,7 @@
     <string name="unit_km">km</string>
     <string name="unit_today">today</string>
     <string name="unit_due">today</string>
+    <string name="possessive_name">%1$s\'s %2$s</string>
 
     <!-- Status -->
     <string name="status_unassigned">UNASSIGNED</string>

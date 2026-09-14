@@ -35,6 +35,7 @@ import com.example.portjeep.BuildConfig;
 import com.example.portjeep.MainActivity;
 import com.example.portjeep.R;
 import com.example.portjeep.utils.CryptoUtils;
+import com.example.portjeep.utils.PreferenceManager;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
@@ -202,6 +203,10 @@ public class LogInActivity extends AppCompatActivity {
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful() && mAuth.getCurrentUser() != null) {
                         FirebaseUser user = mAuth.getCurrentUser();
+                        
+                        // Clear cache if this is a different user than the last session
+                        PreferenceManager.saveCurrentUserId(this, user.getUid());
+
                         saveCredentials(email, password, user.getUid());
                         validateUserRoleAndProceed(user);
                     } else {

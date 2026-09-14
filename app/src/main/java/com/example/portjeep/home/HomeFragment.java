@@ -63,6 +63,10 @@ public class HomeFragment extends Fragment {
     private static final String REMITTANCE_API_URL = "https://port-jeep.vercel.app/api/mobile/remittances";
     private static final long CACHE_DURATION = 60 * 60 * 1000; // 1 hour
 
+    // Session flags to ensure data is fresh on first load after app launch
+    private static boolean isScheduleRefreshed = false;
+    private static boolean isSummaryRefreshed = false;
+
     // Loading Skeletons
     private ShimmerFrameLayout shimmerContainer, shimmerHeader, shimmerSummary;
     private ShimmerFrameLayout shimmerQuickAccess, shimmerBanner, shimmerUpcoming;
@@ -111,42 +115,36 @@ public class HomeFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
-        // Initialize Firebase
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
-        // Bind SwipeRefreshLayout
+        // Bind Views
         swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
         if (swipeRefreshLayout != null) {
             swipeRefreshLayout.setOnRefreshListener(() -> {
                 showLoadingSkeleton();
                 updateDynamicGreeting();
                 loadUserProfile();
+                isScheduleRefreshed = false;
+                isSummaryRefreshed = false;
                 loadSchedulesFromApi();
                 loadRemittanceSummary();
             });
         }
 
-        // Bind Skeleton Loading Views
         shimmerHeader = view.findViewById(R.id.shimmer_header);
         rlHeaderContent = view.findViewById(R.id.rl_header_content);
-
         shimmerContainer = view.findViewById(R.id.shimmer_view_container);
         cardTodayAssignment = view.findViewById(R.id.card_today_assignment);
-
         shimmerSummary = view.findViewById(R.id.shimmer_summary);
         llTodaysSummary = view.findViewById(R.id.ll_todays_summary);
-
         shimmerQuickAccess = view.findViewById(R.id.shimmer_quick_access);
         llQuickAccessContent = view.findViewById(R.id.ll_quick_access_content);
-
         shimmerBanner = view.findViewById(R.id.shimmer_banner);
         llBannerContent = view.findViewById(R.id.ll_banner_content);
-
         shimmerUpcoming = view.findViewById(R.id.shimmer_upcoming);
         containerUpcoming = view.findViewById(R.id.container_upcoming);
 
-        // Bind Summary Data Views
         tvSummaryTrips = view.findViewById(R.id.tv_summary_trips);
         tvSummaryDistance = view.findViewById(R.id.tv_summary_distance);
         tvSummaryGross = view.findViewById(R.id.tv_summary_gross);
@@ -154,22 +152,16 @@ public class HomeFragment extends Fragment {
         tvSummaryShareLabel = view.findViewById(R.id.tv_summary_share_label);
         tvSummaryShareUnit = view.findViewById(R.id.tv_summary_share_unit);
 
-        // Bind ViewPager2 Carousel Views
         vpStatusCarousel = view.findViewById(R.id.vp_status_carousel);
         containerDotsIndicator = view.findViewById(R.id.container_dots_indicator);
 
-        // Bind Main Views
         tvGreeting = view.findViewById(R.id.tv_greeting);
         tvDriverName = view.findViewById(R.id.tv_driver_name);
         tvRoleBadge = view.findViewById(R.id.tv_role_badge);
 
-        // Robot GIF (Safely loaded)
         ivRobot = view.findViewById(R.id.iv_robot);
         if (ivRobot != null && isAdded() && getContext() != null) {
-            Glide.with(requireContext())
-                    .asGif()
-                    .load(R.drawable.robot2)
-                    .into(ivRobot);
+            Glide.with(requireContext()).asGif().load(R.drawable.robot2).into(ivRobot);
         }
 
         tvUnitNo = view.findViewById(R.id.tv_unit_no);
@@ -184,7 +176,6 @@ public class HomeFragment extends Fragment {
         cardMySchedule = view.findViewById(R.id.card_my_schedule);
         cardSalary = view.findViewById(R.id.card_salary);
 
-        // Set Today's Date
         tvTodayDate = view.findViewById(R.id.tv_today_date);
         if (tvTodayDate != null) {
             SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy", Locale.US);
@@ -193,12 +184,9 @@ public class HomeFragment extends Fragment {
 
         setupStatusCarousel();
         resetDynamicUI();
-
-        // Load offline profile data immediately
         loadOfflineUserProfile();
 
         showLoadingSkeleton();
-
         updateDynamicGreeting();
         loadUserProfile();
         loadSchedulesFromApi();
@@ -220,14 +208,16 @@ public class HomeFragment extends Fragment {
         if (cachedSalary != null) {
             try {
                 processRemittanceSummary(new JSONArray(cachedSalary));
-                // If cache is fresh, skip network
-                if (now - lastFetch < CACHE_DURATION) return;
+                if (now - lastFetch < CACHE_DURATION && isSummaryRefreshed) return;
             } catch (Exception ignored) {}
         }
 
         FirebaseUser user = mAuth.getCurrentUser();
         if (user != null) {
-            user.getIdToken(false).addOnSuccessListener(result -> fetchRemittancesForHome(result.getToken()));
+            user.getIdToken(false).addOnSuccessListener(result -> {
+                isSummaryRefreshed = true;
+                fetchRemittancesForHome(result.getToken());
+            });
         }
     }
 
@@ -261,16 +251,11 @@ public class HomeFragment extends Fragment {
                                     processRemittanceSummary(remittances);
                                 }
                             }
-                        } catch (Exception e) {
-                            Log.e(TAG, "Error parsing remittance for summary", e);
-                        }
+                        } catch (Exception e) { Log.e(TAG, "Error parsing remittance", e); }
                     });
                 }
-            } catch (Exception e) {
-                Log.e(TAG, "Error fetching remittance for summary", e);
-            } finally {
-                if (connection != null) connection.disconnect();
-            }
+            } catch (Exception e) { Log.e(TAG, "Error fetching remittance", e); }
+            finally { if (connection != null) connection.disconnect(); }
         });
     }
 
@@ -278,7 +263,6 @@ public class HomeFragment extends Fragment {
         if (remittances == null || remittances.length() == 0 || !isAdded()) return;
 
         try {
-            // Index 0 is typically the most recent day (Today)
             JSONObject latestGroup = remittances.optJSONObject(0);
             if (latestGroup == null) return;
 
@@ -287,7 +271,7 @@ public class HomeFragment extends Fragment {
             double sumGross = 0, sumNet = 0, sumShare = 0;
 
             if (partials != null) {
-                tripCount = partials.length(); // Count of partial reports = trips
+                tripCount = partials.length();
                 for (int i = 0; i < partials.length(); i++) {
                     JSONObject p = partials.optJSONObject(i);
                     sumGross += p.optDouble("gross", 0);
@@ -309,138 +293,80 @@ public class HomeFragment extends Fragment {
 
                 String role = PreferenceManager.getUserRole(getContext());
                 if (role != null && role.toUpperCase().contains("DRIVER")) {
-                    if (tvSummaryShareLabel != null) tvSummaryShareLabel.setText("Driver Share");
+                    String name = (tvDriverFullName != null) ? tvDriverFullName.getText().toString() : "Driver";
+                    if (name.isEmpty() || name.contains("Unassigned") || name.contains("Duty")) name = "Driver";
+                    if (tvSummaryShareLabel != null) tvSummaryShareLabel.setText(getString(R.string.possessive_name, name, "Share"));
                     if (tvSummaryDistance != null) tvSummaryDistance.setText(shareStr);
                 } else if (role != null && (role.toUpperCase().contains("PAO") || role.toUpperCase().contains("ASSISTANT"))) {
-                    if (tvSummaryShareLabel != null) tvSummaryShareLabel.setText("PAO Share");
+                    String name = (tvPaoFullName != null) ? tvPaoFullName.getText().toString() : "PAO";
+                    if (name.isEmpty() || name.contains("Unassigned") || name.contains("Duty")) name = "PAO";
+                    if (tvSummaryShareLabel != null) tvSummaryShareLabel.setText(getString(R.string.possessive_name, name, "Share"));
                     if (tvSummaryDistance != null) tvSummaryDistance.setText(shareStr);
                 }
                 if (tvSummaryShareUnit != null) tvSummaryShareUnit.setText("Today");
             });
 
-        } catch (Exception e) {
-            Log.e(TAG, "Error processing summary UI", e);
-        }
+        } catch (Exception e) { Log.e(TAG, "Error processing summary UI", e); }
     }
 
     private void loadOfflineUserProfile() {
         Context context = getContext();
         if (context == null) return;
-
         String cachedName = PreferenceManager.getUserFirstName(context);
         String cachedRole = PreferenceManager.getUserRole(context);
         Set<String> cachedRestDays = PreferenceManager.getUserRestDays(context);
 
-        if (cachedName != null && !cachedName.isEmpty()) {
-            if (tvDriverName != null) tvDriverName.setText(cachedName);
-        }
-
+        if (cachedName != null && !cachedName.isEmpty() && tvDriverName != null) tvDriverName.setText(cachedName);
         if (cachedRole != null && !cachedRole.isEmpty()) {
             userRole = cachedRole;
-            if (tvRoleBadge != null) {
-                tvRoleBadge.setText(userRole);
-                tvRoleBadge.setVisibility(View.VISIBLE);
-            }
+            if (tvRoleBadge != null) { tvRoleBadge.setText(userRole); tvRoleBadge.setVisibility(View.VISIBLE); }
         }
-
         if (cachedRestDays != null && !cachedRestDays.isEmpty()) {
-            userRestDays.clear();
-            userRestDays.addAll(cachedRestDays);
+            userRestDays.clear(); userRestDays.addAll(cachedRestDays);
             refreshStatusCarousel();
         }
     }
 
     private void setupStatusCarousel() {
         if (vpStatusCarousel == null) return;
-
         bannerAdapter = new StatusBannerAdapter(getContext(), bannerItems);
         vpStatusCarousel.setAdapter(bannerAdapter);
-
         vpStatusCarousel.setOffscreenPageLimit(3);
         vpStatusCarousel.setClipToPadding(false);
         vpStatusCarousel.setClipChildren(false);
-
-        // Optimized padding for a "peek" effect on the stack
         int paddingHorizontal = (int) (24 * getResources().getDisplayMetrics().density);
         vpStatusCarousel.setPadding(paddingHorizontal, 0, paddingHorizontal, 0);
-
         vpStatusCarousel.setPageTransformer((page, position) -> {
             float density = getResources().getDisplayMetrics().density;
-
-            if (position <= -1f) {
-                // Completely off-screen to the left
-                page.setAlpha(0f);
-                page.setTranslationX(0f);
-            } else if (position < 0f) {
-                // Card swiping left - smooth fade and slight upward lift
+            if (position <= -1f) { page.setAlpha(0f); page.setTranslationX(0f); }
+            else if (position < 0f) {
                 float factor = Math.abs(position);
                 page.setAlpha(1f - factor);
                 page.setTranslationY(-factor * 60f * density);
                 page.setRotation(position * 8f);
-                page.setScaleX(1f);
-                page.setScaleY(1f);
-                page.setTranslationX(0f);
+                page.setScaleX(1f); page.setScaleY(1f); page.setTranslationX(0f);
                 page.setTranslationZ((1f - factor) * 10f);
             } else if (position <= 3f) {
-                // Stacked background cards on the right
                 page.setAlpha(Math.max(0.6f, 1f - (position * 0.15f)));
-                page.setTranslationY(0f);
-                page.setRotation(0f);
-
-                // Subtle scale down for background cards
                 float scale = 1f - (position * 0.04f);
-                page.setScaleX(scale);
-                page.setScaleY(scale);
-
-                // Advanced stack pinning: perfectly aligns cards to the peek offset
+                page.setScaleX(scale); page.setScaleY(scale);
                 float peekOffset = 20 * density;
-                float translationX = -position * page.getWidth() + (position * peekOffset);
-                page.setTranslationX(translationX);
-
-                // Ensure Z-index layers cards correctly (front card is top)
+                page.setTranslationX(-position * page.getWidth() + (position * peekOffset));
                 page.setTranslationZ(-position * 10f);
-            } else {
-                // Completely off-screen to the right
-                page.setAlpha(0f);
-            }
+            } else { page.setAlpha(0f); }
         });
-
         vpStatusCarousel.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
-            public void onPageSelected(int position) {
-                super.onPageSelected(position);
-                updateDotsIndicator(position);
-            }
+            public void onPageSelected(int position) { updateDotsIndicator(position); }
         });
     }
 
     private void refreshStatusCarousel() {
         if (!isAdded() || getContext() == null) return;
-
         bannerItems.clear();
-
-        // 1. Rest Day Item - Red/Accent Themed
-        bannerItems.add(new StatusBannerAdapter.BannerItem(
-                StatusBannerAdapter.BannerItem.TYPE_REST_DAY,
-                "Rest Day Schedule",
-                "Your upcoming rest day assignments:",
-                userRestDays,
-                null
-        ));
-
-        // 2. Unassigned Item - Blue/Brand Themed (Matches "Work" feel)
-        String unassignedDesc = unassignedSchedulesList.isEmpty()
-                ? "Perfect! All your shifts are successfully assigned."
-                : "Heads up! These shifts currently have no unit assigned:";
-
-        bannerItems.add(new StatusBannerAdapter.BannerItem(
-                StatusBannerAdapter.BannerItem.TYPE_UNASSIGNED,
-                "Unassigned Log",
-                unassignedDesc,
-                null,
-                unassignedSchedulesList
-        ));
-
+        bannerItems.add(new StatusBannerAdapter.BannerItem(StatusBannerAdapter.BannerItem.TYPE_REST_DAY, "Rest Day Schedule", "Your upcoming rest day assignments:", userRestDays, null));
+        String unassignedDesc = unassignedSchedulesList.isEmpty() ? "Perfect! All your shifts are successfully assigned." : "Heads up! These shifts currently have no unit assigned:";
+        bannerItems.add(new StatusBannerAdapter.BannerItem(StatusBannerAdapter.BannerItem.TYPE_UNASSIGNED, "Unassigned Log", unassignedDesc, null, unassignedSchedulesList));
         if (vpStatusCarousel != null && bannerAdapter != null) {
             vpStatusCarousel.post(() -> {
                 if (isAdded() && bannerAdapter != null) {
@@ -454,189 +380,80 @@ public class HomeFragment extends Fragment {
     private void setupDotsIndicator(int count) {
         if (containerDotsIndicator == null || getContext() == null) return;
         containerDotsIndicator.removeAllViews();
-
-        ImageView[] dots = new ImageView[count];
-
-        // Convert dp to pixels for proper density scaling
         float density = getResources().getDisplayMetrics().density;
-        int dotSizePx = (int) (10 * density); // Slightly smaller dot diameter (10dp)
-        int marginPx = (int) (5 * density);   // 5dp spacing between dots
-
+        int dotSizePx = (int) (10 * density);
+        int marginPx = (int) (5 * density);
         for (int i = 0; i < count; i++) {
-            dots[i] = new ImageView(getContext());
-            dots[i].setImageResource(R.drawable.bg_circle_icon);
-
+            ImageView dot = new ImageView(getContext());
+            dot.setImageResource(R.drawable.bg_circle_icon);
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dotSizePx, dotSizePx);
             params.setMargins(marginPx, 0, marginPx, 0);
-            dots[i].setLayoutParams(params);
-
-            containerDotsIndicator.addView(dots[i]);
+            dot.setLayoutParams(params);
+            containerDotsIndicator.addView(dot);
         }
         updateDotsIndicator(0);
     }
 
     private void updateDotsIndicator(int position) {
         if (containerDotsIndicator == null || getContext() == null) return;
-
-        // Define active and inactive colors
         int activeColor = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.color_brand_primary);
         int inactiveColor = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.color_divider);
-
         int childCount = containerDotsIndicator.getChildCount();
         for (int i = 0; i < childCount; i++) {
             ImageView dot = (ImageView) containerDotsIndicator.getChildAt(i);
             if (dot != null) {
-                if (i == position) {
-                    // Active dot style: brand color, full opacity
-                    dot.setImageTintList(android.content.res.ColorStateList.valueOf(activeColor));
-                    dot.setAlpha(1.0f);
-                    dot.setScaleX(1.0f);
-                    dot.setScaleY(1.0f);
-                } else {
-                    // Inactive dot style: muted color, subtle scale down
-                    dot.setImageTintList(android.content.res.ColorStateList.valueOf(inactiveColor));
-                    dot.setAlpha(0.6f);
-                    dot.setScaleX(0.85f);
-                    dot.setScaleY(0.85f);
-                }
+                if (i == position) { dot.setImageTintList(android.content.res.ColorStateList.valueOf(activeColor)); dot.setAlpha(1.0f); dot.setScaleX(1.0f); dot.setScaleY(1.0f); }
+                else { dot.setImageTintList(android.content.res.ColorStateList.valueOf(inactiveColor)); dot.setAlpha(0.6f); dot.setScaleX(0.85f); dot.setScaleY(0.85f); }
             }
         }
     }
 
     private void setupClickListeners() {
-        if (cardMySchedule != null) {
-            cardMySchedule.setOnClickListener(v -> {
-                FragmentActivity activity = getActivity();
-                if (activity != null && !activity.isFinishing()) {
-                    BottomNavigationView navBar = activity.findViewById(R.id.bottom_navigation);
-                    if (navBar != null) {
-                        navBar.setSelectedItemId(R.id.nav_schedule);
-                    }
-                }
-            });
-        }
-
-        if (cardSalary != null) {
-            cardSalary.setOnClickListener(v -> {
-                FragmentActivity activity = getActivity();
-                if (activity != null && !activity.isFinishing()) {
-                    BottomNavigationView navBar = activity.findViewById(R.id.bottom_navigation);
-                    if (navBar != null) {
-                        navBar.setSelectedItemId(R.id.nav_salary);
-                    } else {
-                        activity.getSupportFragmentManager()
-                                .beginTransaction()
-                                .replace(R.id.fragment_container, new SalaryFragment())
-                                .addToBackStack(null)
-                                .commit();
-                    }
-                }
-            });
-        }
+        if (cardMySchedule != null) cardMySchedule.setOnClickListener(v -> {
+            FragmentActivity activity = getActivity();
+            if (activity != null && !activity.isFinishing()) {
+                BottomNavigationView navBar = activity.findViewById(R.id.bottom_navigation);
+                if (navBar != null) navBar.setSelectedItemId(R.id.nav_schedule);
+            }
+        });
+        if (cardSalary != null) cardSalary.setOnClickListener(v -> {
+            FragmentActivity activity = getActivity();
+            if (activity != null && !activity.isFinishing()) {
+                BottomNavigationView navBar = activity.findViewById(R.id.bottom_navigation);
+                if (navBar != null) navBar.setSelectedItemId(R.id.nav_salary);
+            }
+        });
     }
 
     private void showLoadingSkeleton() {
-        if (shimmerHeader != null) {
-            shimmerHeader.startShimmer();
-            shimmerHeader.setVisibility(View.VISIBLE);
-        }
-        if (rlHeaderContent != null) {
-            rlHeaderContent.setVisibility(View.GONE);
-        }
-
-        if (shimmerContainer != null) {
-            shimmerContainer.startShimmer();
-            shimmerContainer.setVisibility(View.VISIBLE);
-        }
-        if (cardTodayAssignment != null) {
-            cardTodayAssignment.setVisibility(View.GONE);
-        }
-
-        if (shimmerSummary != null) {
-            shimmerSummary.startShimmer();
-            shimmerSummary.setVisibility(View.VISIBLE);
-        }
-        if (llTodaysSummary != null) {
-            llTodaysSummary.setVisibility(View.GONE);
-        }
-
-        if (shimmerQuickAccess != null) {
-            shimmerQuickAccess.startShimmer();
-            shimmerQuickAccess.setVisibility(View.VISIBLE);
-        }
-        if (llQuickAccessContent != null) {
-            llQuickAccessContent.setVisibility(View.GONE);
-        }
-
-        if (shimmerBanner != null) {
-            shimmerBanner.startShimmer();
-            shimmerBanner.setVisibility(View.VISIBLE);
-        }
-        if (llBannerContent != null) {
-            llBannerContent.setVisibility(View.GONE);
-        }
-
-        if (shimmerUpcoming != null) {
-            shimmerUpcoming.startShimmer();
-            shimmerUpcoming.setVisibility(View.VISIBLE);
-        }
-        if (containerUpcoming != null) {
-            containerUpcoming.setVisibility(View.GONE);
-        }
+        if (shimmerHeader != null) { shimmerHeader.startShimmer(); shimmerHeader.setVisibility(View.VISIBLE); }
+        if (rlHeaderContent != null) rlHeaderContent.setVisibility(View.GONE);
+        if (shimmerContainer != null) { shimmerContainer.startShimmer(); shimmerContainer.setVisibility(View.VISIBLE); }
+        if (cardTodayAssignment != null) cardTodayAssignment.setVisibility(View.GONE);
+        if (shimmerSummary != null) { shimmerSummary.startShimmer(); shimmerSummary.setVisibility(View.VISIBLE); }
+        if (llTodaysSummary != null) llTodaysSummary.setVisibility(View.GONE);
+        if (shimmerQuickAccess != null) { shimmerQuickAccess.startShimmer(); shimmerQuickAccess.setVisibility(View.VISIBLE); }
+        if (llQuickAccessContent != null) llQuickAccessContent.setVisibility(View.GONE);
+        if (shimmerBanner != null) { shimmerBanner.startShimmer(); shimmerBanner.setVisibility(View.VISIBLE); }
+        if (llBannerContent != null) llBannerContent.setVisibility(View.GONE);
+        if (shimmerUpcoming != null) { shimmerUpcoming.startShimmer(); shimmerUpcoming.setVisibility(View.VISIBLE); }
+        if (containerUpcoming != null) containerUpcoming.setVisibility(View.GONE);
     }
 
     private void hideLoadingSkeleton() {
-        if (swipeRefreshLayout != null) {
-            swipeRefreshLayout.setRefreshing(false);
-        }
-
-        if (shimmerHeader != null) {
-            shimmerHeader.stopShimmer();
-            shimmerHeader.setVisibility(View.GONE);
-        }
-        if (rlHeaderContent != null) {
-            rlHeaderContent.setVisibility(View.VISIBLE);
-        }
-
-        if (shimmerContainer != null) {
-            shimmerContainer.stopShimmer();
-            shimmerContainer.setVisibility(View.GONE);
-        }
-        if (cardTodayAssignment != null) {
-            cardTodayAssignment.setVisibility(View.VISIBLE);
-        }
-
-        if (shimmerSummary != null) {
-            shimmerSummary.stopShimmer();
-            shimmerSummary.setVisibility(View.GONE);
-        }
-        if (llTodaysSummary != null) {
-            llTodaysSummary.setVisibility(View.VISIBLE);
-        }
-
-        if (shimmerQuickAccess != null) {
-            shimmerQuickAccess.stopShimmer();
-            shimmerQuickAccess.setVisibility(View.GONE);
-        }
-        if (llQuickAccessContent != null) {
-            llQuickAccessContent.setVisibility(View.VISIBLE);
-        }
-
-        if (shimmerBanner != null) {
-            shimmerBanner.stopShimmer();
-            shimmerBanner.setVisibility(View.GONE);
-        }
-        if (llBannerContent != null) {
-            llBannerContent.setVisibility(View.VISIBLE);
-        }
-
-        if (shimmerUpcoming != null) {
-            shimmerUpcoming.stopShimmer();
-            shimmerUpcoming.setVisibility(View.GONE);
-        }
-        if (containerUpcoming != null) {
-            containerUpcoming.setVisibility(View.VISIBLE);
-        }
+        if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
+        if (shimmerHeader != null) { shimmerHeader.stopShimmer(); shimmerHeader.setVisibility(View.GONE); }
+        if (rlHeaderContent != null) rlHeaderContent.setVisibility(View.VISIBLE);
+        if (shimmerContainer != null) { shimmerContainer.stopShimmer(); shimmerContainer.setVisibility(View.GONE); }
+        if (cardTodayAssignment != null) cardTodayAssignment.setVisibility(View.VISIBLE);
+        if (shimmerSummary != null) { shimmerSummary.stopShimmer(); shimmerSummary.setVisibility(View.GONE); }
+        if (llTodaysSummary != null) llTodaysSummary.setVisibility(View.VISIBLE);
+        if (shimmerQuickAccess != null) { shimmerQuickAccess.stopShimmer(); shimmerQuickAccess.setVisibility(View.GONE); }
+        if (llQuickAccessContent != null) llQuickAccessContent.setVisibility(View.VISIBLE);
+        if (shimmerBanner != null) { shimmerBanner.stopShimmer(); shimmerBanner.setVisibility(View.GONE); }
+        if (llBannerContent != null) llBannerContent.setVisibility(View.VISIBLE);
+        if (shimmerUpcoming != null) { shimmerUpcoming.stopShimmer(); shimmerUpcoming.setVisibility(View.GONE); }
+        if (containerUpcoming != null) containerUpcoming.setVisibility(View.VISIBLE);
     }
 
     private void resetDynamicUI() {
@@ -648,82 +465,48 @@ public class HomeFragment extends Fragment {
     private void loadUserProfile() {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null) return;
-
-        db.collection("File201")
-                .document(currentUser.getUid())
-                .get(Source.SERVER)
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (isAdded() && documentSnapshot.exists()) {
-                        extractUserProfileAndRestDays(documentSnapshot);
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    if (!isAdded()) return;
-                    db.collection("File201")
-                            .document(currentUser.getUid())
-                            .get(Source.CACHE)
-                            .addOnSuccessListener(cacheSnapshot -> {
-                                if (isAdded() && cacheSnapshot.exists()) {
-                                    extractUserProfileAndRestDays(cacheSnapshot);
-                                }
-                            });
-                });
+        db.collection("File201").document(currentUser.getUid()).get(Source.SERVER).addOnSuccessListener(documentSnapshot -> {
+            if (isAdded() && documentSnapshot.exists()) extractUserProfileAndRestDays(documentSnapshot);
+        }).addOnFailureListener(e -> {
+            if (!isAdded()) return;
+            db.collection("File201").document(currentUser.getUid()).get(Source.CACHE).addOnSuccessListener(cacheSnapshot -> {
+                if (isAdded() && cacheSnapshot.exists()) extractUserProfileAndRestDays(cacheSnapshot);
+            });
+        });
     }
 
     @SuppressWarnings("unchecked")
     private void extractUserProfileAndRestDays(DocumentSnapshot doc) {
         if (!isAdded()) return;
-
         String secretKey = BuildConfig.CRYPTO_SECRET_KEY;
-
         String rawFirstName = doc.getString("first_name");
         String firstName = CryptoUtils.decrypt(rawFirstName, secretKey);
-        if (firstName != null && !firstName.isEmpty() && tvDriverName != null) {
-            tvDriverName.setText(firstName);
-        }
-
+        if (firstName != null && tvDriverName != null) tvDriverName.setText(firstName);
         Object restDaysObj = doc.get("rest_days");
         if (restDaysObj instanceof List<?>) {
             userRestDays.clear();
-            List<?> rawList = (List<?>) restDaysObj;
-            for (Object item : rawList) {
-                if (item instanceof String) {
-                    userRestDays.add(((String) item).trim());
-                }
-            }
+            for (Object item : (List<?>) restDaysObj) if (item instanceof String) userRestDays.add(((String) item).trim());
         }
-
         FirebaseUser user = mAuth.getCurrentUser();
         if (user != null) {
             user.getIdToken(false).addOnSuccessListener(result -> {
                 if (!isAdded()) return;
                 Object claimRole = result.getClaims().get("role");
-                if (claimRole != null && !claimRole.toString().isEmpty()) {
-                    applyRoleBadgeUI(claimRole.toString());
-                    saveCurrentProfileToCache();
-                }
+                if (claimRole != null) { applyRoleBadgeUI(claimRole.toString()); saveCurrentProfileToCache(); }
             });
         }
-
         String positionId = doc.getString("position_id");
         if (positionId != null && !positionId.trim().isEmpty()) {
-            db.collection("Positions")
-                    .document(positionId)
-                    .get()
-                    .addOnSuccessListener(posDoc -> {
-                        if (isAdded() && posDoc.exists()) {
-                            String rawTitle = posDoc.getString("title");
-                            if (rawTitle == null) rawTitle = posDoc.getString("name");
-                            if (rawTitle == null) rawTitle = posDoc.getString("position");
-
-                            String positionTitle = CryptoUtils.decrypt(rawTitle, secretKey);
-                            applyRoleBadgeUI(positionTitle);
-                            saveCurrentProfileToCache();
-                        }
-                    })
-                    .addOnFailureListener(e -> Log.e(TAG, "Error fetching position title", e));
+            db.collection("Positions").document(positionId).get().addOnSuccessListener(posDoc -> {
+                if (isAdded() && posDoc.exists()) {
+                    String rawTitle = posDoc.getString("title");
+                    if (rawTitle == null) rawTitle = posDoc.getString("name");
+                    if (rawTitle == null) rawTitle = posDoc.getString("position");
+                    String positionTitle = CryptoUtils.decrypt(rawTitle, secretKey);
+                    applyRoleBadgeUI(positionTitle); saveCurrentProfileToCache();
+                }
+            }).addOnFailureListener(e -> Log.e(TAG, "Error fetching position title", e));
         }
-
         refreshStatusCarousel();
         saveCurrentProfileToCache();
     }
@@ -731,55 +514,39 @@ public class HomeFragment extends Fragment {
     private void saveCurrentProfileToCache() {
         Context context = getContext();
         if (context == null) return;
-
         String firstName = tvDriverName != null ? tvDriverName.getText().toString() : "";
         PreferenceManager.saveUserProfile(context, firstName, userRole, userRestDays);
     }
 
     private void applyRoleBadgeUI(String positionTitle) {
         if (!isAdded() || positionTitle == null || positionTitle.trim().isEmpty()) return;
-
         String upperPosition = positionTitle.toUpperCase().trim();
-
-        if (upperPosition.contains("PUBLIC ASSISTANT") || upperPosition.contains("PAO")) {
-            userRole = "PUBLIC ASSISTANT OFFICER";
-        } else if (upperPosition.contains("DRIVER")) {
-            userRole = "DRIVER";
-        } else {
-            userRole = upperPosition;
-        }
-
-        if (tvRoleBadge != null && !userRole.isEmpty()) {
-            tvRoleBadge.setText(userRole);
-            tvRoleBadge.setVisibility(View.VISIBLE);
-        }
-
-        // Refresh summary to ensure labels like "Driver Share" match the new role
+        if (upperPosition.contains("PUBLIC ASSISTANT") || upperPosition.contains("PAO")) userRole = "PUBLIC ASSISTANT OFFICER";
+        else if (upperPosition.contains("DRIVER")) userRole = "DRIVER";
+        else userRole = upperPosition;
+        if (tvRoleBadge != null && !userRole.isEmpty()) { tvRoleBadge.setText(userRole); tvRoleBadge.setVisibility(View.VISIBLE); }
         loadRemittanceSummary();
     }
 
     private void loadSchedulesFromApi() {
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser == null) {
-            hideLoadingSkeleton();
-            return;
-        }
-
-        // Show cached schedules immediately
+        if (currentUser == null) { hideLoadingSkeleton(); return; }
         String cachedData = PreferenceManager.getSchedulesCache(getContext());
+        long lastFetch = PreferenceManager.getSchedulesLastFetchTime(getContext());
+        long now = System.currentTimeMillis();
+
         if (cachedData != null) {
             parseAndDisplaySchedules(cachedData);
+            if (now - lastFetch < CACHE_DURATION && isScheduleRefreshed) return;
         }
 
-        currentUser.getIdToken(false)
-                .addOnSuccessListener(result -> {
-                    if (!isAdded()) return;
-                    fetchSchedulesFromApi(result.getToken());
-                })
-                .addOnFailureListener(e -> {
-                    if (!isAdded()) return;
-                    hideLoadingSkeleton();
-                });
+        currentUser.getIdToken(false).addOnSuccessListener(result -> {
+            isScheduleRefreshed = true;
+            fetchSchedulesFromApi(result.getToken());
+        }).addOnFailureListener(e -> {
+            if (!isAdded()) return;
+            hideLoadingSkeleton();
+        });
     }
 
     private void fetchSchedulesFromApi(String idToken) {
@@ -792,18 +559,13 @@ public class HomeFragment extends Fragment {
                 connection.setRequestProperty("Authorization", "Bearer " + idToken);
                 connection.setConnectTimeout(10000);
                 connection.setReadTimeout(10000);
-
                 int responseCode = connection.getResponseCode();
-                InputStream inputStream = (responseCode == HttpURLConnection.HTTP_OK)
-                        ? connection.getInputStream()
-                        : connection.getErrorStream();
-
+                InputStream inputStream = (responseCode == HttpURLConnection.HTTP_OK) ? connection.getInputStream() : connection.getErrorStream();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
                 StringBuilder responseStr = new StringBuilder();
                 String line;
                 while ((line = reader.readLine()) != null) responseStr.append(line);
                 reader.close();
-
                 String rawResult = responseStr.toString();
                 handler.post(() -> {
                     if (!isAdded()) return;
@@ -813,471 +575,231 @@ public class HomeFragment extends Fragment {
                     }
                     hideLoadingSkeleton();
                 });
-            } catch (Exception e) {
-                handler.post(() -> {
-                    if (isAdded()) hideLoadingSkeleton();
-                });
-            } finally {
-                if (connection != null) connection.disconnect();
-            }
+            } catch (Exception e) { handler.post(() -> { if (isAdded()) hideLoadingSkeleton(); }); }
+            finally { if (connection != null) connection.disconnect(); }
         });
     }
 
     private void parseAndDisplaySchedules(String jsonResponse) {
         if (!isAdded()) return;
-
         try {
             JSONObject root = new JSONObject(jsonResponse);
-            boolean success = root.optBoolean("success", false);
-
-            if (!success) {
-                setNoAssignmentUI();
-                return;
-            }
-
-            // Note: We are no longer using root.optJSONObject("summary") here 
-            // because we now fetch real summary data from the Remittance API.
-
+            if (!root.optBoolean("success", false)) { setNoAssignmentUI(); return; }
             JSONArray schedules = root.optJSONArray("schedules");
-            if (schedules == null || schedules.length() == 0) {
-                setNoAssignmentUI();
-                renderUpcomingScheduleList(new ArrayList<>());
-                return;
-            }
-
+            if (schedules == null || schedules.length() == 0) { setNoAssignmentUI(); renderUpcomingScheduleList(new ArrayList<>()); return; }
             Calendar todayCal = Calendar.getInstance();
-            todayCal.set(Calendar.HOUR_OF_DAY, 0);
-            todayCal.set(Calendar.MINUTE, 0);
-            todayCal.set(Calendar.SECOND, 0);
-            todayCal.set(Calendar.MILLISECOND, 0);
+            todayCal.set(Calendar.HOUR_OF_DAY, 0); todayCal.set(Calendar.MINUTE, 0);
+            todayCal.set(Calendar.SECOND, 0); todayCal.set(Calendar.MILLISECOND, 0);
             Date todayAtMidnight = todayCal.getTime();
-
             int currentYear = todayCal.get(Calendar.YEAR);
             int todayIndex = todayCal.get(Calendar.DAY_OF_WEEK);
-
-            String[] datePatterns = new String[]{
-                    "yyyy-MM-dd",
-                    "MM/dd/yyyy",
-                    "dd/MM/yyyy",
-                    "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
-                    "yyyy-MM-dd'T'HH:mm:ss'Z'",
-                    "MMM dd, yyyy",
-                    "MMMM dd, yyyy",
-                    "MMM dd",
-                    "MMMM dd"
-            };
-
+            String[] datePatterns = new String[]{"yyyy-MM-dd", "MM/dd/yyyy", "dd/MM/yyyy", "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", "yyyy-MM-dd'T'HH:mm:ss'Z'", "MMM dd, yyyy", "MMMM dd, yyyy", "MMM dd", "MMMM dd"};
             JSONObject todayScheduleDoc = null;
             List<JSONObject> upcomingScheduleDocs = new ArrayList<>();
             unassignedSchedulesList.clear();
-
             Set<String> scheduledDays = new HashSet<>();
 
             for (int i = 0; i < schedules.length(); i++) {
                 JSONObject doc = schedules.getJSONObject(i);
-
-                String rawDate = doc.optString("date", "N/A");
                 String dayStr = doc.optString("day", "").trim();
-                String rawStatus = doc.optString("status", "").toLowerCase(Locale.US);
+                if (!dayStr.isEmpty()) scheduledDays.add(dayStr.toLowerCase(Locale.US));
 
-                if (!dayStr.isEmpty()) {
-                    scheduledDays.add(dayStr.toLowerCase(Locale.US));
-                }
-
-                String driverName = parseName(doc, "driver", "Unassigned Driver");
+                String drvName = parseName(doc, "driver", "Unassigned Driver");
                 String paoName = parseName(doc, "pao", "Unassigned PAO");
                 String jeep = doc.optString("jeep", "").trim();
 
-                boolean isUnassignedDriver = "Unassigned Driver".equalsIgnoreCase(driverName);
-                boolean isUnassignedPao = "Unassigned PAO".equalsIgnoreCase(paoName);
-                boolean isNoJeep = jeep.isEmpty() || "N/A".equalsIgnoreCase(jeep) || "Unassigned".equalsIgnoreCase(jeep);
-
-                if (isUnassignedDriver || isUnassignedPao || isNoJeep) {
+                // Logic for identifying unassigned shifts
+                if ("Unassigned Driver".equalsIgnoreCase(drvName) || "Unassigned PAO".equalsIgnoreCase(paoName) || jeep.isEmpty() || "N/A".equalsIgnoreCase(jeep) || "Unassigned".equalsIgnoreCase(jeep)) {
                     unassignedSchedulesList.add(doc);
                 }
 
-                boolean isExplicitlyCompleted = "completed".equals(rawStatus) || "done".equals(rawStatus) || "finished".equals(rawStatus);
-
-                if (isExplicitlyCompleted) {
-                    continue;
-                }
-
-                Date parsedDate = parseDateString(rawDate, datePatterns, currentYear);
-
+                if ("completed".equalsIgnoreCase(doc.optString("status", ""))) continue;
+                Date parsedDate = parseDateString(doc.optString("date", "N/A"), datePatterns, currentYear);
                 if (parsedDate != null) {
-                    Calendar parsedCal = Calendar.getInstance();
-                    parsedCal.setTime(parsedDate);
-                    parsedCal.set(Calendar.HOUR_OF_DAY, 0);
-                    parsedCal.set(Calendar.MINUTE, 0);
-                    parsedCal.set(Calendar.SECOND, 0);
-                    parsedCal.set(Calendar.MILLISECOND, 0);
-                    Date itemDateAtMidnight = parsedCal.getTime();
-
-                    if (itemDateAtMidnight.equals(todayAtMidnight)) {
-                        todayScheduleDoc = doc;
-                    } else if (itemDateAtMidnight.after(todayAtMidnight)) {
-                        upcomingScheduleDocs.add(doc);
-                    }
+                    Calendar parsedCal = Calendar.getInstance(); parsedCal.setTime(parsedDate);
+                    parsedCal.set(Calendar.HOUR_OF_DAY, 0); parsedCal.set(Calendar.MINUTE, 0);
+                    parsedCal.set(Calendar.SECOND, 0); parsedCal.set(Calendar.MILLISECOND, 0);
+                    if (parsedCal.getTime().equals(todayAtMidnight)) todayScheduleDoc = doc;
+                    else if (parsedCal.getTime().after(todayAtMidnight)) upcomingScheduleDocs.add(doc);
                 } else {
-                    int schedIndex = getDayIndex(dayStr);
-                    if (schedIndex != -1) {
-                        if (schedIndex == todayIndex) {
-                            todayScheduleDoc = doc;
-                        } else if (isDayUpcoming(todayIndex, schedIndex)) {
-                            upcomingScheduleDocs.add(doc);
-                        }
-                    }
+                    int sIdx = getDayIndex(dayStr);
+                    if (sIdx == todayIndex) todayScheduleDoc = doc;
+                    else if (isDayUpcoming(todayIndex, sIdx)) upcomingScheduleDocs.add(doc);
                 }
             }
 
             String[] weekDays = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
-            for (String dayName : weekDays) {
-                if (!scheduledDays.contains(dayName.toLowerCase(Locale.US))) {
-                    boolean isUserRestDay = false;
-                    for (String restDay : userRestDays) {
-                        if (restDay.equalsIgnoreCase(dayName)) {
-                            isUserRestDay = true;
-                            break;
-                        }
-                    }
-                    if (!isUserRestDay) {
-                        JSONObject unassignedDoc = new JSONObject();
-                        unassignedDoc.put("day", dayName);
-                        unassignedDoc.put("status", "Unassigned");
-                        unassignedSchedulesList.add(unassignedDoc);
+            for (String dName : weekDays) {
+                if (!scheduledDays.contains(dName.toLowerCase(Locale.US))) {
+                    boolean isRest = false;
+                    for (String rDay : userRestDays) if (rDay.equalsIgnoreCase(dName)) { isRest = true; break; }
+                    if (!isRest) {
+                        JSONObject unDoc = new JSONObject(); unDoc.put("day", dName); unDoc.put("status", "Unassigned");
+                        unassignedSchedulesList.add(unDoc);
                     }
                 }
             }
 
-            if (todayScheduleDoc != null) {
-                processTodaySchedule(todayScheduleDoc);
-            } else {
-                setNoAssignmentUI();
-            }
-
+            if (todayScheduleDoc != null) processTodaySchedule(todayScheduleDoc); else setNoAssignmentUI();
             renderUpcomingScheduleList(upcomingScheduleDocs);
             refreshStatusCarousel();
+        } catch (Exception e) { setNoAssignmentUI(); }
+    }
 
-        } catch (Exception e) {
-            setNoAssignmentUI();
+    private void renderUpcomingScheduleList(List<JSONObject> docs) {
+        if (!isAdded() || containerUpcoming == null) return;
+        containerUpcoming.removeAllViews();
+        LayoutInflater inflater = LayoutInflater.from(getContext());
+        if (docs.isEmpty()) {
+            TextView tvEmpty = new TextView(getContext()); tvEmpty.setText("No upcoming schedules found.");
+            tvEmpty.setGravity(android.view.Gravity.CENTER);
+            int padding = (int) (20 * getResources().getDisplayMetrics().density);
+            tvEmpty.setPadding(0, padding, 0, padding); containerUpcoming.addView(tvEmpty);
+            return;
+        }
+        for (JSONObject doc : docs) {
+            View itemView = inflater.inflate(R.layout.item_upcoming_schedule, containerUpcoming, false);
+            String day = doc.optString("day", "Scheduled"), date = doc.optString("date", "N/A");
+            String jeep = doc.optString("jeep", "Unassigned Unit"), route = doc.optString("route", "Minuyan - Starmall Loop");
+            String driver = parseName(doc, "driver", "Unassigned Driver"), pao = parseName(doc, "pao", "Unassigned PAO");
+            ((TextView) itemView.findViewById(R.id.tv_schedule_day)).setText(day);
+            ((TextView) itemView.findViewById(R.id.tv_schedule_date)).setText(date);
+            ((TextView) itemView.findViewById(R.id.tv_schedule_status)).setText("● Scheduled");
+            itemView.setOnClickListener(v -> showScheduleDetailsModal(day, date, jeep, route, driver, pao));
+            containerUpcoming.addView(itemView);
         }
     }
 
-    private Date parseDateString(String rawDate, String[] patterns, int currentYear) {
-        if (rawDate == null || rawDate.trim().isEmpty() || "N/A".equalsIgnoreCase(rawDate)) {
-            return null;
+    private void showScheduleDetailsModal(String day, String date, String jeep, String route, String driver, String pao) {
+        Context context = getContext(); if (context == null || !isAdded()) return;
+        View view = LayoutInflater.from(context).inflate(R.layout.dialog_schedule_details, null);
+        ((TextView) view.findViewById(R.id.tv_schedule_day)).setText(day);
+        ((TextView) view.findViewById(R.id.tv_schedule_date)).setText(date);
+        ((TextView) view.findViewById(R.id.tv_schedule_status)).setText("● Scheduled");
+        String unit = jeep, plate = "N/A";
+        if (jeep.contains("(") && jeep.contains(")")) {
+            plate = jeep.substring(0, jeep.indexOf("(")).trim();
+            unit = jeep.substring(jeep.indexOf("(") + 1, jeep.indexOf(")")).trim();
+        } else if (jeep.contains(" · ")) {
+            String[] parts = jeep.split(" · "); unit = parts[0]; plate = parts[1];
         }
+        ((TextView) view.findViewById(R.id.tv_jeep_unit)).setText(unit);
+        ((TextView) view.findViewById(R.id.tv_plate_no)).setText(plate);
+        ((TextView) view.findViewById(R.id.tv_schedule_route)).setText(route);
+        ((TextView) view.findViewById(R.id.tv_driver_name)).setText(driver);
+        ((TextView) view.findViewById(R.id.tv_pao_name)).setText(pao);
+        showCenteredDialog(view);
+    }
 
-        String cleanDate = rawDate.trim();
-
+    private Date parseDateString(String rawDate, String[] patterns, int currentYear) {
+        if (rawDate == null || rawDate.trim().isEmpty() || "N/A".equalsIgnoreCase(rawDate)) return null;
         for (String pattern : patterns) {
             try {
                 SimpleDateFormat sdf = new SimpleDateFormat(pattern, Locale.US);
-                sdf.setLenient(false);
-                Date parsed = sdf.parse(cleanDate);
-
+                Date parsed = sdf.parse(rawDate.trim());
                 if (parsed != null) {
-                    if (!pattern.contains("yyyy") && !pattern.contains("yy")) {
-                        Calendar cal = Calendar.getInstance();
-                        cal.setTime(parsed);
-                        cal.set(Calendar.YEAR, currentYear);
-                        return cal.getTime();
+                    if (!pattern.contains("yyyy")) {
+                        Calendar cal = Calendar.getInstance(); cal.setTime(parsed);
+                        cal.set(Calendar.YEAR, currentYear); return cal.getTime();
                     }
                     return parsed;
                 }
-            } catch (Exception ignored) {
-            }
+            } catch (Exception ignored) {}
         }
         return null;
     }
 
     private boolean isDayUpcoming(int todayIndex, int targetIndex) {
         int diff = targetIndex - todayIndex;
-        if (diff < 0) {
-            diff += 7;
-        }
+        if (diff < 0) diff += 7;
         return diff > 0 && diff <= 3;
     }
 
     private void processTodaySchedule(JSONObject doc) {
         if (!isAdded()) return;
-
         String rawJeep = doc.optString("jeep", "N/A");
         String route = doc.optString("route", "Minuyan - Starmall Loop");
         String secretKey = BuildConfig.CRYPTO_SECRET_KEY;
 
-        // Driver details extraction
-        String driverName = "Unassigned Driver", driverEmail = "", driverContact = "";
+        String dName = "Unassigned Driver", dEmail = "", dContact = "";
         if (doc.has("driver") && !doc.isNull("driver")) {
             Object obj = doc.opt("driver");
             if (obj instanceof JSONObject) {
-                JSONObject dJson = (JSONObject) obj;
-                driverName = dJson.optString("name", "Unassigned Driver");
-                driverEmail = CryptoUtils.decrypt(dJson.optString("email", ""), secretKey);
-                driverContact = CryptoUtils.decrypt(dJson.optString("contact_no", dJson.optString("contact", "")), secretKey);
-            } else if (obj instanceof String) {
-                driverName = (String) obj;
-            }
+                JSONObject dj = (JSONObject) obj;
+                dName = dj.optString("name", "Unassigned Driver");
+                dEmail = CryptoUtils.decrypt(dj.optString("email", ""), secretKey);
+                dContact = CryptoUtils.decrypt(dj.optString("contact_no", ""), secretKey);
+            } else if (obj instanceof String) dName = (String) obj;
         }
-        driverName = CryptoUtils.decrypt(driverName, secretKey);
-        if (driverName == null || driverName.isEmpty() || driverName.equalsIgnoreCase("null")) driverName = "Unassigned Driver";
-        else if (driverName.equalsIgnoreCase("off") || driverName.equalsIgnoreCase("rest")) driverName = "Rest Day";
+        dName = CryptoUtils.decrypt(dName, secretKey);
 
-        // PAO details extraction
-        String paoName = "Unassigned PAO", paoEmail = "", paoContact = "";
+        String pName = "Unassigned PAO", pEmail = "", pContact = "";
         if (doc.has("pao") && !doc.isNull("pao")) {
             Object obj = doc.opt("pao");
             if (obj instanceof JSONObject) {
-                JSONObject pJson = (JSONObject) obj;
-                paoName = pJson.optString("name", "Unassigned PAO");
-                paoEmail = CryptoUtils.decrypt(pJson.optString("email", ""), secretKey);
-                paoContact = CryptoUtils.decrypt(pJson.optString("contact_no", pJson.optString("contact", "")), secretKey);
-            } else if (obj instanceof String) {
-                paoName = (String) obj;
-            }
+                JSONObject pj = (JSONObject) obj;
+                pName = pj.optString("name", "Unassigned PAO");
+                pEmail = CryptoUtils.decrypt(pj.optString("email", ""), secretKey);
+                pContact = CryptoUtils.decrypt(pj.optString("contact_no", ""), secretKey);
+            } else if (obj instanceof String) pName = (String) obj;
         }
-        paoName = CryptoUtils.decrypt(paoName, secretKey);
-        if (paoName == null || paoName.isEmpty() || paoName.equalsIgnoreCase("null")) paoName = "Unassigned PAO";
-        else if (paoName.equalsIgnoreCase("off") || paoName.equalsIgnoreCase("rest")) paoName = "Rest Day";
+        pName = CryptoUtils.decrypt(pName, secretKey);
 
-        String unitDisplay = "Unit N/A";
-        String plateDisplay = "N/A";
-
-        if (!rawJeep.equals("N/A") && !rawJeep.isEmpty()) {
-            if (rawJeep.contains("(") && rawJeep.contains(")")) {
-                try {
-                    int startParen = rawJeep.indexOf("(");
-                    int endParen = rawJeep.indexOf(")");
-
-                    plateDisplay = rawJeep.substring(0, startParen).trim();
-                    unitDisplay = rawJeep.substring(startParen + 1, endParen).trim();
-                } catch (Exception e) {
-                    unitDisplay = rawJeep;
-                    plateDisplay = "Active Duty Today";
-                }
-            } else {
-                unitDisplay = rawJeep;
-                plateDisplay = "Active Duty Today";
-            }
+        String unit = rawJeep, plate = "Active Duty";
+        if (rawJeep.contains("(") && rawJeep.contains(")")) {
+            plate = rawJeep.substring(0, rawJeep.indexOf("(")).trim();
+            unit = rawJeep.substring(rawJeep.indexOf("(") + 1, rawJeep.indexOf(")")).trim();
         }
-
-        if (tvUnitNo != null) tvUnitNo.setText(unitDisplay);
-        if (tvPlateNo != null) tvPlateNo.setText(plateDisplay);
+        if (tvUnitNo != null) tvUnitNo.setText(unit);
+        if (tvPlateNo != null) tvPlateNo.setText(plate);
         if (tvTodayRoute != null) tvTodayRoute.setText(route);
+        if (tvDriverFullName != null) tvDriverFullName.setText(dName);
+        if (tvPaoFullName != null) tvPaoFullName.setText(pName);
+        if (tvAssignmentStatus != null) tvAssignmentStatus.setText("● Assigned");
+        if (tvJeepStatus != null) tvJeepStatus.setText("● Active");
 
-        if (tvAssignmentStatus != null) tvAssignmentStatus.setText("●  Assigned");
-        if (tvJeepStatus != null) tvJeepStatus.setText("●  Active");
-
-        if (tvDriverFullName != null) tvDriverFullName.setText(driverName);
-        if (tvPaoFullName != null) tvPaoFullName.setText(paoName);
-
-        final String finalDriverName = driverName;
-        final String finalDriverEmail = driverEmail;
-        final String finalDriverContact = driverContact;
-        if (containerDriverPill != null) {
-            containerDriverPill.setOnClickListener(v -> {
-                if (!finalDriverName.equals("Unassigned Driver") && !finalDriverName.equals("Rest Day")) {
-                    showBottomSheet("DRIVER DETAILS", finalDriverName, finalDriverEmail, finalDriverContact);
-                }
-            });
-        }
-
-        final String finalPaoName = paoName;
-        final String finalPaoEmail = paoEmail;
-        final String finalPaoContact = paoContact;
-        if (containerPaoPill != null) {
-            containerPaoPill.setOnClickListener(v -> {
-                if (!finalPaoName.equals("Unassigned PAO") && !finalPaoName.equals("Rest Day")) {
-                    showBottomSheet("PAO DETAILS", finalPaoName, finalPaoEmail, finalPaoContact);
-                }
-            });
-        }
+        final String fDName = dName, fDEmail = dEmail, fDContact = dContact;
+        if (containerDriverPill != null) containerDriverPill.setOnClickListener(v -> showBottomSheet("DRIVER DETAILS", fDName, fDEmail, fDContact));
+        final String fPName = pName, fPEmail = pEmail, fPContact = pContact;
+        if (containerPaoPill != null) containerPaoPill.setOnClickListener(v -> showBottomSheet("PAO DETAILS", fPName, fPEmail, fPContact));
     }
 
-    private void renderUpcomingScheduleList(List<JSONObject> docs) {
-        Context context = getContext();
-        if (!isAdded() || context == null || containerUpcoming == null) return;
-
-        containerUpcoming.removeAllViews();
-        LayoutInflater inflater = LayoutInflater.from(context);
-
-        if (docs.isEmpty()) {
-            TextView tvEmpty = new TextView(context);
-            tvEmpty.setText("No upcoming schedules found.");
-
-            tvEmpty.setGravity(android.view.Gravity.CENTER);
-            tvEmpty.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-            tvEmpty.setTextColor(getResources().getColor(R.color.color_text_muted, context.getTheme()));
-            tvEmpty.setTextSize(14);
-
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-            );
-            tvEmpty.setLayoutParams(params);
-
-            int verticalPadding = (int) (20 * getResources().getDisplayMetrics().density);
-            tvEmpty.setPadding(0, verticalPadding, 0, verticalPadding);
-
-            containerUpcoming.addView(tvEmpty);
-            return;
-        }
-
-        for (JSONObject doc : docs) {
-            View itemView = inflater.inflate(R.layout.item_upcoming_schedule, containerUpcoming, false);
-
-            TextView tvScheduleDay = itemView.findViewById(R.id.tv_schedule_day);
-            TextView tvScheduleDate = itemView.findViewById(R.id.tv_schedule_date);
-            TextView tvScheduleStatus = itemView.findViewById(R.id.tv_schedule_status);
-
-            String dayText = doc.optString("day", "Scheduled");
-            String dateText = doc.optString("date", "N/A");
-            String jeepUnit = doc.optString("jeep", "Unassigned Unit");
-            String route = doc.optString("route", "Minuyan - Starmall Loop");
-            String driverName = parseName(doc, "driver", "Unassigned Driver");
-            String paoName = parseName(doc, "pao", "Unassigned PAO");
-
-            if (tvScheduleDay != null) tvScheduleDay.setText(dayText);
-            if (tvScheduleDate != null) tvScheduleDate.setText(dateText);
-            if (tvScheduleStatus != null) tvScheduleStatus.setText("●  Scheduled");
-
-            // Split logic for upcoming items
-            String unitDisplay = jeepUnit;
-            String plateDisplay = "N/A";
-            if (jeepUnit != null && jeepUnit.contains("(") && jeepUnit.contains(")")) {
-                try {
-                    int startParen = jeepUnit.indexOf("(");
-                    int endParen = jeepUnit.indexOf(")");
-                    plateDisplay = jeepUnit.substring(0, startParen).trim();
-                    unitDisplay = jeepUnit.substring(startParen + 1, endParen).trim();
-                } catch (Exception ignored) {}
-            }
-
-            itemView.setOnClickListener(v -> showScheduleDetailsModal(dayText, dateText, jeepUnit, route, driverName, paoName));
-
-            containerUpcoming.addView(itemView);
-        }
-    }
-
-    private String parseName(JSONObject doc, String key, String fallback) {
-        if (!doc.has(key) || doc.isNull(key)) return fallback;
-        String resolvedName = fallback;
-        try {
-            Object obj = doc.get(key);
-            if (obj instanceof JSONObject) {
-                resolvedName = ((JSONObject) obj).optString("name", fallback);
-            } else if (obj instanceof String) {
-                resolvedName = (String) obj;
-            }
-        } catch (Exception ignored) {}
-
-        if (resolvedName.trim().isEmpty() || resolvedName.equalsIgnoreCase("null")) {
-            return fallback;
-        } else if (resolvedName.equalsIgnoreCase("off") || resolvedName.equalsIgnoreCase("rest")) {
-            return "Rest Day";
-        }
-
-        return resolvedName;
-    }
-
-    private int getDayIndex(String dayName) {
-        if (dayName == null || dayName.trim().isEmpty()) return -1;
-
-        switch (dayName.trim().toLowerCase(Locale.US)) {
-            case "sunday":    return Calendar.SUNDAY;
-            case "monday":    return Calendar.MONDAY;
-            case "tuesday":   return Calendar.TUESDAY;
-            case "wednesday": return Calendar.WEDNESDAY;
-            case "thursday":  return Calendar.THURSDAY;
-            case "friday":    return Calendar.FRIDAY;
-            case "saturday":  return Calendar.SATURDAY;
-            default:          return -1;
-        }
-    }
-
-    private void showScheduleDetailsModal(String dayText, String dateText, String jeepUnit, String route, String driverName, String paoName) {
-        Context context = getContext();
-        if (context == null || !isAdded()) return;
-
-        View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_schedule_details, null);
-
-        TextView tvModalDay = dialogView.findViewById(R.id.tv_schedule_day);
-        TextView tvModalDate = dialogView.findViewById(R.id.tv_schedule_date);
-        TextView tvModalStatus = dialogView.findViewById(R.id.tv_schedule_status);
-        TextView tvModalJeepUnit = dialogView.findViewById(R.id.tv_jeep_unit);
-        TextView tvModalPlateNo = dialogView.findViewById(R.id.tv_plate_no);
-        TextView tvModalRoute = dialogView.findViewById(R.id.tv_schedule_route);
-        TextView tvModalDriverName = dialogView.findViewById(R.id.tv_driver_name);
-        TextView tvModalPaoName = dialogView.findViewById(R.id.tv_pao_name);
-
-        if (tvModalDay != null) tvModalDay.setText(dayText);
-        if (tvModalDate != null) tvModalDate.setText(dateText);
-        if (tvModalStatus != null) tvModalStatus.setText("●  Scheduled");
-
-        // Split unit and plate for upcoming schedules
-        String unitDisplay = jeepUnit;
-        String plateDisplay = "N/A";
-        if (jeepUnit != null && jeepUnit.contains("(") && jeepUnit.contains(")")) {
-            try {
-                int startParen = jeepUnit.indexOf("(");
-                int endParen = jeepUnit.indexOf(")");
-                plateDisplay = jeepUnit.substring(0, startParen).trim();
-                unitDisplay = jeepUnit.substring(startParen + 1, endParen).trim();
-            } catch (Exception ignored) {}
-        }
-
-        if (tvModalJeepUnit != null) tvModalJeepUnit.setText(unitDisplay);
-        if (tvModalPlateNo != null) tvModalPlateNo.setText(plateDisplay);
-        if (tvModalRoute != null) tvModalRoute.setText(route);
-        if (tvModalDriverName != null) tvModalDriverName.setText(driverName);
-        if (tvModalPaoName != null) tvModalPaoName.setText(paoName);
-
-        showCenteredDialog(dialogView);
+    private void showBottomSheet(String role, String name, String email, String contact) {
+        Context context = getContext(); if (context == null) return;
+        BottomSheetDialog dialog = new BottomSheetDialog(context);
+        View view = LayoutInflater.from(context).inflate(R.layout.bottom_sheet_user_info, null);
+        ((TextView) view.findViewById(R.id.tv_dialog_role)).setText(role);
+        ((TextView) view.findViewById(R.id.tv_dialog_name)).setText(name);
+        ((TextView) view.findViewById(R.id.tv_dialog_email)).setText(email != null && !email.isEmpty() ? email : "N/A");
+        ((TextView) view.findViewById(R.id.tv_dialog_contact)).setText(contact != null && !contact.isEmpty() ? contact : "N/A");
+        dialog.setContentView(view); dialog.show();
     }
 
     private void showCenteredDialog(View dialogView) {
-        Context context = getContext();
-        if (context == null) return;
-
-        Dialog dialog = new Dialog(context);
-        dialog.setContentView(dialogView);
+        Context context = getContext(); if (context == null) return;
+        Dialog dialog = new Dialog(context); dialog.setContentView(dialogView);
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-
             int width = (int) (getResources().getDisplayMetrics().widthPixels * 0.9);
             dialog.getWindow().setLayout(width, ViewGroup.LayoutParams.WRAP_CONTENT);
         }
         dialog.show();
     }
 
-    private void showBottomSheet(String role, String name, String email, String contact) {
-        Context context = getContext();
-        if (context == null || !isAdded()) return;
-
+    private String parseName(JSONObject doc, String key, String fallback) {
         try {
-            BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(context);
-            View sheetView = LayoutInflater.from(context).inflate(R.layout.bottom_sheet_user_info, null, false);
+            Object obj = doc.opt(key);
+            if (obj instanceof JSONObject) return ((JSONObject) obj).optString("name", fallback);
+            return obj != null ? obj.toString() : fallback;
+        } catch (Exception e) { return fallback; }
+    }
 
-            TextView tvRole = sheetView.findViewById(R.id.tv_dialog_role);
-            TextView tvName = sheetView.findViewById(R.id.tv_dialog_name);
-            TextView tvEmail = sheetView.findViewById(R.id.tv_dialog_email);
-            TextView tvContact = sheetView.findViewById(R.id.tv_dialog_contact);
-
-            if (tvRole != null) tvRole.setText(role);
-            if (tvName != null) tvName.setText(name);
-
-            if (tvEmail != null) {
-                tvEmail.setText((email != null && !email.trim().isEmpty() && !email.equalsIgnoreCase("null")) ? email : "N/A");
-            }
-
-            if (tvContact != null) {
-                tvContact.setText((contact != null && !contact.trim().isEmpty() && !contact.equalsIgnoreCase("null")) ? contact : "N/A");
-            }
-
-            bottomSheetDialog.setContentView(sheetView);
-            bottomSheetDialog.show();
-        } catch (Exception e) {
-            e.printStackTrace();
+    private int getDayIndex(String dayName) {
+        switch (dayName.toLowerCase()) {
+            case "sunday": return Calendar.SUNDAY; case "monday": return Calendar.MONDAY;
+            case "tuesday": return Calendar.TUESDAY; case "wednesday": return Calendar.WEDNESDAY;
+            case "thursday": return Calendar.THURSDAY; case "friday": return Calendar.FRIDAY;
+            case "saturday": return Calendar.SATURDAY; default: return -1;
         }
     }
 
@@ -1285,38 +807,24 @@ public class HomeFragment extends Fragment {
         if (tvUnitNo != null) tvUnitNo.setText("No Unit");
         if (tvPlateNo != null) tvPlateNo.setText("No Duty Today");
         if (tvTodayRoute != null) tvTodayRoute.setText("No Route");
-        if (tvJeepStatus != null) tvJeepStatus.setText("●  Off Duty");
-        if (tvAssignmentStatus != null) tvAssignmentStatus.setText("●  Off Duty");
+        if (tvJeepStatus != null) tvJeepStatus.setText("● Off Duty");
+        if (tvAssignmentStatus != null) tvAssignmentStatus.setText("● Off Duty");
         if (tvDriverFullName != null) tvDriverFullName.setText("Rest Day / Unassigned");
         if (tvPaoFullName != null) tvPaoFullName.setText("Rest Day / Unassigned");
-
-        if (containerDriverPill != null) containerDriverPill.setOnClickListener(null);
-        if (containerPaoPill != null) containerPaoPill.setOnClickListener(null);
-
-        refreshStatusCarousel();
     }
 
     private void updateDynamicGreeting() {
         if (tvGreeting == null) return;
-
         int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-
-        if (hour >= 1 && hour < 5) {
-            tvGreeting.setText("Drive Safe boss,");
-        } else if (hour >= 5 && hour < 12) {
-            tvGreeting.setText("Good morning boss,");
-        } else if (hour >= 12 && hour < 18) {
-            tvGreeting.setText("Good afternoon boss,");
-        } else {
-            tvGreeting.setText("Good evening boss,");
-        }
+        if (hour < 5) tvGreeting.setText("Drive Safe boss,");
+        else if (hour < 12) tvGreeting.setText("Good morning boss,");
+        else if (hour < 18) tvGreeting.setText("Good afternoon boss,");
+        else tvGreeting.setText("Good evening boss,");
     }
 
     @Override
     public void onDestroyView() {
-        if (ivRobot != null) {
-            Glide.with(this).clear(ivRobot);
-        }
+        if (ivRobot != null) Glide.with(this).clear(ivRobot);
         super.onDestroyView();
     }
 

@@ -534,7 +534,7 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_marginTop="8dp"
-                                        android:text="6"
+                                        android:text=""
                                         android:textColor="@color/color_text_primary"
                                         android:textSize="24sp"
                                         android:textStyle="bold" />
@@ -580,11 +580,11 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_marginTop="8dp"
-                                        android:text="₱ 450"
+                                        android:text=" "
                                         android:textColor="@color/color_text_primary"
                                         android:textSize="24sp"
                                         android:textStyle="bold"
-                                        tools:text="₱ 450" />
+                                        tools:text=" " />
                                     <TextView
                                         android:id="@+id/tv_summary_share_unit"
                                         android:layout_width="wrap_content"
@@ -634,7 +634,7 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_marginTop="8dp"
-                                        android:text="₱ 1,680"
+                                        android:text=" "
                                         android:textColor="@color/color_text_primary"
                                         android:textSize="24sp"
                                         android:textStyle="bold" />
@@ -679,7 +679,7 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_marginTop="8dp"
-                                        android:text="₱ 900"
+                                        android:text=" "
                                         android:textColor="@color/color_text_primary"
                                         android:textSize="24sp"
                                         android:textStyle="bold" />
