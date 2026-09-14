@@ -55,8 +55,11 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         
-        SharedPreferences prefs = parent.getContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        isSalaryVisible = prefs.getBoolean(KEY_VISIBLE, true);
+        Context context = parent.getContext();
+        String userId = PreferenceManager.getCurrentUserId(context);
+        String key = KEY_VISIBLE + "_" + userId;
+        SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        isSalaryVisible = prefs.getBoolean(key, true);
 
         if (viewType == TYPE_SUMMARY) {
             return new SummaryViewHolder(inflater.inflate(R.layout.fragment_salary_summary, parent, false));
@@ -69,14 +72,24 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof SummaryViewHolder) {
             SummaryViewHolder summaryHolder = (SummaryViewHolder) holder;
+            
+            Context context = summaryHolder.itemView.getContext();
+            String userId = PreferenceManager.getCurrentUserId(context);
+            String key = KEY_VISIBLE + "_" + userId;
+            SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+            isSalaryVisible = prefs.getBoolean(key, true);
+
             updateSummaryUI(summaryHolder);
 
             summaryHolder.ivToggleVisibility.setOnClickListener(v -> {
+                Context ctx = v.getContext();
                 TransitionManager.beginDelayedTransition((ViewGroup) summaryHolder.itemView);
                 
                 isSalaryVisible = !isSalaryVisible;
-                SharedPreferences prefs = v.getContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-                prefs.edit().putBoolean(KEY_VISIBLE, isSalaryVisible).apply();
+                String uId = PreferenceManager.getCurrentUserId(ctx);
+                String k = KEY_VISIBLE + "_" + uId;
+                SharedPreferences p = ctx.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+                p.edit().putBoolean(k, isSalaryVisible).apply();
                 
                 updateSummaryUI(summaryHolder);
             });
