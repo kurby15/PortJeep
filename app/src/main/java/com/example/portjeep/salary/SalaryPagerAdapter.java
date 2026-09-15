@@ -54,7 +54,7 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        
+
         Context context = parent.getContext();
         String userId = PreferenceManager.getCurrentUserId(context);
         String key = KEY_VISIBLE + "_" + userId;
@@ -72,7 +72,7 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof SummaryViewHolder) {
             SummaryViewHolder summaryHolder = (SummaryViewHolder) holder;
-            
+
             Context context = summaryHolder.itemView.getContext();
             String userId = PreferenceManager.getCurrentUserId(context);
             String key = KEY_VISIBLE + "_" + userId;
@@ -84,13 +84,13 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             summaryHolder.ivToggleVisibility.setOnClickListener(v -> {
                 Context ctx = v.getContext();
                 TransitionManager.beginDelayedTransition((ViewGroup) summaryHolder.itemView);
-                
+
                 isSalaryVisible = !isSalaryVisible;
                 String uId = PreferenceManager.getCurrentUserId(ctx);
                 String k = KEY_VISIBLE + "_" + uId;
                 SharedPreferences p = ctx.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
                 p.edit().putBoolean(k, isSalaryVisible).apply();
-                
+
                 updateSummaryUI(summaryHolder);
                 notifyItemChanged(TYPE_HISTORY);
             });
@@ -131,15 +131,15 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     String dayName = dayGroup.optString("day", "N/A");
                     String groupDate = dayGroup.optString("date", dayName);
 
-                    boolean isToday = dayName.equalsIgnoreCase(todayName) || 
-                                     groupDate.contains(todayFormatted) || 
-                                     groupDate.equalsIgnoreCase(todayName) ||
-                                     groupDate.contains(todayDateKey);
-                    
-                    boolean isYesterday = dayName.equalsIgnoreCase(yesterdayName) || 
-                                         groupDate.contains(yesterdayFormatted) || 
-                                         groupDate.equalsIgnoreCase(yesterdayName) ||
-                                         groupDate.contains(yesterdayDateKey);
+                    boolean isToday = dayName.equalsIgnoreCase(todayName) ||
+                            groupDate.contains(todayFormatted) ||
+                            groupDate.equalsIgnoreCase(todayName) ||
+                            groupDate.contains(todayDateKey);
+
+                    boolean isYesterday = dayName.equalsIgnoreCase(yesterdayName) ||
+                            groupDate.contains(yesterdayFormatted) ||
+                            groupDate.equalsIgnoreCase(yesterdayName) ||
+                            groupDate.contains(yesterdayDateKey);
 
                     if (!isToday && !isYesterday) continue;
 
@@ -198,19 +198,17 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             }
         }
 
-        // If records are missing for today or yesterday, create items and check their schedule status
         if (todayItem == null) {
             boolean hasScheduleToday = hasScheduleForDate(context, todayName, todayDateKey);
             todayItem = new HistoryAdapter.HistoryItem(todayFormatted, "0.00", "0.00", "0.00", !hasScheduleToday);
             todayItem.setExpanded(true);
         }
-        
+
         if (yesterdayItem == null) {
             boolean hasScheduleYesterday = hasScheduleForDate(context, yesterdayName, yesterdayDateKey);
             yesterdayItem = new HistoryAdapter.HistoryItem(yesterdayFormatted, "0.00", "0.00", "0.00", !hasScheduleYesterday);
         }
 
-        // Ensure Today is on top
         items.add(todayItem);
         items.add(yesterdayItem);
 
@@ -231,11 +229,10 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 JSONObject sched = schedules.getJSONObject(i);
                 String schedDay = sched.optString("day", "");
                 String schedDate = sched.optString("date", "");
-                
-                // Robust matching: check day name or full date or date prefix (yyyy-MM-dd)
-                if (dayName.equalsIgnoreCase(schedDay) || 
-                    dateStr.equals(schedDate) || 
-                    (schedDate.length() >= 10 && schedDate.startsWith(dateStr))) {
+
+                if (dayName.equalsIgnoreCase(schedDay) ||
+                        dateStr.equals(schedDate) ||
+                        (schedDate.length() >= 10 && schedDate.startsWith(dateStr))) {
                     return true;
                 }
             }
@@ -259,7 +256,6 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
         if (remittanceData != null && remittanceData.length() > 0) {
             try {
-                // Latest group (usually today)
                 JSONObject latestGroup = remittanceData.optJSONObject(0);
                 if (latestGroup != null) {
                     scheduleId = latestGroup.optString("schedule_id", "");
@@ -314,38 +310,60 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             safeSetText(holder.tvRemittance, expensesStr);
 
             String role = PreferenceManager.getUserRole(context);
-            if (role != null && role.toUpperCase().contains("DRIVER")) {
-                safeSetText(holder.tvDeductions, shareStr);
-                safeSetText(holder.tvIncentives, "₱ 0.00");
-            } else if (role != null && (role.toUpperCase().contains("PAO") || role.toUpperCase().contains("ASSISTANT"))) {
-                safeSetText(holder.tvDeductions, "₱ 0.00");
-                safeSetText(holder.tvIncentives, shareStr);
+            if (role != null) {
+                String upperRole = role.toUpperCase();
+                boolean isDriver = upperRole.contains("DRIVER");
+                boolean isPao = upperRole.contains("PAO") || upperRole.contains("ASSISTANT");
+
+                // Control Driver Share row visibility & values
+                if (holder.rowDriverShare != null) {
+                    if (isDriver || (!isDriver && !isPao)) {
+                        holder.rowDriverShare.setVisibility(View.VISIBLE);
+                        if (holder.dividerDriverShare != null) holder.dividerDriverShare.setVisibility(View.VISIBLE);
+                        safeSetText(holder.tvDeductions, shareStr);
+                    } else {
+                        holder.rowDriverShare.setVisibility(View.GONE);
+                        if (holder.dividerDriverShare != null) holder.dividerDriverShare.setVisibility(View.GONE);
+                    }
+                }
+
+                // Control PAO Share row visibility & values
+                if (holder.rowPaoShare != null) {
+                    if (isPao || (!isDriver && !isPao)) {
+                        holder.rowPaoShare.setVisibility(View.VISIBLE);
+                        if (holder.dividerPaoShare != null) holder.dividerPaoShare.setVisibility(View.VISIBLE);
+                        safeSetText(holder.tvIncentives, shareStr);
+                    } else {
+                        holder.rowPaoShare.setVisibility(View.GONE);
+                        if (holder.dividerPaoShare != null) holder.dividerPaoShare.setVisibility(View.GONE);
+                    }
+                }
             } else {
-                safeSetText(holder.tvDeductions, "₱ 0.00");
+                safeSetText(holder.tvDeductions, shareStr);
                 safeSetText(holder.tvIncentives, "₱ 0.00");
             }
 
             safeSetText(holder.tvTotalNet, totalNetStr);
             safeSetText(holder.tvNetBottom, totalNetStr);
-            
+
             safeSetText(holder.tvScheduleGross, grossStr.replace("₱ ", "₱"));
             safeSetText(holder.tvScheduleExpenses, expensesStr.replace("- ₱ ", "₱"));
             safeSetText(holder.tvScheduleNet, totalNetStr.replace("₱ ", "₱"));
-            
+
             holder.ivToggleVisibility.setImageResource(R.drawable.view);
         } else {
             safeSetText(holder.tvGross, hiddenText);
             safeSetText(holder.tvRemittance, hiddenText);
             safeSetText(holder.tvDeductions, hiddenText);
             safeSetText(holder.tvIncentives, hiddenText);
-            
+
             safeSetText(holder.tvTotalNet, hiddenText);
             safeSetText(holder.tvNetBottom, hiddenText);
-            
+
             safeSetText(holder.tvScheduleGross, hiddenText);
             safeSetText(holder.tvScheduleExpenses, hiddenText);
             safeSetText(holder.tvScheduleNet, hiddenText);
-            
+
             holder.ivToggleVisibility.setImageResource(R.drawable.hide);
         }
     }
@@ -353,7 +371,6 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private void populateScheduleContext(SummaryViewHolder holder, Context context, String scheduleId) {
         String cachedSchedules = PreferenceManager.getSchedulesCache(context);
 
-        // Default text if no schedule matches today
         safeSetText(holder.tvBoundaryDay, "Unassigned");
         safeSetText(holder.tvWorkingDays, "Unassigned");
         safeSetText(holder.tvDriverShareName, "Unassigned Driver");
@@ -369,7 +386,6 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             JSONArray schedules = root.optJSONArray("schedules");
             if (schedules == null) return;
 
-            // Get today's day name (e.g., "Monday") and formatted date for matching
             String todayName = new SimpleDateFormat("EEEE", Locale.US).format(new Date());
             String todayDateStr = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
             String secretKey = com.example.portjeep.BuildConfig.CRYPTO_SECRET_KEY;
@@ -381,7 +397,6 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 String schedDay = sched.optString("day", "");
                 String schedDate = sched.optString("date", "");
 
-                // Strictly check if it matches today's day or today's specific date
                 if (todayName.equalsIgnoreCase(schedDay) || todayDateStr.equals(schedDate)) {
                     isMatch = true;
                 }
@@ -445,6 +460,9 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         TextView tvDriverShareName, tvPaoShareName;
         ImageView ivToggleVisibility;
 
+        View rowDriverShare, dividerDriverShare;
+        View rowPaoShare, dividerPaoShare;
+
         SummaryViewHolder(View itemView) {
             super(itemView);
             tvTotalNet = itemView.findViewById(R.id.tv_total_net_income_large);
@@ -453,10 +471,10 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             tvRemittance = itemView.findViewById(R.id.tv_val_remittance_due);
             tvDeductions = itemView.findViewById(R.id.tv_val_deductions);
             tvIncentives = itemView.findViewById(R.id.tv_val_incentives);
-            
+
             tvScheduleDate = itemView.findViewById(R.id.tv_val_schedule_date);
             tvLastPartial = itemView.findViewById(R.id.tv_val_last_partial);
-            
+
             tvScheduleGross = itemView.findViewById(R.id.tv_val_schedule_gross);
             tvScheduleExpenses = itemView.findViewById(R.id.tv_val_schedule_expenses);
             tvScheduleNet = itemView.findViewById(R.id.tv_val_schedule_net);
@@ -470,6 +488,11 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             tvDriverShareName = itemView.findViewById(R.id.tv_desc_gov_deductions);
             tvPaoShareName = itemView.findViewById(R.id.tv_desc_attendance_incentive);
             ivToggleVisibility = itemView.findViewById(R.id.iv_toggle_visibility);
+
+            rowDriverShare = itemView.findViewById(R.id.row_driver_share);
+            dividerDriverShare = itemView.findViewById(R.id.divider_driver_share);
+            rowPaoShare = itemView.findViewById(R.id.row_pao_share);
+            dividerPaoShare = itemView.findViewById(R.id.divider_pao_share);
         }
     }
 

@@ -220,6 +220,7 @@
 
                 <!-- Driver Share Row -->
                 <LinearLayout
+                    android:id="@+id/row_driver_share"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
@@ -257,6 +258,7 @@
                 </LinearLayout>
 
                 <View
+                    android:id="@+id/divider_driver_share"
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:layout_marginHorizontal="24dp"
@@ -264,6 +266,7 @@
 
                 <!-- PAO Share Row -->
                 <LinearLayout
+                    android:id="@+id/row_pao_share"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
@@ -301,6 +304,7 @@
                 </LinearLayout>
 
                 <View
+                    android:id="@+id/divider_pao_share"
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:layout_marginHorizontal="24dp"
