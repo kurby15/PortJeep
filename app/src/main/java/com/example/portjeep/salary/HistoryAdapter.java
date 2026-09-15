@@ -57,6 +57,12 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
             holder.tvTripCount.setVisibility(View.VISIBLE);
             holder.itemView.setClickable(true);
 
+            if (item.isToday) {
+                holder.tvStatusLabel.setText(R.string.status_record);
+            } else {
+                holder.tvStatusLabel.setText(R.string.status_recorded);
+            }
+
             String tripText = item.partialReports.size() + (item.partialReports.size() == 1 ? " trip recorded" : " trips recorded");
             holder.tvTripCount.setText(tripText);
             
@@ -64,11 +70,11 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
             // Detail values
             if (isVisible) {
                 holder.tvValGross.setText("₱ " + df.format(item.getGrossValue()));
-                holder.tvValBoundaryFuel.setText("₱ " + df.format(item.getExpensesValue()));
+                holder.tvValRemittance.setText("₱ " + df.format(item.getRemittanceValue()));
                 holder.tvValNet.setText("₱ " + df.format(item.getNetValue()));
             } else {
                 holder.tvValGross.setText(hiddenText);
-                holder.tvValBoundaryFuel.setText(hiddenText);
+                holder.tvValRemittance.setText(hiddenText);
                 holder.tvValNet.setText(hiddenText);
             }
 
@@ -80,16 +86,16 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
                 ((TextView) reportView.findViewById(R.id.tv_partial_header)).setText(report.header);
                 
                 TextView tvAmount = reportView.findViewById(R.id.tv_val_partial_amount);
-                TextView tvExpenses = reportView.findViewById(R.id.tv_val_partial_expenses);
+                TextView tvRemittance = reportView.findViewById(R.id.tv_val_partial_remittance);
                 TextView tvNet = reportView.findViewById(R.id.tv_val_partial_net);
                 
                 if (isVisible) {
                     tvAmount.setText("₱ " + report.amount);
-                    tvExpenses.setText("₱ " + report.expenses);
+                    tvRemittance.setText("₱ " + report.remittance);
                     tvNet.setText("₱ " + report.net);
                 } else {
                     tvAmount.setText(hiddenText);
-                    tvExpenses.setText(hiddenText);
+                    tvRemittance.setText(hiddenText);
                     tvNet.setText(hiddenText);
                 }
 
@@ -129,7 +135,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvDate, tvTripCount, tvValGross, tvValBoundaryFuel, tvValNet;
+        TextView tvDate, tvTripCount, tvValGross, tvValRemittance, tvValNet, tvStatusLabel;
         LinearLayout llStatusBadge, llDetailSection, llPartialContainer;
         TextView badgeRest;
         ImageView ivChevron;
@@ -139,11 +145,12 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
             tvDate = itemView.findViewById(R.id.tv_history_date);
             tvTripCount = itemView.findViewById(R.id.tv_trip_count);
             llStatusBadge = itemView.findViewById(R.id.ll_status_badge);
+            tvStatusLabel = itemView.findViewById(R.id.tv_status_label);
             badgeRest = itemView.findViewById(R.id.tv_rest_badge);
             llDetailSection = itemView.findViewById(R.id.ll_detail_section);
             llPartialContainer = itemView.findViewById(R.id.ll_partial_reports_container);
             tvValGross = itemView.findViewById(R.id.tv_history_val_gross);
-            tvValBoundaryFuel = itemView.findViewById(R.id.tv_history_val_boundary_fuel);
+            tvValRemittance = itemView.findViewById(R.id.tv_history_val_remittance);
             tvValNet = itemView.findViewById(R.id.tv_history_val_net);
             ivChevron = itemView.findViewById(R.id.iv_chevron);
         }
@@ -152,22 +159,23 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
     public static class HistoryItem {
         String date;
         String gross;
-        String boundaryFuel;
+        String remittance;
         String net;
         boolean isRest;
+        boolean isToday = false;
         boolean isExpanded = false;
         List<PartialReport> partialReports = new ArrayList<>();
 
-        public HistoryItem(String date, String gross, String boundaryFuel, String net, boolean isRest) {
+        public HistoryItem(String date, String gross, String remittance, String net, boolean isRest) {
             this.date = date;
             this.gross = gross;
-            this.boundaryFuel = boundaryFuel;
+            this.remittance = remittance;
             this.net = net;
             this.isRest = isRest;
         }
 
-        public HistoryItem addPartial(String header, String amount, String expenses, String net) {
-            this.partialReports.add(new PartialReport(header, amount, expenses, net));
+        public HistoryItem addPartial(String header, String amount, String remittance, String net) {
+            this.partialReports.add(new PartialReport(header, amount, remittance, net));
             return this;
         }
 
@@ -179,11 +187,11 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
             return total;
         }
 
-        public double getExpensesValue() {
+        public double getRemittanceValue() {
             if (isRest) return 0;
-            if (partialReports.isEmpty()) return parse(boundaryFuel);
+            if (partialReports.isEmpty()) return parse(remittance);
             double total = 0;
-            for (PartialReport r : partialReports) total += parse(r.expenses);
+            for (PartialReport r : partialReports) total += parse(r.remittance);
             return total;
         }
 
@@ -204,6 +212,11 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
             }
         }
 
+        public HistoryItem setToday(boolean today) {
+            this.isToday = today;
+            return this;
+        }
+
         public HistoryItem setExpanded(boolean expanded) {
             this.isExpanded = expanded;
             return this;
@@ -213,13 +226,13 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
     public static class PartialReport {
         String header;
         String amount;
-        String expenses;
+        String remittance;
         String net;
 
-        public PartialReport(String header, String amount, String expenses, String net) {
+        public PartialReport(String header, String amount, String remittance, String net) {
             this.header = header;
             this.amount = amount;
-            this.expenses = expenses;
+            this.remittance = remittance;
             this.net = net;
         }
     }

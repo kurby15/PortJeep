@@ -274,11 +274,39 @@ public class HomeFragment extends Fragment {
     }
 
     private void processRemittanceSummary(JSONArray remittances) {
-        if (remittances == null || remittances.length() == 0 || !isAdded()) return;
+        if (remittances == null || remittances.length() == 0 || !isAdded()) {
+            resetTodaySummaryUI();
+            return;
+        }
 
         try {
             JSONObject latestGroup = remittances.optJSONObject(0);
-            if (latestGroup == null) return;
+            if (latestGroup == null) {
+                resetTodaySummaryUI();
+                return;
+            }
+
+            String groupDate = latestGroup.optString("date", "");
+            String dayName = latestGroup.optString("day", "");
+            
+            SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE", Locale.US);
+            SimpleDateFormat fullFormat = new SimpleDateFormat("EEEE, MMM d", Locale.US);
+            SimpleDateFormat dateKeyFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+            
+            Date now = new Date();
+            String todayName = dayFormat.format(now);
+            String todayFormatted = fullFormat.format(now);
+            String todayDateKey = dateKeyFormat.format(now);
+
+            boolean isToday = dayName.equalsIgnoreCase(todayName) || 
+                             groupDate.contains(todayFormatted) || 
+                             groupDate.equalsIgnoreCase(todayName) ||
+                             groupDate.contains(todayDateKey);
+
+            if (!isToday) {
+                resetTodaySummaryUI();
+                return;
+            }
 
             JSONArray partials = latestGroup.optJSONArray("remittances");
             int tripCount = 0;
@@ -335,6 +363,27 @@ public class HomeFragment extends Fragment {
             });
 
         } catch (Exception e) { Log.e(TAG, "Error processing summary UI", e); }
+    }
+
+    private void resetTodaySummaryUI() {
+        handler.post(() -> {
+            if (!isAdded()) return;
+            if (tvSummaryTrips != null) tvSummaryTrips.setText("0");
+            if (tvSummaryGross != null) tvSummaryGross.setText("₱0.00");
+            if (tvSummaryNet != null) tvSummaryNet.setText("₱0.00");
+            if (tvSummaryDistance != null) tvSummaryDistance.setText("₱0.00");
+            if (tvSummaryShareUnit != null) tvSummaryShareUnit.setText("Today");
+            
+            Context context = getContext();
+            String role = PreferenceManager.getUserRole(context);
+            if (role != null && role.toUpperCase().contains("DRIVER")) {
+                if (tvSummaryShareLabel != null) tvSummaryShareLabel.setText("Driver's Share");
+            } else if (role != null && (role.toUpperCase().contains("PAO") || role.toUpperCase().contains("ASSISTANT"))) {
+                if (tvSummaryShareLabel != null) tvSummaryShareLabel.setText("PAO's Share");
+            } else {
+                if (tvSummaryShareLabel != null) tvSummaryShareLabel.setText("Your Share");
+            }
+        });
     }
 
     private void loadOfflineUserProfile() {

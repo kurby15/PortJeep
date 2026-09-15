@@ -23,6 +23,7 @@ import org.json.JSONObject;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -100,10 +101,26 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     private void setupHistoryList(HistoryViewHolder holder) {
         List<HistoryAdapter.HistoryItem> items = new ArrayList<>();
+        Context context = holder.itemView.getContext();
 
-        String todayName = new SimpleDateFormat("EEEE", Locale.US).format(new Date());
-        String todayFormatted = new SimpleDateFormat("EEEE, MMM d", Locale.US).format(new Date());
-        boolean foundToday = false;
+        SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE", Locale.US);
+        SimpleDateFormat fullFormat = new SimpleDateFormat("EEEE, MMM d", Locale.US);
+        SimpleDateFormat dateKeyFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+
+        Date now = new Date();
+        String todayName = dayFormat.format(now);
+        String todayFormatted = fullFormat.format(now);
+        String todayDateKey = dateKeyFormat.format(now);
+
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, -1);
+        Date yesterdayDate = cal.getTime();
+        String yesterdayName = dayFormat.format(yesterdayDate);
+        String yesterdayFormatted = fullFormat.format(yesterdayDate);
+        String yesterdayDateKey = dateKeyFormat.format(yesterdayDate);
+
+        HistoryAdapter.HistoryItem todayItem = null;
+        HistoryAdapter.HistoryItem yesterdayItem = null;
 
         if (remittanceData != null) {
             for (int i = 0; i < remittanceData.length(); i++) {
@@ -114,17 +131,20 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     String dayName = dayGroup.optString("day", "N/A");
                     String groupDate = dayGroup.optString("date", dayName);
 
-                    // Check if this entry matches today's day or date
-                    boolean isToday = dayName.equalsIgnoreCase(todayName) || groupDate.contains(todayFormatted) || groupDate.equalsIgnoreCase(todayName);
+                    boolean isToday = dayName.equalsIgnoreCase(todayName) || 
+                                     groupDate.contains(todayFormatted) || 
+                                     groupDate.equalsIgnoreCase(todayName) ||
+                                     groupDate.contains(todayDateKey);
+                    
+                    boolean isYesterday = dayName.equalsIgnoreCase(yesterdayName) || 
+                                         groupDate.contains(yesterdayFormatted) || 
+                                         groupDate.equalsIgnoreCase(yesterdayName) ||
+                                         groupDate.contains(yesterdayDateKey);
 
-                    if (!isToday) {
-                        continue; // Skip non-today entries to show ONLY today
-                    }
+                    if (!isToday && !isYesterday) continue;
 
-                    foundToday = true;
                     JSONArray partialsArray = dayGroup.optJSONArray("remittances");
-
-                    double totalGross = 0, totalExpenses = 0, totalNet = 0;
+                    double totalGross = 0, totalRemittance = 0, totalNet = 0;
                     List<HistoryAdapter.PartialReport> reports = new ArrayList<>();
                     boolean hasRemittances = partialsArray != null && partialsArray.length() > 0;
 
@@ -134,8 +154,6 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                             JSONObject p = partialsArray.optJSONObject(k);
                             if (p != null) sortedPartials.add(p);
                         }
-
-                        // Sort by time ascending for chronological numbering
                         Collections.sort(sortedPartials, (a, b) ->
                                 a.optString("created_at", "").compareTo(b.optString("created_at", "")));
 
@@ -145,35 +163,34 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                             double e = partial.optDouble("expenses", 0);
                             double n = partial.optDouble("net", 0);
                             String time = partial.optString("created_at", "");
-
                             totalGross += g;
-                            totalExpenses += e;
+                            totalRemittance += e;
                             totalNet += n;
-
-                            reports.add(0, new HistoryAdapter.PartialReport(
-                                    "Report #" + (j + 1) + " · " + time,
-                                    df.format(g),
-                                    df.format(e),
-                                    df.format(n)
-                            ));
+                            reports.add(0, new HistoryAdapter.PartialReport("Report #" + (j + 1) + " · " + time, df.format(g), df.format(e), df.format(n)));
                         }
                     }
 
+                    boolean hasSchedule = hasScheduleForDate(context, isToday ? todayName : yesterdayName, isToday ? todayDateKey : yesterdayDateKey);
+                    boolean isRest = !hasRemittances && !hasSchedule;
+
                     HistoryAdapter.HistoryItem item = new HistoryAdapter.HistoryItem(
-                            groupDate.isEmpty() ? todayFormatted : groupDate,
+                            groupDate.isEmpty() ? (isToday ? todayFormatted : yesterdayFormatted) : groupDate,
                             df.format(totalGross),
-                            df.format(totalExpenses),
+                            df.format(totalRemittance),
                             df.format(totalNet),
-                            !hasRemittances
+                            isRest
                     );
 
                     for (HistoryAdapter.PartialReport report : reports) {
-                        item.addPartial(report.header, report.amount, report.expenses, report.net);
+                        item.addPartial(report.header, report.amount, report.remittance, report.net);
                     }
+                    item.setExpanded(isToday);
 
-                    item.setExpanded(true);
-                    items.add(item);
-                    break; // Stop after processing today's entry
+                    if (isToday) {
+                        todayItem = item;
+                    } else {
+                        yesterdayItem = item;
+                    }
 
                 } catch (Exception e) {
                     Log.e("SalaryPagerAdapter", "Error parsing history group", e);
@@ -181,22 +198,51 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             }
         }
 
-        // If today has no record in remittanceData, display it as unassigned/rest
-        if (!foundToday) {
-            HistoryAdapter.HistoryItem unassignedItem = new HistoryAdapter.HistoryItem(
-                    todayFormatted,
-                    "0.00",
-                    "0.00",
-                    "0.00",
-                    true
-            );
-            items.add(unassignedItem);
+        // If records are missing for today or yesterday, create items and check their schedule status
+        if (todayItem == null) {
+            boolean hasScheduleToday = hasScheduleForDate(context, todayName, todayDateKey);
+            todayItem = new HistoryAdapter.HistoryItem(todayFormatted, "0.00", "0.00", "0.00", !hasScheduleToday);
+            todayItem.setExpanded(true);
         }
+        
+        if (yesterdayItem == null) {
+            boolean hasScheduleYesterday = hasScheduleForDate(context, yesterdayName, yesterdayDateKey);
+            yesterdayItem = new HistoryAdapter.HistoryItem(yesterdayFormatted, "0.00", "0.00", "0.00", !hasScheduleYesterday);
+        }
+
+        // Ensure Today is on top
+        items.add(todayItem);
+        items.add(yesterdayItem);
 
         HistoryAdapter historyAdapter = new HistoryAdapter(items);
         historyAdapter.setVisible(isSalaryVisible);
         holder.rvHistory.setLayoutManager(new LinearLayoutManager(holder.itemView.getContext()));
         holder.rvHistory.setAdapter(historyAdapter);
+    }
+
+    private boolean hasScheduleForDate(Context context, String dayName, String dateStr) {
+        String cachedSchedules = PreferenceManager.getSchedulesCache(context);
+        if (cachedSchedules == null) return false;
+        try {
+            JSONObject root = new JSONObject(cachedSchedules);
+            JSONArray schedules = root.optJSONArray("schedules");
+            if (schedules == null) return false;
+            for (int i = 0; i < schedules.length(); i++) {
+                JSONObject sched = schedules.getJSONObject(i);
+                String schedDay = sched.optString("day", "");
+                String schedDate = sched.optString("date", "");
+                
+                // Robust matching: check day name or full date or date prefix (yyyy-MM-dd)
+                if (dayName.equalsIgnoreCase(schedDay) || 
+                    dateStr.equals(schedDate) || 
+                    (schedDate.length() >= 10 && schedDate.startsWith(dateStr))) {
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            Log.e("SalaryPagerAdapter", "Error checking schedule", e);
+        }
+        return false;
     }
 
     private void updateSummaryUI(SummaryViewHolder holder) {
@@ -234,7 +280,6 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                             sumNet += p.optDouble("net", 0);
                             sumShare += p.optDouble("employeeCut", 0);
 
-                            // Dynamically find the latest partial time by comparison
                             String currentTime = p.optString("created_at", "");
                             if (currentTime.compareTo(maxTime) >= 0) {
                                 maxTime = currentTime;

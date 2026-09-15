@@ -39,12 +39,12 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/tv_label_partial_expenses"
+            android:id="@+id/tv_label_partial_remittance"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-black"
             android:gravity="center"
-            android:text="EXPENSES"
+            android:text="@string/label_remittance"
             android:textColor="#B0BEC5"
             android:textSize="9sp"
             android:textStyle="bold"
@@ -93,12 +93,12 @@
             android:textStyle="bold"
             android:paddingHorizontal="4dp"
             app:layout_constraintBottom_toBottomOf="@+id/tv_val_partial_amount"
-            app:layout_constraintEnd_toStartOf="@+id/tv_label_partial_expenses"
+            app:layout_constraintEnd_toStartOf="@+id/tv_label_partial_remittance"
             app:layout_constraintStart_toEndOf="@+id/tv_label_partial_amount"
             app:layout_constraintTop_toTopOf="@+id/tv_val_partial_amount" />
 
         <TextView
-            android:id="@+id/tv_val_partial_expenses"
+            android:id="@+id/tv_val_partial_remittance"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
@@ -107,9 +107,9 @@
             android:text="₱ 0"
             android:textColor="@color/color_brand_primary"
             android:textSize="14sp"
-            app:layout_constraintEnd_toEndOf="@+id/tv_label_partial_expenses"
-            app:layout_constraintStart_toStartOf="@+id/tv_label_partial_expenses"
-            app:layout_constraintTop_toBottomOf="@id/tv_label_partial_expenses"
+            app:layout_constraintEnd_toEndOf="@+id/tv_label_partial_remittance"
+            app:layout_constraintStart_toStartOf="@+id/tv_label_partial_remittance"
+            app:layout_constraintTop_toBottomOf="@id/tv_label_partial_remittance"
             app:layout_constrainedWidth="true" />
 
         <TextView
@@ -121,10 +121,10 @@
             android:textSize="14sp"
             android:textStyle="bold"
             android:paddingHorizontal="4dp"
-            app:layout_constraintBottom_toBottomOf="@+id/tv_val_partial_expenses"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_val_partial_remittance"
             app:layout_constraintEnd_toStartOf="@+id/tv_label_partial_net"
-            app:layout_constraintStart_toEndOf="@+id/tv_label_partial_expenses"
-            app:layout_constraintTop_toTopOf="@+id/tv_val_partial_expenses" />
+            app:layout_constraintStart_toEndOf="@+id/tv_label_partial_remittance"
+            app:layout_constraintTop_toTopOf="@+id/tv_val_partial_remittance" />
 
         <TextView
             android:id="@+id/tv_val_partial_net"
