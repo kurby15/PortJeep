@@ -151,7 +151,7 @@ public class SalaryFragment extends Fragment {
 
     private void setupDate() {
         if (tvSalaryDate != null) {
-            SimpleDateFormat sdf = new SimpleDateFormat("MMMM yyyy", Locale.US);
+            SimpleDateFormat sdf = new SimpleDateFormat("EEEE, MMMM d, yyyy", Locale.US);
             tvSalaryDate.setText(sdf.format(Calendar.getInstance().getTime()));
         }
     }

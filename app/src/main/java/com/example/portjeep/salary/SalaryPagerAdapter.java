@@ -2,6 +2,8 @@ package com.example.portjeep.salary;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Handler;
+import android.os.Looper;
 import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -188,7 +191,7 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
                     if (isToday) {
                         todayItem = item;
-                    } else {
+                    } else if (isYesterday) {
                         yesterdayItem = item;
                     }
 
@@ -256,7 +259,34 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
         if (remittanceData != null && remittanceData.length() > 0) {
             try {
-                JSONObject latestGroup = remittanceData.optJSONObject(0);
+                JSONObject latestGroup = null;
+                SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE", Locale.US);
+                SimpleDateFormat fullFormat = new SimpleDateFormat("EEEE, MMM d", Locale.US);
+                SimpleDateFormat dateKeyFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+
+                Date now = new Date();
+                String todayName = dayFormat.format(now);
+                String todayFormatted = fullFormat.format(now);
+                String todayDateKey = dateKeyFormat.format(now);
+
+                for (int i = 0; i < remittanceData.length(); i++) {
+                    JSONObject dayGroup = remittanceData.optJSONObject(i);
+                    if (dayGroup == null) continue;
+
+                    String dayName = dayGroup.optString("day", "N/A");
+                    String groupDate = dayGroup.optString("date", dayName);
+
+                    boolean isToday = dayName.equalsIgnoreCase(todayName) ||
+                            groupDate.contains(todayFormatted) ||
+                            groupDate.equalsIgnoreCase(todayName) ||
+                            groupDate.contains(todayDateKey);
+
+                    if (isToday) {
+                        latestGroup = dayGroup;
+                        break;
+                    }
+                }
+
                 if (latestGroup != null) {
                     scheduleId = latestGroup.optString("schedule_id", "");
                     JSONArray partialsArray = latestGroup.optJSONArray("remittances");
@@ -282,6 +312,9 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                             }
                         }
                     }
+
+                    double totalIncentives = parseTotalIncentivesFromSchedule(context, scheduleId, holder);
+                    sumExpenses += totalIncentives;
 
                     grossStr = "₱ " + df.format(sumGross);
                     expensesStr = "- ₱ " + df.format(sumExpenses);
@@ -315,7 +348,6 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 boolean isDriver = upperRole.contains("DRIVER");
                 boolean isPao = upperRole.contains("PAO") || upperRole.contains("ASSISTANT");
 
-                // Control Driver Share row visibility & values
                 if (holder.rowDriverShare != null) {
                     if (isDriver || (!isDriver && !isPao)) {
                         holder.rowDriverShare.setVisibility(View.VISIBLE);
@@ -327,7 +359,6 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     }
                 }
 
-                // Control PAO Share row visibility & values
                 if (holder.rowPaoShare != null) {
                     if (isPao || (!isDriver && !isPao)) {
                         holder.rowPaoShare.setVisibility(View.VISIBLE);
@@ -366,6 +397,52 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
             holder.ivToggleVisibility.setImageResource(R.drawable.hide);
         }
+    }
+
+    private double parseTotalIncentivesFromSchedule(Context context, String scheduleId, SummaryViewHolder holder) {
+        String cachedSchedules = PreferenceManager.getSchedulesCache(context);
+        if (cachedSchedules == null) return 0.0;
+        try {
+            JSONObject root = new JSONObject(cachedSchedules);
+            JSONArray schedules = root.optJSONArray("schedules");
+            if (schedules == null) return 0.0;
+
+            String todayName = new SimpleDateFormat("EEEE", Locale.US).format(new Date());
+            String todayDateStr = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
+
+            for (int i = 0; i < schedules.length(); i++) {
+                JSONObject sched = schedules.getJSONObject(i);
+                String schedId = sched.optString("id", "");
+                String schedDay = sched.optString("day", "");
+                String schedDate = sched.optString("date", "");
+
+                boolean isMatch = (!scheduleId.isEmpty() && schedId.equals(scheduleId)) ||
+                        todayName.equalsIgnoreCase(schedDay) ||
+                        todayDateStr.equals(schedDate);
+
+                if (isMatch) {
+                    double driverIncentive = 0;
+                    double paoIncentive = 0;
+
+                    if (sched.has("driver") && !sched.isNull("driver")) {
+                        Object d = sched.get("driver");
+                        if (d instanceof JSONObject) {
+                            driverIncentive = ((JSONObject) d).optDouble("incentive", 0.0);
+                        }
+                    }
+                    if (sched.has("pao") && !sched.isNull("pao")) {
+                        Object p = sched.get("pao");
+                        if (p instanceof JSONObject) {
+                            paoIncentive = ((JSONObject) p).optDouble("incentive", 0.0);
+                        }
+                    }
+                    return driverIncentive + paoIncentive;
+                }
+            }
+        } catch (Exception e) {
+            Log.e("SalaryPagerAdapter", "Error parsing incentives", e);
+        }
+        return 0.0;
     }
 
     private void populateScheduleContext(SummaryViewHolder holder, Context context, String scheduleId) {
