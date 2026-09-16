@@ -396,6 +396,10 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         String overallExpensesStr = "₱ 0.00";
         String overallShareStr = "₱ 0.00";
 
+        String lastGrossVal = "₱0.00";
+        String lastExpensesVal = "₱0.00";
+        String lastNetVal = "₱0.00";
+
         if (remittanceData != null && remittanceData.length() > 0) {
             try {
                 double overallNet = 0;
@@ -484,6 +488,9 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                             if (currentMillis >= maxTimeMillis) {
                                 maxTimeMillis = currentMillis;
                                 lastPartialTime = currentTime;
+                                lastGrossVal = "₱" + df.format(p.optDouble("gross", 0));
+                                lastExpensesVal = "₱" + df.format(p.optDouble("expenses", 0));
+                                lastNetVal = "₱" + df.format(p.optDouble("net", 0));
                             }
                         }
                     }
@@ -555,9 +562,13 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             safeSetText(holder.tvTotalExpensesOverall, overallExpensesStr);
             safeSetText(holder.tvTotalShareOverall, overallShareStr);
 
-            safeSetText(holder.tvScheduleGross, grossStr.replace("₱ ", "₱"));
-            safeSetText(holder.tvScheduleExpenses, expensesStr.replace("- ₱ ", "₱"));
-            safeSetText(holder.tvScheduleNet, totalNetStr.replace("₱ ", "₱"));
+            safeSetText(holder.tvDailyGross, grossStr);
+            safeSetText(holder.tvDailyExpenses, expensesStr.replace("- ", ""));
+            safeSetText(holder.tvDailyNet, totalNetStr);
+
+            safeSetText(holder.tvScheduleGross, lastGrossVal);
+            safeSetText(holder.tvScheduleExpenses, lastExpensesVal);
+            safeSetText(holder.tvScheduleNet, lastNetVal);
 
             holder.ivToggleVisibility.setImageResource(R.drawable.view);
         } else {
@@ -572,6 +583,10 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             safeSetText(holder.tvTotalGrossOverall, hiddenText);
             safeSetText(holder.tvTotalExpensesOverall, hiddenText);
             safeSetText(holder.tvTotalShareOverall, hiddenText);
+
+            safeSetText(holder.tvDailyGross, hiddenText);
+            safeSetText(holder.tvDailyExpenses, hiddenText);
+            safeSetText(holder.tvDailyNet, hiddenText);
 
             safeSetText(holder.tvScheduleGross, hiddenText);
             safeSetText(holder.tvScheduleExpenses, hiddenText);
@@ -771,6 +786,7 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         TextView tvBoundaryDay, tvJeepUnit, tvFuelDay, tvWorkingDays, tvNetCalc, tvTrend;
         TextView tvDriverShareName, tvPaoShareName;
         TextView tvTotalGrossOverall, tvTotalExpensesOverall, tvTotalShareOverall;
+        TextView tvDailyGross, tvDailyExpenses, tvDailyNet;
         ImageView ivToggleVisibility;
 
         View rowDriverShare, dividerDriverShare;

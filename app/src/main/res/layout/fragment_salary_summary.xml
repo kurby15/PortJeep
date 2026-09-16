@@ -299,11 +299,22 @@
             </LinearLayout>
         </LinearLayout>
 
+        <!-- Daily Breakdown Header -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:letterSpacing="0.1"
+            android:text="DAILY BREAKDOWN"
+            android:textColor="@color/color_brand_primary"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
         <!-- Main Breakdown Card -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="16dp"
             app:cardBackgroundColor="@android:color/transparent"
             app:cardCornerRadius="@dimen/card_corner_radius_xlarge"
             app:cardElevation="4dp"
@@ -533,7 +544,7 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Schedule Details Card -->
+        <!-- Schedule Details Header -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -544,6 +555,7 @@
             android:textSize="13sp"
             android:textStyle="bold" />
 
+        <!-- Schedule Details Card -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -584,7 +596,7 @@
                             android:id="@+id/tv_val_schedule_date"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Sep 3, 12:00 AM"
+                            android:text="Today"
                             android:textColor="@color/color_brand_primary"
                             android:textSize="15sp"
                             android:textStyle="bold" />
@@ -606,7 +618,7 @@
                             android:id="@+id/tv_val_last_partial"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Sep 3, 11:36 PM"
+                            android:text="N/A"
                             android:textColor="@color/color_brand_primary"
                             android:textSize="15sp"
                             android:textStyle="bold" />
