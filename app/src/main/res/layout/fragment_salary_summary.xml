@@ -124,6 +124,18 @@
                     android:gravity="center"
                     android:ellipsize="end"
                     android:maxLines="1" />
+                <TextView
+                    android:id="@+id/tv_val_driver_lastname"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="HARTMAN"
+                    android:textColor="@color/color_text_muted"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:ellipsize="end"
+                    android:maxLines="1" />
             </LinearLayout>
 
             <LinearLayout
@@ -192,6 +204,18 @@
                     android:text="Micah"
                     android:textColor="@color/color_brand_primary"
                     android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:ellipsize="end"
+                    android:maxLines="1" />
+                <TextView
+                    android:id="@+id/tv_val_pao_lastname"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="SUTTON"
+                    android:textColor="@color/color_text_muted"
+                    android:textSize="11sp"
                     android:textStyle="bold"
                     android:gravity="center"
                     android:ellipsize="end"

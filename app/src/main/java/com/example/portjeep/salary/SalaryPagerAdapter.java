@@ -42,6 +42,7 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     private boolean isSalaryVisible = true;
     private final String hiddenText = "₱ ••••";
+    private final String hiddenPlate = "••••••";
     private final DecimalFormat df = new DecimalFormat("#,##0.00");
 
     private JSONArray remittanceData;
@@ -538,7 +539,9 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         safeSetText(holder.tvTrend, tripCountTrend);
 
         safeSetText(holder.tvBoundaryDay, "Unassigned");
+        safeSetText(holder.tvDriverLastName, "");
         safeSetText(holder.tvWorkingDays, "Unassigned");
+        safeSetText(holder.tvPaoLastName, "");
         safeSetText(holder.tvDriverShareName, "Unassigned Driver");
         safeSetText(holder.tvPaoShareName, "Unassigned PAO");
 
@@ -616,6 +619,13 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             safeSetText(holder.tvScheduleGross, hiddenText);
             safeSetText(holder.tvScheduleExpenses, hiddenText);
             safeSetText(holder.tvScheduleNet, hiddenText);
+
+            safeSetText(holder.tvBoundaryDay, "••••");
+            safeSetText(holder.tvDriverLastName, hiddenPlate);
+            safeSetText(holder.tvWorkingDays, "••••");
+            safeSetText(holder.tvPaoLastName, hiddenPlate);
+            safeSetText(holder.tvJeepUnit, "UNIT ••");
+            safeSetText(holder.tvFuelDay, hiddenPlate);
 
             holder.ivToggleVisibility.setImageResource(R.drawable.hide);
         }
@@ -714,7 +724,9 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         String cachedSchedules = PreferenceManager.getSchedulesCache(context);
 
         safeSetText(holder.tvBoundaryDay, "Unassigned");
+        safeSetText(holder.tvDriverLastName, "");
         safeSetText(holder.tvWorkingDays, "Unassigned");
+        safeSetText(holder.tvPaoLastName, "");
         safeSetText(holder.tvDriverShareName, "Unassigned Driver");
         safeSetText(holder.tvPaoShareName, "Unassigned PAO");
         safeSetText(holder.tvJeepUnit, "Unassigned");
@@ -770,8 +782,10 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                         if (dec != null && !dec.isEmpty() && !dec.equalsIgnoreCase("null")) pao = dec;
                     } catch (Exception ignored) {}
 
-                    safeSetText(holder.tvBoundaryDay, driver);
-                    safeSetText(holder.tvWorkingDays, pao);
+                    // Split names for Stats Row
+                    setSplitName(holder.tvBoundaryDay, holder.tvDriverLastName, driver);
+                    setSplitName(holder.tvWorkingDays, holder.tvPaoLastName, pao);
+                    
                     safeSetText(holder.tvDriverShareName, driver);
                     safeSetText(holder.tvPaoShareName, pao);
 
@@ -792,6 +806,28 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         }
     }
 
+    private void setSplitName(TextView tvFirst, TextView tvLast, String fullName) {
+        if (fullName == null || fullName.isEmpty() || fullName.equalsIgnoreCase("Unassigned") || fullName.equalsIgnoreCase("Driver") || fullName.equalsIgnoreCase("PAO")) {
+            safeSetText(tvFirst, fullName);
+            safeSetText(tvLast, "");
+            return;
+        }
+
+        String first = fullName;
+        String last = "";
+        int lastSpace = fullName.lastIndexOf(' ');
+        if (lastSpace >= 0) {
+            first = fullName.substring(0, lastSpace).trim();
+            String rawLast = fullName.substring(lastSpace + 1).trim();
+            if (!rawLast.isEmpty()) {
+                last = rawLast.substring(0, 1).toUpperCase() + rawLast.substring(1).toLowerCase();
+            }
+        }
+        
+        safeSetText(tvFirst, first);
+        safeSetText(tvLast, last);
+    }
+
     private void safeSetText(TextView tv, String text) {
         if (tv != null) tv.setText(text);
     }
@@ -806,7 +842,7 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         TextView tvTotalNet, tvNetBottom, tvGross, tvRemittance, tvDeductions, tvIncentives;
         TextView tvScheduleDate, tvLastPartial;
         TextView tvScheduleGross, tvScheduleExpenses, tvScheduleNet;
-        TextView tvBoundaryDay, tvJeepUnit, tvFuelDay, tvWorkingDays, tvNetCalc, tvTrend;
+        TextView tvBoundaryDay, tvDriverLastName, tvJeepUnit, tvFuelDay, tvWorkingDays, tvPaoLastName, tvNetCalc, tvTrend;
         TextView tvDriverShareName, tvPaoShareName;
         TextView tvTotalGrossOverall, tvTotalExpensesOverall, tvTotalShareOverall;
         TextView tvDailyGross, tvDailyExpenses, tvDailyNet;
@@ -832,9 +868,11 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             tvScheduleNet = itemView.findViewById(R.id.tv_val_schedule_net);
 
             tvBoundaryDay = itemView.findViewById(R.id.tv_val_boundary_day);
+            tvDriverLastName = itemView.findViewById(R.id.tv_val_driver_lastname);
             tvJeepUnit = itemView.findViewById(R.id.tv_val_jeep_unit);
             tvFuelDay = itemView.findViewById(R.id.tv_val_fuel_day);
             tvWorkingDays = itemView.findViewById(R.id.tv_val_working_days);
+            tvPaoLastName = itemView.findViewById(R.id.tv_val_pao_lastname);
             tvNetCalc = itemView.findViewById(R.id.tv_net_income_calculation);
             tvTrend = itemView.findViewById(R.id.tv_income_trend);
             tvDriverShareName = itemView.findViewById(R.id.tv_desc_gov_deductions);
