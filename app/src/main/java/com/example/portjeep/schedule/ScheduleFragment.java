@@ -60,10 +60,10 @@ public class ScheduleFragment extends Fragment {
     private LinearLayout layoutEmptyState;
     private TextView tvEmptyState;
 
-    // Tab Views
-    private FrameLayout btnToday, btnUpcoming, btnPrevious;
-    private View viewTodayIndicator, viewUpcomingIndicator, viewPreviousIndicator;
-    private TextView tabToday, tabUpcoming, tabPrevious;
+    // Tab Views (Order: 0: Previous, 1: Today, 2: Upcoming)
+    private FrameLayout btnPrevious, btnToday, btnUpcoming;
+    private View viewPreviousIndicator, viewTodayIndicator, viewUpcomingIndicator;
+    private TextView tabPrevious, tabToday, tabUpcoming;
     
     private SchedulePagerAdapter pagerAdapter;
     private ScheduleViewModel viewModel;
@@ -80,13 +80,11 @@ public class ScheduleFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_schedule, container, false);
 
         executor = Executors.newSingleThreadExecutor();
-        // Initialize ViewModel scoped to this fragment so it's shared with child fragments
         viewModel = new ViewModelProvider(this).get(ScheduleViewModel.class);
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
-        // Bind Swipe Refresh
         swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_schedule);
         if (swipeRefreshLayout != null) {
             swipeRefreshLayout.setColorSchemeResources(R.color.color_brand_primary, R.color.color_brand_accent);
@@ -97,27 +95,26 @@ public class ScheduleFragment extends Fragment {
         layoutEmptyState = view.findViewById(R.id.layout_empty_state);
         tvEmptyState = view.findViewById(R.id.tv_empty_state);
         
-        // Bind Tab components
+        btnPrevious = view.findViewById(R.id.btn_previous);
         btnToday = view.findViewById(R.id.btn_today);
         btnUpcoming = view.findViewById(R.id.btn_upcoming);
-        btnPrevious = view.findViewById(R.id.btn_previous);
         
+        viewPreviousIndicator = view.findViewById(R.id.view_previous_indicator);
         viewTodayIndicator = view.findViewById(R.id.view_today_indicator);
         viewUpcomingIndicator = view.findViewById(R.id.view_upcoming_indicator);
-        viewPreviousIndicator = view.findViewById(R.id.view_previous_indicator);
         
+        tabPrevious = view.findViewById(R.id.tab_previous);
         tabToday = view.findViewById(R.id.tab_today);
         tabUpcoming = view.findViewById(R.id.tab_upcoming);
-        tabPrevious = view.findViewById(R.id.tab_previous);
         
         viewPagerSchedule = view.findViewById(R.id.view_pager_schedule);
 
         pagerAdapter = new SchedulePagerAdapter(this);
         viewPagerSchedule.setAdapter(pagerAdapter);
 
-        if (btnToday != null) btnToday.setOnClickListener(v -> viewPagerSchedule.setCurrentItem(0, true));
-        if (btnUpcoming != null) btnUpcoming.setOnClickListener(v -> viewPagerSchedule.setCurrentItem(1, true));
-        if (btnPrevious != null) btnPrevious.setOnClickListener(v -> viewPagerSchedule.setCurrentItem(2, true));
+        if (btnPrevious != null) btnPrevious.setOnClickListener(v -> viewPagerSchedule.setCurrentItem(0, true));
+        if (btnToday != null) btnToday.setOnClickListener(v -> viewPagerSchedule.setCurrentItem(1, true));
+        if (btnUpcoming != null) btnUpcoming.setOnClickListener(v -> viewPagerSchedule.setCurrentItem(2, true));
 
         viewPagerSchedule.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
@@ -130,13 +127,14 @@ public class ScheduleFragment extends Fragment {
 
         setupObservers();
 
+        // Initialize to Today (1) by default
+        int initialTab = viewModel.getActiveTab().getValue() != null ? viewModel.getActiveTab().getValue() : 1;
+        viewPagerSchedule.setCurrentItem(initialTab, false);
+        updateTabsUi(initialTab);
+
         if (!viewModel.hasData()) {
             loadUserSchedules();
         } else {
-            // Restore active tab from ViewModel state
-            int savedTab = viewModel.getActiveTab().getValue() != null ? viewModel.getActiveTab().getValue() : 0;
-            viewPagerSchedule.setCurrentItem(savedTab, false);
-            updateTabsUi(savedTab);
             hideLoadingSkeleton();
         }
 
@@ -145,32 +143,21 @@ public class ScheduleFragment extends Fragment {
 
     private void setupObservers() {
         viewModel.getIsLoading().observe(getViewLifecycleOwner(), loading -> {
-            if (loading) {
-                showLoadingSkeleton();
-            } else {
-                hideLoadingSkeleton();
-            }
+            if (loading) showLoadingSkeleton(); else hideLoadingSkeleton();
         });
 
         viewModel.getActiveTab().observe(getViewLifecycleOwner(), tabIndex -> {
             updateEmptyStateVisibility(getActiveTabList(tabIndex));
         });
 
-        // Observe data changes to refresh empty state for the current tab
+        viewModel.getPreviousList().observe(getViewLifecycleOwner(), list -> {
+            if (viewModel.getActiveTab().getValue() != null && viewModel.getActiveTab().getValue() == 0) updateEmptyStateVisibility(list);
+        });
         viewModel.getTodayList().observe(getViewLifecycleOwner(), list -> {
-            if (viewModel.getActiveTab().getValue() != null && viewModel.getActiveTab().getValue() == 0) {
-                updateEmptyStateVisibility(list);
-            }
+            if (viewModel.getActiveTab().getValue() != null && viewModel.getActiveTab().getValue() == 1) updateEmptyStateVisibility(list);
         });
         viewModel.getUpcomingList().observe(getViewLifecycleOwner(), list -> {
-            if (viewModel.getActiveTab().getValue() != null && viewModel.getActiveTab().getValue() == 1) {
-                updateEmptyStateVisibility(list);
-            }
-        });
-        viewModel.getPreviousList().observe(getViewLifecycleOwner(), list -> {
-            if (viewModel.getActiveTab().getValue() != null && viewModel.getActiveTab().getValue() == 2) {
-                updateEmptyStateVisibility(list);
-            }
+            if (viewModel.getActiveTab().getValue() != null && viewModel.getActiveTab().getValue() == 2) updateEmptyStateVisibility(list);
         });
     }
 
@@ -179,7 +166,8 @@ public class ScheduleFragment extends Fragment {
             shimmerContainer.startShimmer();
             shimmerContainer.setVisibility(View.VISIBLE);
         }
-        if (viewPagerSchedule != null) viewPagerSchedule.setVisibility(View.GONE);
+        // Use INVISIBLE instead of GONE to help ViewPager2 maintain layout state
+        if (viewPagerSchedule != null) viewPagerSchedule.setVisibility(View.INVISIBLE);
         if (layoutEmptyState != null) layoutEmptyState.setVisibility(View.GONE);
     }
 
@@ -188,72 +176,59 @@ public class ScheduleFragment extends Fragment {
             shimmerContainer.stopShimmer();
             shimmerContainer.setVisibility(View.GONE);
         }
-
-        // Decide what to show based on the current list's content
-        int currentTab = viewModel.getActiveTab().getValue() != null ? viewModel.getActiveTab().getValue() : 0;
+        
+        int currentTab = viewModel.getActiveTab().getValue() != null ? viewModel.getActiveTab().getValue() : 1;
+        
+        if (viewPagerSchedule != null) {
+            viewPagerSchedule.setVisibility(View.VISIBLE);
+            // Re-enforce the selection after making it visible to prevent jumping to index 0
+            viewPagerSchedule.setCurrentItem(currentTab, false);
+        }
+        
+        updateTabsUi(currentTab);
         updateEmptyStateVisibility(getActiveTabList(currentTab));
-
+        
         if (swipeRefreshLayout != null) {
             swipeRefreshLayout.setRefreshing(false);
         }
     }
 
     private void updateEmptyStateVisibility(List<ScheduleItem> currentList) {
-        // Prevent showing empty state while loading is in progress
         Boolean loading = viewModel.getIsLoading().getValue();
         if (loading != null && loading) {
             if (layoutEmptyState != null) layoutEmptyState.setVisibility(View.GONE);
-            if (viewPagerSchedule != null) viewPagerSchedule.setVisibility(View.GONE);
+            // Stay invisible if loading
             return;
         }
-
-        // FIX: Always keep viewPagerSchedule visible so swiping remains functional even if data is empty.
-        // The per-page empty state is now handled in SchedulePageFragment.
-        if (viewPagerSchedule != null) {
-            viewPagerSchedule.setVisibility(View.VISIBLE);
-        }
-        if (layoutEmptyState != null) {
-            layoutEmptyState.setVisibility(View.GONE);
-        }
+        if (viewPagerSchedule != null) viewPagerSchedule.setVisibility(View.VISIBLE);
+        if (layoutEmptyState != null) layoutEmptyState.setVisibility(View.GONE);
     }
 
     private void updateTabsUi(int tabIndex) {
         if (!isAdded()) return;
-        
         int colorPrimary = ContextCompat.getColor(requireContext(), R.color.color_brand_primary);
         int colorWhite = ContextCompat.getColor(requireContext(), R.color.white);
 
-        if (viewTodayIndicator != null) viewTodayIndicator.setVisibility(tabIndex == 0 ? View.VISIBLE : View.GONE);
-        if (viewUpcomingIndicator != null) viewUpcomingIndicator.setVisibility(tabIndex == 1 ? View.VISIBLE : View.GONE);
-        if (viewPreviousIndicator != null) viewPreviousIndicator.setVisibility(tabIndex == 2 ? View.VISIBLE : View.GONE);
+        if (viewPreviousIndicator != null) viewPreviousIndicator.setVisibility(tabIndex == 0 ? View.VISIBLE : View.GONE);
+        if (viewTodayIndicator != null) viewTodayIndicator.setVisibility(tabIndex == 1 ? View.VISIBLE : View.GONE);
+        if (viewUpcomingIndicator != null) viewUpcomingIndicator.setVisibility(tabIndex == 2 ? View.VISIBLE : View.GONE);
 
-        if (tabToday != null) tabToday.setTextColor(tabIndex == 0 ? colorPrimary : colorWhite);
-        if (tabUpcoming != null) tabUpcoming.setTextColor(tabIndex == 1 ? colorPrimary : colorWhite);
-        if (tabPrevious != null) tabPrevious.setTextColor(tabIndex == 2 ? colorPrimary : colorWhite);
+        if (tabPrevious != null) tabPrevious.setTextColor(tabIndex == 0 ? colorPrimary : colorWhite);
+        if (tabToday != null) tabToday.setTextColor(tabIndex == 1 ? colorPrimary : colorWhite);
+        if (tabUpcoming != null) tabUpcoming.setTextColor(tabIndex == 2 ? colorPrimary : colorWhite);
     }
 
     private List<ScheduleItem> getActiveTabList(int tabIndex) {
         if (viewModel == null) return new ArrayList<>();
-        if (tabIndex == 0) return viewModel.getTodayList().getValue();
-        if (tabIndex == 1) return viewModel.getUpcomingList().getValue();
-        return viewModel.getPreviousList().getValue();
+        if (tabIndex == 0) return viewModel.getPreviousList().getValue();
+        if (tabIndex == 1) return viewModel.getTodayList().getValue();
+        return viewModel.getUpcomingList().getValue();
     }
 
     private static class SchedulePagerAdapter extends FragmentStateAdapter {
-        public SchedulePagerAdapter(@NonNull Fragment fragment) {
-            super(fragment);
-        }
-
-        @NonNull
-        @Override
-        public Fragment createFragment(int position) {
-            return SchedulePageFragment.newInstance(position);
-        }
-
-        @Override
-        public int getItemCount() {
-            return 3;
-        }
+        public SchedulePagerAdapter(@NonNull Fragment fragment) { super(fragment); }
+        @NonNull @Override public Fragment createFragment(int position) { return SchedulePageFragment.newInstance(position); }
+        @Override public int getItemCount() { return 3; }
     }
 
     private void loadUserSchedules() {
@@ -265,31 +240,21 @@ public class ScheduleFragment extends Fragment {
         }
 
         viewModel.setLoading(true);
-        currentUser.getIdToken(true)
-                .addOnSuccessListener(result -> {
-                    if (!isAdded()) return;
-                    fetchSchedulesFromApi(result.getToken());
-                })
-                .addOnFailureListener(e -> {
-                    if (!isAdded()) return;
-                    // Try loading from cache if auth fails (likely offline)
-                    String cachedData = PreferenceManager.getSchedulesCache(getContext());
-                    if (cachedData != null) {
-                        parseAndDisplaySchedules(cachedData);
-                    } else {
-                        if (getContext() != null) {
-                            Toast.makeText(getContext(), "Auth Error: " + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
-                        }
-                    }
-                    viewModel.setLoading(false);
-                    if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
-                });
+        currentUser.getIdToken(true).addOnSuccessListener(result -> {
+            if (!isAdded()) return;
+            fetchSchedulesFromApi(result.getToken());
+        }).addOnFailureListener(e -> {
+            if (!isAdded()) return;
+            String cachedData = PreferenceManager.getSchedulesCache(getContext());
+            if (cachedData != null) parseAndDisplaySchedules(cachedData);
+            viewModel.setLoading(false);
+            if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
+        });
     }
 
     private void fetchSchedulesFromApi(String idToken) {
         if (executor == null || executor.isShutdown()) return;
         Handler handler = new Handler(Looper.getMainLooper());
-
         executor.execute(() -> {
             HttpURLConnection connection = null;
             try {
@@ -315,35 +280,22 @@ public class ScheduleFragment extends Fragment {
                         PreferenceManager.saveSchedulesCache(getContext(), rawResult);
                         parseAndDisplaySchedules(rawResult);
                     } else {
-                        // Try cache on error
                         String cachedData = PreferenceManager.getSchedulesCache(getContext());
-                        if (cachedData != null) {
-                            parseAndDisplaySchedules(cachedData);
-                        } else {
-                            Toast.makeText(getContext(), "Server Error (" + responseCode + ")", Toast.LENGTH_LONG).show();
-                        }
+                        if (cachedData != null) parseAndDisplaySchedules(cachedData);
                         viewModel.setLoading(false);
                         if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
                     }
                 });
             } catch (Exception e) {
-                Log.e(TAG, "Network Error", e);
                 handler.post(() -> {
                     if (isAdded()) {
-                        // Network failure, try cache
                         String cachedData = PreferenceManager.getSchedulesCache(getContext());
-                        if (cachedData != null) {
-                            parseAndDisplaySchedules(cachedData);
-                        } else {
-                            Toast.makeText(getContext(), "Connection failed: " + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                        }
+                        if (cachedData != null) parseAndDisplaySchedules(cachedData);
                         viewModel.setLoading(false);
                         if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
                     }
                 });
-            } finally {
-                if (connection != null) connection.disconnect();
-            }
+            } finally { if (connection != null) connection.disconnect(); }
         });
     }
 
@@ -351,8 +303,6 @@ public class ScheduleFragment extends Fragment {
         try {
             JSONObject root = new JSONObject(jsonResponse);
             if (!root.optBoolean("success", false)) {
-                String error = root.optString("error", "Unknown error");
-                if (getContext() != null) Toast.makeText(getContext(), "Error: " + error, Toast.LENGTH_SHORT).show();
                 viewModel.setLoading(false);
                 if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
                 return;
@@ -377,18 +327,7 @@ public class ScheduleFragment extends Fragment {
             int currentYear = todayCal.get(Calendar.YEAR);
             String secretKey = BuildConfig.CRYPTO_SECRET_KEY;
 
-            // Restored full list of patterns
-            String[] patterns = {
-                    "yyyy-MM-dd",
-                    "MM/dd/yyyy",
-                    "dd/MM/yyyy",
-                    "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
-                    "yyyy-MM-dd'T'HH:mm:ss'Z'",
-                    "MMM dd, yyyy",
-                    "MMMM dd, yyyy",
-                    "MMM dd",
-                    "MMMM dd"
-            };
+            String[] patterns = {"yyyy-MM-dd", "MM/dd/yyyy", "dd/MM/yyyy", "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", "yyyy-MM-dd'T'HH:mm:ss'Z'", "MMM dd, yyyy", "MMMM dd, yyyy", "MMM dd", "MMMM dd"};
 
             for (int i = 0; i < schedules.length(); i++) {
                 JSONObject doc = schedules.getJSONObject(i);
@@ -397,49 +336,33 @@ public class ScheduleFragment extends Fragment {
                 String rawStatus = doc.optString("status", "").toLowerCase(Locale.US);
                 String jeep = formatJeepUnit(doc.optString("jeep", "Unassigned Unit"));
 
-                // Driver Parsing
                 String driverName = "Unassigned Driver", driverEmail = "", driverContact = "";
                 String driverId = doc.optString("driver_id", doc.optString("driverId", ""));
-
                 if (doc.has("driver") && !doc.isNull("driver")) {
                     Object dObj = doc.get("driver");
                     if (dObj instanceof JSONObject) {
                         JSONObject dJson = (JSONObject) dObj;
                         if (driverId.isEmpty()) driverId = dJson.optString("uid", dJson.optString("id", ""));
-                        driverName = dJson.optString("name", dJson.optString("full_name", "Unassigned Driver"));
+                        driverName = CryptoUtils.decrypt(dJson.optString("name", dJson.optString("full_name", "Unassigned Driver")), secretKey);
                         driverEmail = CryptoUtils.decrypt(dJson.optString("email", ""), secretKey);
                         driverContact = CryptoUtils.decrypt(dJson.optString("contact_no", dJson.optString("contact", "")), secretKey);
-                    } else if (dObj instanceof String) {
-                        String strVal = (String) dObj;
-                        if (!strVal.contains(" ") && strVal.length() > 15) driverId = strVal;
-                        else driverName = strVal;
                     }
                 }
-                driverName = CryptoUtils.decrypt(driverName, secretKey);
                 if (driverName == null || driverName.isEmpty() || driverName.equalsIgnoreCase("null")) driverName = "Unassigned Driver";
-                else if (driverName.equalsIgnoreCase("off") || driverName.equalsIgnoreCase("rest")) driverName = "Rest Day";
 
-                // PAO Parsing
                 String paoName = "Unassigned PAO", paoEmail = "", paoContact = "";
                 String paoId = doc.optString("pao_id", doc.optString("paoId", ""));
-
                 if (doc.has("pao") && !doc.isNull("pao")) {
                     Object pObj = doc.get("pao");
                     if (pObj instanceof JSONObject) {
                         JSONObject pJson = (JSONObject) pObj;
                         if (paoId.isEmpty()) paoId = pJson.optString("uid", pJson.optString("id", ""));
-                        paoName = pJson.optString("name", pJson.optString("full_name", "Unassigned PAO"));
+                        paoName = CryptoUtils.decrypt(pJson.optString("name", pJson.optString("full_name", "Unassigned PAO")), secretKey);
                         paoEmail = CryptoUtils.decrypt(pJson.optString("email", ""), secretKey);
                         paoContact = CryptoUtils.decrypt(pJson.optString("contact_no", pJson.optString("contact", "")), secretKey);
-                    } else if (pObj instanceof String) {
-                        String strVal = (String) pObj;
-                        if (!strVal.contains(" ") && strVal.length() > 15) paoId = strVal;
-                        else paoName = strVal;
                     }
                 }
-                paoName = CryptoUtils.decrypt(paoName, secretKey);
                 if (paoName == null || paoName.isEmpty() || paoName.equalsIgnoreCase("null")) paoName = "Unassigned PAO";
-                else if (paoName.equalsIgnoreCase("off") || paoName.equalsIgnoreCase("rest")) paoName = "Rest Day";
 
                 boolean isRestDay = "Rest Day".equalsIgnoreCase(driverName) || "Rest Day".equalsIgnoreCase(paoName);
                 boolean isUnassigned = "Unassigned Driver".equalsIgnoreCase(driverName) || "Unassigned PAO".equalsIgnoreCase(paoName);
@@ -449,8 +372,7 @@ public class ScheduleFragment extends Fragment {
                 ScheduleItem item;
 
                 if ("completed".equalsIgnoreCase(rawStatus) || "done".equalsIgnoreCase(rawStatus) || "finished".equalsIgnoreCase(rawStatus)) {
-                    status = "Completed";
-                    item = new ScheduleItem(dayStr, rawDate, status, jeep, driverName, driverEmail, driverContact, paoName, paoEmail, paoContact);
+                    status = "Completed"; item = new ScheduleItem(dayStr, rawDate, status, jeep, driverName, driverEmail, driverContact, paoName, paoEmail, paoContact);
                     previous.add(item);
                 } else if (parsedDate != null) {
                     Calendar parsedCal = Calendar.getInstance();
@@ -473,27 +395,10 @@ public class ScheduleFragment extends Fragment {
                         previous.add(item);
                     }
                 } else {
-                    // Fallback to day of week comparison if date parsing fails
-                    int todayIndex = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
-                    int schedIndex = getDayIndex(dayStr);
-                    if (schedIndex != -1) {
-                        if (schedIndex == todayIndex) {
-                            status = isRestDay ? "Rest Day" : (isUnassigned ? "Unassigned" : "Assigned");
-                            item = new ScheduleItem(dayStr, rawDate, status, jeep, driverName, driverEmail, driverContact, paoName, paoEmail, paoContact);
-                            today.add(item);
-                        } else {
-                            // Assume completed if day index passed this week or something? Simplified fallback.
-                            status = "Completed";
-                            item = new ScheduleItem(dayStr, rawDate, status, jeep, driverName, driverEmail, driverContact, paoName, paoEmail, paoContact);
-                            previous.add(item);
-                        }
-                    } else {
-                        status = isRestDay ? "Rest Day" : (isUnassigned ? "Unassigned" : "Scheduled");
-                        item = new ScheduleItem(dayStr, rawDate, status, jeep, driverName, driverEmail, driverContact, paoName, paoEmail, paoContact);
-                        upcoming.add(item);
-                    }
+                    status = isRestDay ? "Rest Day" : (isUnassigned ? "Unassigned" : "Scheduled");
+                    item = new ScheduleItem(dayStr, rawDate, status, jeep, driverName, driverEmail, driverContact, paoName, paoEmail, paoContact);
+                    upcoming.add(item);
                 }
-
                 fetchMissingProfileDetails(driverId, item, true);
                 fetchMissingProfileDetails(paoId, item, false);
             }
@@ -502,7 +407,6 @@ public class ScheduleFragment extends Fragment {
             viewModel.setLoading(false);
             if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
         } catch (Exception e) {
-            Log.e(TAG, "Parsing Error", e);
             viewModel.setLoading(false);
             if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
         }
@@ -510,18 +414,13 @@ public class ScheduleFragment extends Fragment {
 
     private Date parseDateString(String rawDate, String[] patterns, int currentYear) {
         if (rawDate == null || rawDate.isEmpty() || "N/A".equalsIgnoreCase(rawDate)) return null;
-        String cleanDate = rawDate.trim();
         for (String pattern : patterns) {
             try {
                 SimpleDateFormat sdf = new SimpleDateFormat(pattern, Locale.US);
                 sdf.setLenient(false);
-                Date d = sdf.parse(cleanDate);
+                Date d = sdf.parse(rawDate.trim());
                 if (d != null) {
-                    if (!pattern.contains("yyyy")) {
-                        Calendar c = Calendar.getInstance(); c.setTime(d);
-                        c.set(Calendar.YEAR, currentYear);
-                        return c.getTime();
-                    }
+                    if (!pattern.contains("yyyy")) { Calendar c = Calendar.getInstance(); c.setTime(d); c.set(Calendar.YEAR, currentYear); return c.getTime(); }
                     return d;
                 }
             } catch (Exception ignored) {}
@@ -531,9 +430,6 @@ public class ScheduleFragment extends Fragment {
 
     private void fetchMissingProfileDetails(String userId, ScheduleItem item, boolean isDriver) {
         if (userId == null || userId.isEmpty()) return;
-
-        // Firestore has built-in offline persistence by default on Android.
-        // We can just use the normal get() and it will return cached data if offline.
         db.collection("File201").document(userId).get().addOnSuccessListener(doc -> {
             if (doc.exists() && isAdded()) {
                 String secretKey = BuildConfig.CRYPTO_SECRET_KEY;
@@ -546,20 +442,6 @@ public class ScheduleFragment extends Fragment {
                 }
             }
         });
-    }
-
-    private int getDayIndex(String dayName) {
-        if (dayName == null) return -1;
-        switch (dayName.trim().toLowerCase(Locale.US)) {
-            case "sunday":    return Calendar.SUNDAY;
-            case "monday":    return Calendar.MONDAY;
-            case "tuesday":   return Calendar.TUESDAY;
-            case "wednesday": return Calendar.WEDNESDAY;
-            case "thursday":  return Calendar.THURSDAY;
-            case "friday":    return Calendar.FRIDAY;
-            case "saturday":  return Calendar.SATURDAY;
-            default:          return -1;
-        }
     }
 
     private String formatJeepUnit(String rawJeep) {

@@ -14,7 +14,7 @@ public class ScheduleViewModel extends ViewModel {
     private final MutableLiveData<List<ScheduleItem>> upcomingList = new MutableLiveData<>(new ArrayList<>());
     private final MutableLiveData<List<ScheduleItem>> previousList = new MutableLiveData<>(new ArrayList<>());
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
-    private final MutableLiveData<Integer> activeTab = new MutableLiveData<>(0);
+    private final MutableLiveData<Integer> activeTab = new MutableLiveData<>(1);
 
     public LiveData<List<ScheduleItem>> getTodayList() { return todayList; }
     public LiveData<List<ScheduleItem>> getUpcomingList() { return upcomingList; }

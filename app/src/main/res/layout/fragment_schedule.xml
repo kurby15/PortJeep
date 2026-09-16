@@ -61,6 +61,33 @@
                     android:padding="4dp">
 
                     <FrameLayout
+                        android:id="@+id/btn_previous"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <View
+                            android:id="@+id/view_previous_indicator"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/bg_salary_tab_selected"
+                            android:backgroundTint="@color/white"
+                            android:visibility="gone" />
+
+                        <TextView
+                            android:id="@+id/tab_previous"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="Previous"
+                            android:textColor="@color/white"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+                    </FrameLayout>
+
+                    <FrameLayout
                         android:id="@+id/btn_today"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
@@ -109,33 +136,6 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
                             android:text="Upcoming"
-                            android:textColor="@color/white"
-                            android:textSize="13sp"
-                            android:textStyle="bold" />
-                    </FrameLayout>
-
-                    <FrameLayout
-                        android:id="@+id/btn_previous"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:clickable="true"
-                        android:focusable="true">
-
-                        <View
-                            android:id="@+id/view_previous_indicator"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:background="@drawable/bg_salary_tab_selected"
-                            android:backgroundTint="@color/white"
-                            android:visibility="gone" />
-
-                        <TextView
-                            android:id="@+id/tab_previous"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:text="Previous"
                             android:textColor="@color/white"
                             android:textSize="13sp"
                             android:textStyle="bold" />
@@ -203,7 +203,7 @@
                 android:id="@+id/view_pager_schedule"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:visibility="gone"
+                android:visibility="invisible"
                 tools:visibility="visible" />
 
             <LinearLayout

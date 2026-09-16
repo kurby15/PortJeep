@@ -28,7 +28,7 @@ public class SchedulePageFragment extends Fragment {
     private ScheduleAdapter adapter;
     private final List<ScheduleItem> itemList = new ArrayList<>();
     private ScheduleViewModel viewModel;
-    private int position = 0;
+    private int position = 1; // Default to Today (Index 1)
 
     public static SchedulePageFragment newInstance(int position) {
         SchedulePageFragment fragment = new SchedulePageFragment();
@@ -66,7 +66,6 @@ public class SchedulePageFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         
-        // Use the parent fragment as the ViewModelStoreOwner to share the same ViewModel instance
         if (getParentFragment() != null) {
             viewModel = new ViewModelProvider(getParentFragment()).get(ScheduleViewModel.class);
             setupObservers();
@@ -74,12 +73,13 @@ public class SchedulePageFragment extends Fragment {
     }
 
     private void setupObservers() {
+        // Order: 0: Previous, 1: Today, 2: Upcoming
         if (position == 0) {
-            viewModel.getTodayList().observe(getViewLifecycleOwner(), this::updateData);
-        } else if (position == 1) {
-            viewModel.getUpcomingList().observe(getViewLifecycleOwner(), this::updateData);
-        } else {
             viewModel.getPreviousList().observe(getViewLifecycleOwner(), this::updateData);
+        } else if (position == 1) {
+            viewModel.getTodayList().observe(getViewLifecycleOwner(), this::updateData);
+        } else {
+            viewModel.getUpcomingList().observe(getViewLifecycleOwner(), this::updateData);
         }
     }
 
@@ -99,11 +99,11 @@ public class SchedulePageFragment extends Fragment {
         if (itemList.isEmpty()) {
             if (tvEmpty != null) {
                 if (position == 0) {
-                    tvEmpty.setText("No assigned trips for today.");
-                } else if (position == 1) {
-                    tvEmpty.setText("No upcoming trips scheduled.");
-                } else {
                     tvEmpty.setText("No previous trip history found.");
+                } else if (position == 1) {
+                    tvEmpty.setText("No assigned trips for today.");
+                } else {
+                    tvEmpty.setText("No upcoming trips scheduled.");
                 }
             }
             rvList.setVisibility(View.GONE);
