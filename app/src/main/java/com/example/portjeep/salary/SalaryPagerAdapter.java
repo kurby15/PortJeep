@@ -120,7 +120,6 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 if (parsed != null) {
                     if (!pattern.contains("yyyy")) {
                         Calendar pCal = Calendar.getInstance();
-                        pCal.setTime(parsed);
                         pCal.set(Calendar.YEAR, currentYear);
                         return pCal.getTime();
                     }
@@ -392,9 +391,47 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         String lastPartialTime = "N/A";
         String tripCountTrend = "0 partials";
         String scheduleId = "";
+        String overallNetStr = "₱ 0.00";
+        String overallGrossStr = "₱ 0.00";
+        String overallExpensesStr = "₱ 0.00";
+        String overallShareStr = "₱ 0.00";
 
         if (remittanceData != null && remittanceData.length() > 0) {
             try {
+                double overallNet = 0;
+                double overallGross = 0;
+                double overallExpenses = 0;
+                double overallShare = 0;
+                int totalPartialCount = 0;
+
+                for (int i = 0; i < remittanceData.length(); i++) {
+                    JSONObject dayGroup = remittanceData.optJSONObject(i);
+                    if (dayGroup == null) continue;
+                    JSONArray partialsArray = dayGroup.optJSONArray("remittances");
+                    double dayNet = 0;
+                    if (partialsArray != null) {
+                        totalPartialCount += partialsArray.length();
+                        for (int j = 0; j < partialsArray.length(); j++) {
+                            JSONObject p = partialsArray.optJSONObject(j);
+                            if (p != null) {
+                                overallGross += p.optDouble("gross", 0);
+                                overallExpenses += p.optDouble("expenses", 0);
+                                dayNet += p.optDouble("net", 0);
+                                overallShare += p.optDouble("employeeCut", 0);
+                            }
+                        }
+                    }
+                    double totalIncentives = dayGroup.optDouble("incentive", 0.0);
+                    overallExpenses += (totalIncentives * 2);
+                    dayNet -= (totalIncentives * 2);
+                    overallNet += dayNet;
+                }
+                overallNetStr = "₱ " + df.format(overallNet);
+                overallGrossStr = "₱ " + df.format(overallGross);
+                overallExpensesStr = "₱ " + df.format(overallExpenses);
+                overallShareStr = "₱ " + df.format(overallShare);
+                tripCountTrend = totalPartialCount + (totalPartialCount == 1 ? " partial" : " partials");
+
                 JSONObject latestGroup = null;
                 SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE", Locale.US);
                 SimpleDateFormat fullFormat = new SimpleDateFormat("EEEE, MMM d", Locale.US);
@@ -459,7 +496,6 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     expensesStr = "- ₱ " + df.format(sumExpenses);
                     totalNetStr = "₱ " + df.format(sumNet);
                     shareStr = "₱ " + df.format(sumShare);
-                    tripCountTrend = count + (count == 1 ? " partial" : " partials");
                 }
             } catch (Exception e) {
                 Log.e("SalaryPagerAdapter", "Error updating summary aggregation", e);
@@ -512,8 +548,12 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 safeSetText(holder.tvIncentives, "₱ 0.00");
             }
 
-            safeSetText(holder.tvTotalNet, totalNetStr);
+            safeSetText(holder.tvTotalNet, overallNetStr);
             safeSetText(holder.tvNetBottom, totalNetStr);
+
+            safeSetText(holder.tvTotalGrossOverall, overallGrossStr);
+            safeSetText(holder.tvTotalExpensesOverall, overallExpensesStr);
+            safeSetText(holder.tvTotalShareOverall, overallShareStr);
 
             safeSetText(holder.tvScheduleGross, grossStr.replace("₱ ", "₱"));
             safeSetText(holder.tvScheduleExpenses, expensesStr.replace("- ₱ ", "₱"));
@@ -528,6 +568,10 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
             safeSetText(holder.tvTotalNet, hiddenText);
             safeSetText(holder.tvNetBottom, hiddenText);
+
+            safeSetText(holder.tvTotalGrossOverall, hiddenText);
+            safeSetText(holder.tvTotalExpensesOverall, hiddenText);
+            safeSetText(holder.tvTotalShareOverall, hiddenText);
 
             safeSetText(holder.tvScheduleGross, hiddenText);
             safeSetText(holder.tvScheduleExpenses, hiddenText);
@@ -546,7 +590,7 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             return d != null ? d.getTime() : 0;
         } catch (Exception e) {
             try {
-                // Try "Sep 16, 2026 12:34 AM" (no comma after year)
+                // Try "Sep 16, 2026 h:mm a" (no comma after year)
                 SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy h:mm a", Locale.US);
                 Date d = sdf.parse(dateStr);
                 return d != null ? d.getTime() : 0;
@@ -653,7 +697,6 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
             String todayName = new SimpleDateFormat("EEEE", Locale.US).format(new Date());
             String todayDateStr = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
-            String secretKey = com.example.portjeep.utils.CryptoUtils.decrypt("U2FsdGVkX1+vG0q/vX7xHw==", "secret"); // Dummy logic for example if needed, but let's stick to decryption from prefs
 
             for (int i = 0; i < schedules.length(); i++) {
                 JSONObject sched = schedules.getJSONObject(i);
@@ -675,7 +718,6 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                         Object d = sched.get("driver");
                         driver = (d instanceof JSONObject) ? ((JSONObject) d).optString("name", "Driver") : d.toString();
                     }
-                    // Attempt decryption with standard key
                     try {
                         String dec = com.example.portjeep.utils.CryptoUtils.decrypt(driver, com.example.portjeep.BuildConfig.CRYPTO_SECRET_KEY);
                         if (dec != null && !dec.isEmpty() && !dec.equalsIgnoreCase("null")) driver = dec;
@@ -728,6 +770,7 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         TextView tvScheduleGross, tvScheduleExpenses, tvScheduleNet;
         TextView tvBoundaryDay, tvJeepUnit, tvFuelDay, tvWorkingDays, tvNetCalc, tvTrend;
         TextView tvDriverShareName, tvPaoShareName;
+        TextView tvTotalGrossOverall, tvTotalExpensesOverall, tvTotalShareOverall;
         ImageView ivToggleVisibility;
 
         View rowDriverShare, dividerDriverShare;
@@ -758,6 +801,10 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             tvDriverShareName = itemView.findViewById(R.id.tv_desc_gov_deductions);
             tvPaoShareName = itemView.findViewById(R.id.tv_desc_attendance_incentive);
             ivToggleVisibility = itemView.findViewById(R.id.iv_toggle_visibility);
+
+            tvTotalGrossOverall = itemView.findViewById(R.id.tv_val_total_gross_overall);
+            tvTotalExpensesOverall = itemView.findViewById(R.id.tv_val_total_expenses_overall);
+            tvTotalShareOverall = itemView.findViewById(R.id.tv_val_total_share_overall);
 
             rowDriverShare = itemView.findViewById(R.id.row_driver_share);
             dividerDriverShare = itemView.findViewById(R.id.divider_driver_share);
