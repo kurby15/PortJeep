@@ -64,6 +64,7 @@ public class HomeFragment extends Fragment {
     private static final long CACHE_DURATION = 60 * 60 * 1000; // 1 hour
 
     // Session flags to ensure data is fresh on first load after app launch
+    private static boolean isProfileRefreshed = false;
     private static boolean isScheduleRefreshed = false;
     private static boolean isSummaryRefreshed = false;
 
@@ -124,6 +125,7 @@ public class HomeFragment extends Fragment {
             swipeRefreshLayout.setOnRefreshListener(() -> {
                 showLoadingSkeleton();
                 updateDynamicGreeting();
+                isProfileRefreshed = false;
                 loadUserProfile();
                 isScheduleRefreshed = false;
                 isSummaryRefreshed = false;
@@ -186,7 +188,23 @@ public class HomeFragment extends Fragment {
         resetDynamicUI();
         loadOfflineUserProfile();
 
-        showLoadingSkeleton();
+        // Optimize theme change: if valid cache exists and already refreshed in this session, don't show skeleton
+        boolean hasValidCache = false;
+        Context ctx = getContext();
+        if (ctx != null) {
+            String cachedData = PreferenceManager.getSchedulesCache(ctx);
+            long lastFetch = PreferenceManager.getSchedulesLastFetchTime(ctx);
+            if (cachedData != null && (System.currentTimeMillis() - lastFetch < CACHE_DURATION) && isScheduleRefreshed) {
+                hasValidCache = true;
+            }
+        }
+
+        if (hasValidCache) {
+            hideLoadingSkeleton();
+        } else {
+            showLoadingSkeleton();
+        }
+
         updateDynamicGreeting();
         loadUserProfile();
         loadSchedulesFromApi();
@@ -522,7 +540,7 @@ public class HomeFragment extends Fragment {
         if (shimmerQuickAccess != null) { shimmerQuickAccess.startShimmer(); shimmerQuickAccess.setVisibility(View.VISIBLE); }
         if (llQuickAccessContent != null) llQuickAccessContent.setVisibility(View.GONE);
         if (shimmerBanner != null) { shimmerBanner.startShimmer(); shimmerBanner.setVisibility(View.VISIBLE); }
-        if (llBannerContent != null) llBannerContent.setVisibility(View.GONE);
+        if (llBannerContent != null) llBannerContent.setVisibility(View.VISIBLE);
         if (shimmerUpcoming != null) { shimmerUpcoming.startShimmer(); shimmerUpcoming.setVisibility(View.VISIBLE); }
         if (containerUpcoming != null) containerUpcoming.setVisibility(View.GONE);
     }
@@ -552,8 +570,12 @@ public class HomeFragment extends Fragment {
     private void loadUserProfile() {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null) return;
+        if (isProfileRefreshed) return;
         db.collection("File201").document(currentUser.getUid()).get(Source.SERVER).addOnSuccessListener(documentSnapshot -> {
-            if (isAdded() && documentSnapshot.exists()) extractUserProfileAndRestDays(documentSnapshot);
+            if (isAdded() && documentSnapshot.exists()) {
+                isProfileRefreshed = true;
+                extractUserProfileAndRestDays(documentSnapshot);
+            }
         }).addOnFailureListener(e -> {
             if (!isAdded()) return;
             db.collection("File201").document(currentUser.getUid()).get(Source.CACHE).addOnSuccessListener(cacheSnapshot -> {
@@ -624,7 +646,10 @@ public class HomeFragment extends Fragment {
 
         if (cachedData != null) {
             parseAndDisplaySchedules(cachedData);
-            if (now - lastFetch < CACHE_DURATION && isScheduleRefreshed) return;
+            if (now - lastFetch < CACHE_DURATION && isScheduleRefreshed) {
+                hideLoadingSkeleton();
+                return;
+            }
         }
 
         currentUser.getIdToken(false).addOnSuccessListener(result -> {
