@@ -24,6 +24,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
     private final List<HistoryItem> items;
     private boolean isVisible = true;
     private final String hiddenText = "₱ ••••";
+    private ViewGroup transitionContainer;
 
     public HistoryAdapter(List<HistoryItem> items) {
         this.items = items;
@@ -32,6 +33,14 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
     public void setVisible(boolean visible) {
         this.isVisible = visible;
         notifyDataSetChanged();
+    }
+
+    /**
+     * Sets the container that will be used for beginDelayedTransition.
+     * For best results, this should be the common parent of the RecyclerViews.
+     */
+    public void setTransitionContainer(ViewGroup container) {
+        this.transitionContainer = container;
     }
 
     @NonNull
@@ -175,11 +184,15 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 
             holder.itemView.setOnClickListener(v -> {
                 item.isExpanded = !item.isExpanded;
-                if (holder.itemView.getParent() instanceof ViewGroup) {
+                
+                // Animate the entire container (including shifting other items/lists)
+                ViewGroup target = transitionContainer != null ? transitionContainer : (ViewGroup) holder.itemView.getParent();
+                if (target != null) {
                     AutoTransition transition = new AutoTransition();
-                    transition.setDuration(150);
-                    TransitionManager.beginDelayedTransition((ViewGroup) holder.itemView.getParent(), transition);
+                    transition.setDuration(100); // Super fast (snappy)
+                    TransitionManager.beginDelayedTransition(target, transition);
                 }
+                
                 updateExpansionState(holder, item, true);
             });
         }
@@ -191,7 +204,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
         
         float rotation = item.isExpanded ? 90f : 0f;
         if (animate) {
-            holder.ivChevron.animate().rotation(rotation).setDuration(150).start();
+            holder.ivChevron.animate().rotation(rotation).setDuration(100).start(); // Super fast
         } else {
             holder.ivChevron.setRotation(rotation);
         }

@@ -34,6 +34,30 @@
             android:layout_marginTop="16dp"
             android:nestedScrollingEnabled="false" />
 
+        <!-- Previous Records Header -->
+        <TextView
+            android:id="@+id/tv_previous_header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="24dp"
+            android:fontFamily="sans-serif-black"
+            android:letterSpacing="0.1"
+            android:text="PREVIOUS RECORDS"
+            android:textColor="@color/color_brand_primary"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
+        <!-- Previous Records List -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_previous_history"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:nestedScrollingEnabled="false"
+            android:visibility="gone" />
+
         <!-- Empty State -->
         <TextView
             android:id="@+id/tv_empty_history"

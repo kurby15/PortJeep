@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
+import android.transition.AutoTransition;
 import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -86,7 +87,11 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
             summaryHolder.ivToggleVisibility.setOnClickListener(v -> {
                 Context ctx = v.getContext();
-                TransitionManager.beginDelayedTransition((ViewGroup) summaryHolder.itemView);
+                
+                // Snappy animation for toggle
+                AutoTransition transition = new AutoTransition();
+                transition.setDuration(100);
+                TransitionManager.beginDelayedTransition((ViewGroup) summaryHolder.itemView, transition);
 
                 isSalaryVisible = !isSalaryVisible;
                 String uId = PreferenceManager.getCurrentUserId(ctx);
@@ -154,7 +159,8 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
 
     private void setupHistoryList(HistoryViewHolder holder) {
-        List<HistoryAdapter.HistoryItem> items = new ArrayList<>();
+        List<HistoryAdapter.HistoryItem> dailyItems = new ArrayList<>();
+        List<HistoryAdapter.HistoryItem> previousItems = new ArrayList<>();
         Context context = holder.itemView.getContext();
 
         SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE", Locale.US);
@@ -186,7 +192,6 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
                     String dayName = dayGroup.optString("day", "N/A");
                     String groupDate = dayGroup.optString("date", dayName);
-                    String scheduleId = dayGroup.optString("schedule_id", "");
 
                     boolean isToday = dayName.equalsIgnoreCase(todayName) ||
                             groupDate.contains(todayFormatted) ||
@@ -198,9 +203,8 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                             groupDate.equalsIgnoreCase(yesterdayName) ||
                             groupDate.contains(yesterdayDateKey);
 
-                    // Robust upcoming filter check
+                    // Upcoming filter check
                     boolean isUpcoming = false;
-
                     Date parsedDate = null;
                     String[] datePatterns = new String[]{"yyyy-MM-dd", "MM/dd/yyyy", "dd/MM/yyyy", "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", "yyyy-MM-dd'T'HH:mm:ss'Z'", "MMM dd, yyyy", "MMMM dd, yyyy", "MMM dd", "MMMM dd"};
                     int currentYear = Calendar.getInstance().get(Calendar.YEAR);
@@ -234,7 +238,6 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                             isUpcoming = true;
                         }
                     } else {
-                        // Fallback check based on day index if it's a day name
                         int targetIndex = -1;
                         switch (dayName.toLowerCase(Locale.US)) {
                             case "sunday": targetIndex = Calendar.SUNDAY; break;
@@ -254,10 +257,7 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                         }
                     }
 
-                    if (isUpcoming) {
-                        // Skip any upcoming day (e.g. Thursday, Friday when it's not their day yet)
-                        continue;
-                    }
+                    if (isUpcoming) continue;
 
                     JSONArray partialsArray = dayGroup.optJSONArray("remittances");
                     double totalGross = 0, totalRemittance = 0, totalNet = 0;
@@ -289,7 +289,6 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                         }
                     }
 
-                    // Add incentive from schedule to history
                     double totalIncentives = dayGroup.optDouble("incentive", 0.0);
                     totalRemittance += (totalIncentives * 2);
                     totalNet -= (totalIncentives * 2);
@@ -313,11 +312,13 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                         item.setToday(true);
                         item.setExpanded(true);
                         foundToday = true;
+                        dailyItems.add(item);
                     } else if (isYesterday) {
                         foundYesterday = true;
+                        previousItems.add(item); // Moved Yesterday to Previous
+                    } else {
+                        previousItems.add(item);
                     }
-
-                    items.add(item);
 
                 } catch (Exception e) {
                     Log.e("SalaryPagerAdapter", "Error parsing history group", e);
@@ -331,23 +332,47 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             HistoryAdapter.HistoryItem todayItem = new HistoryAdapter.HistoryItem(todayFormatted, "0.00", df.format(todayIncentive * 2), df.format(-(todayIncentive * 2)), !hasScheduleToday);
             todayItem.setToday(true);
             todayItem.setExpanded(true);
-            items.add(todayItem);
+            dailyItems.add(todayItem);
         }
 
         if (!foundYesterday) {
             boolean hasScheduleYesterday = hasScheduleForDate(context, yesterdayName, yesterdayDateKey);
             double yesterdayIncentive = getIncentiveForDate(context, yesterdayName, yesterdayDateKey, "");
             HistoryAdapter.HistoryItem yesterdayItem = new HistoryAdapter.HistoryItem(yesterdayFormatted, "0.00", df.format(yesterdayIncentive * 2), df.format(-(yesterdayIncentive * 2)), !hasScheduleYesterday);
-            items.add(yesterdayItem);
+            previousItems.add(yesterdayItem); // Moved Yesterday to Previous
         }
 
-        // Sort everything descendingly so that the current data (most recent) is on top, and older days are below
-        Collections.sort(items, (a, b) -> parseItemDate(b.date).compareTo(parseItemDate(a.date)));
+        Collections.sort(dailyItems, (a, b) -> parseItemDate(b.date).compareTo(parseItemDate(a.date)));
+        Collections.sort(previousItems, (a, b) -> parseItemDate(b.date).compareTo(parseItemDate(a.date)));
 
-        HistoryAdapter historyAdapter = new HistoryAdapter(items);
-        historyAdapter.setVisible(isSalaryVisible);
+        // Animation Container
+        ViewGroup animContainer = null;
+        if (holder.itemView instanceof ViewGroup) {
+            View child = ((ViewGroup) holder.itemView).getChildAt(0);
+            if (child instanceof ViewGroup) animContainer = (ViewGroup) child;
+        }
+
+        // Daily Records Adapter
+        HistoryAdapter dailyAdapter = new HistoryAdapter(dailyItems);
+        dailyAdapter.setVisible(isSalaryVisible);
+        dailyAdapter.setTransitionContainer(animContainer);
         holder.rvHistory.setLayoutManager(new LinearLayoutManager(holder.itemView.getContext()));
-        holder.rvHistory.setAdapter(historyAdapter);
+        holder.rvHistory.setAdapter(dailyAdapter);
+
+        // Previous Records Logic
+        if (!previousItems.isEmpty()) {
+            holder.tvPreviousHeader.setVisibility(View.VISIBLE);
+            holder.rvPreviousHistory.setVisibility(View.VISIBLE);
+            
+            HistoryAdapter previousAdapter = new HistoryAdapter(previousItems);
+            previousAdapter.setVisible(isSalaryVisible);
+            previousAdapter.setTransitionContainer(animContainer);
+            holder.rvPreviousHistory.setLayoutManager(new LinearLayoutManager(holder.itemView.getContext()));
+            holder.rvPreviousHistory.setAdapter(previousAdapter);
+        } else {
+            holder.tvPreviousHeader.setVisibility(View.GONE);
+            holder.rvPreviousHistory.setVisibility(View.GONE);
+        }
     }
 
     private boolean hasScheduleForDate(Context context, String dayName, String dateStr) {
@@ -599,13 +624,11 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private long parseCreatedAtMillis(String dateStr) {
         if (dateStr == null || dateStr.isEmpty()) return 0;
         try {
-            // Match "Sep 16, 2026, 12:34 AM"
             SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy, h:mm a", Locale.US);
             Date d = sdf.parse(dateStr);
             return d != null ? d.getTime() : 0;
         } catch (Exception e) {
             try {
-                // Try "Sep 16, 2026 h:mm a" (no comma after year)
                 SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy h:mm a", Locale.US);
                 Date d = sdf.parse(dateStr);
                 return d != null ? d.getTime() : 0;
@@ -830,10 +853,13 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
 
     static class HistoryViewHolder extends RecyclerView.ViewHolder {
-        RecyclerView rvHistory;
+        RecyclerView rvHistory, rvPreviousHistory;
+        TextView tvPreviousHeader;
         HistoryViewHolder(View itemView) {
             super(itemView);
             rvHistory = itemView.findViewById(R.id.rv_salary_history);
+            rvPreviousHistory = itemView.findViewById(R.id.rv_previous_history);
+            tvPreviousHeader = itemView.findViewById(R.id.tv_previous_header);
         }
     }
 }
