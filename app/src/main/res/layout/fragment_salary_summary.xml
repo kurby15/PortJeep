@@ -639,7 +639,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="GROSS"
+                            android:text="PARTIAL AMT"
                             android:textColor="@color/color_text_muted"
                             android:textSize="10sp"
                             android:textStyle="bold" />
@@ -683,7 +683,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="NET"
+                            android:text="NET INCOME"
                             android:textColor="@color/color_text_muted"
                             android:textSize="10sp"
                             android:textStyle="bold" />

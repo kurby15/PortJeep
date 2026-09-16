@@ -809,25 +809,29 @@ public class HomeFragment extends Fragment {
         String secretKey = BuildConfig.CRYPTO_SECRET_KEY;
 
         String dName = "Unassigned Driver", dEmail = "", dContact = "";
+        String driverId = doc.optString("driver_id", doc.optString("driverId", ""));
         if (doc.has("driver") && !doc.isNull("driver")) {
             Object obj = doc.opt("driver");
             if (obj instanceof JSONObject) {
                 JSONObject dj = (JSONObject) obj;
+                if (driverId.isEmpty()) driverId = dj.optString("uid", dj.optString("id", ""));
                 dName = dj.optString("name", "Unassigned Driver");
                 dEmail = CryptoUtils.decrypt(dj.optString("email", ""), secretKey);
-                dContact = CryptoUtils.decrypt(dj.optString("contact_no", ""), secretKey);
+                dContact = CryptoUtils.decrypt(dj.optString("contact_no", dj.optString("contact", "")), secretKey);
             } else if (obj instanceof String) dName = (String) obj;
         }
         dName = CryptoUtils.decrypt(dName, secretKey);
 
         String pName = "Unassigned PAO", pEmail = "", pContact = "";
+        String paoId = doc.optString("pao_id", doc.optString("paoId", ""));
         if (doc.has("pao") && !doc.isNull("pao")) {
             Object obj = doc.opt("pao");
             if (obj instanceof JSONObject) {
                 JSONObject pj = (JSONObject) obj;
+                if (paoId.isEmpty()) paoId = pj.optString("uid", pj.optString("id", ""));
                 pName = pj.optString("name", "Unassigned PAO");
                 pEmail = CryptoUtils.decrypt(pj.optString("email", ""), secretKey);
-                pContact = CryptoUtils.decrypt(pj.optString("contact_no", ""), secretKey);
+                pContact = CryptoUtils.decrypt(pj.optString("contact_no", pj.optString("contact", "")), secretKey);
             } else if (obj instanceof String) pName = (String) obj;
         }
         pName = CryptoUtils.decrypt(pName, secretKey);
@@ -845,20 +849,37 @@ public class HomeFragment extends Fragment {
         if (tvAssignmentStatus != null) tvAssignmentStatus.setText("● Assigned");
         if (tvJeepStatus != null) tvJeepStatus.setText("● Active");
 
-        final String fDName = dName, fDEmail = dEmail, fDContact = dContact;
-        if (containerDriverPill != null) containerDriverPill.setOnClickListener(v -> showBottomSheet("DRIVER DETAILS", fDName, fDEmail, fDContact));
-        final String fPName = pName, fPEmail = pEmail, fPContact = pContact;
-        if (containerPaoPill != null) containerPaoPill.setOnClickListener(v -> showBottomSheet("PAO DETAILS", fPName, fPEmail, fPContact));
+        final String fDName = dName, fDEmail = dEmail, fDContact = dContact, fDriverId = driverId;
+        if (containerDriverPill != null) containerDriverPill.setOnClickListener(v -> showBottomSheet("DRIVER DETAILS", fDName, fDEmail, fDContact, fDriverId));
+        final String fPName = pName, fPEmail = pEmail, fPContact = pContact, fPaoId = paoId;
+        if (containerPaoPill != null) containerPaoPill.setOnClickListener(v -> showBottomSheet("PAO DETAILS", fPName, fPEmail, fPContact, fPaoId));
     }
 
-    private void showBottomSheet(String role, String name, String email, String contact) {
+    private void showBottomSheet(String role, String name, String email, String contact, String userId) {
         Context context = getContext(); if (context == null) return;
         BottomSheetDialog dialog = new BottomSheetDialog(context);
         View view = LayoutInflater.from(context).inflate(R.layout.bottom_sheet_user_info, null);
         ((TextView) view.findViewById(R.id.tv_dialog_role)).setText(role);
         ((TextView) view.findViewById(R.id.tv_dialog_name)).setText(name);
-        ((TextView) view.findViewById(R.id.tv_dialog_email)).setText(email != null && !email.isEmpty() ? email : "N/A");
-        ((TextView) view.findViewById(R.id.tv_dialog_contact)).setText(contact != null && !contact.isEmpty() ? contact : "N/A");
+        ((TextView) view.findViewById(R.id.tv_dialog_email)).setText(email != null && !email.isEmpty() && !email.equalsIgnoreCase("null") ? email : "N/A");
+        
+        TextView tvContact = view.findViewById(R.id.tv_dialog_contact);
+        if (contact != null && !contact.isEmpty() && !contact.equalsIgnoreCase("null")) {
+            tvContact.setText(contact);
+        } else {
+            tvContact.setText("N/A");
+            if (userId != null && !userId.isEmpty()) {
+                db.collection("File201").document(userId).get().addOnSuccessListener(doc -> {
+                    if (doc.exists() && isAdded()) {
+                        String secretKey = BuildConfig.CRYPTO_SECRET_KEY;
+                        String phone = CryptoUtils.decrypt(doc.getString("contact_no"), secretKey);
+                        if (phone != null && !phone.isEmpty() && !phone.equalsIgnoreCase("null")) {
+                            tvContact.setText(phone);
+                        }
+                    }
+                });
+            }
+        }
         dialog.setContentView(view); dialog.show();
     }
 

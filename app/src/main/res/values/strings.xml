@@ -127,7 +127,7 @@
     <string name="label_pao_share">PAO SHARE</string>
     <string name="label_gross_collected">GROSS COLLECTED</string>
     <string name="label_net_remittance">NET INCOME</string>
-    <string name="label_remittance">REMITTANCE</string>
+    <string name="label_remittance">EXPENSES</string>
     <string name="unit_trips">trips</string>
     <string name="unit_km">km</string>
     <string name="unit_today">today</string>
