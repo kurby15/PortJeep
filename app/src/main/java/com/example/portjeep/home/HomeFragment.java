@@ -280,14 +280,7 @@ public class HomeFragment extends Fragment {
         }
 
         try {
-            JSONObject latestGroup = remittances.optJSONObject(0);
-            if (latestGroup == null) {
-                resetTodaySummaryUI();
-                return;
-            }
-
-            String groupDate = latestGroup.optString("date", "");
-            String dayName = latestGroup.optString("day", "");
+            JSONObject latestGroup = null;
             
             SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE", Locale.US);
             SimpleDateFormat fullFormat = new SimpleDateFormat("EEEE, MMM d", Locale.US);
@@ -298,12 +291,25 @@ public class HomeFragment extends Fragment {
             String todayFormatted = fullFormat.format(now);
             String todayDateKey = dateKeyFormat.format(now);
 
-            boolean isToday = dayName.equalsIgnoreCase(todayName) || 
-                             groupDate.contains(todayFormatted) || 
-                             groupDate.equalsIgnoreCase(todayName) ||
-                             groupDate.contains(todayDateKey);
+            for (int i = 0; i < remittances.length(); i++) {
+                JSONObject dayGroup = remittances.optJSONObject(i);
+                if (dayGroup == null) continue;
 
-            if (!isToday) {
+                String dayName = dayGroup.optString("day", "N/A");
+                String groupDate = dayGroup.optString("date", dayName);
+
+                boolean isToday = dayName.equalsIgnoreCase(todayName) || 
+                                 groupDate.contains(todayFormatted) || 
+                                 groupDate.equalsIgnoreCase(todayName) ||
+                                 groupDate.contains(todayDateKey);
+
+                if (isToday) {
+                    latestGroup = dayGroup;
+                    break;
+                }
+            }
+
+            if (latestGroup == null) {
                 resetTodaySummaryUI();
                 return;
             }
@@ -316,11 +322,15 @@ public class HomeFragment extends Fragment {
                 tripCount = partials.length();
                 for (int i = 0; i < partials.length(); i++) {
                     JSONObject p = partials.optJSONObject(i);
+                    if (p == null) continue;
                     sumGross += p.optDouble("gross", 0);
                     sumNet += p.optDouble("net", 0);
                     sumShare += p.optDouble("employeeCut", 0);
                 }
             }
+
+            double totalIncentives = latestGroup.optDouble("incentive", 0.0);
+            sumNet -= (totalIncentives * 2);
 
             final int finalTrips = tripCount;
             final double finalGross = sumGross;
