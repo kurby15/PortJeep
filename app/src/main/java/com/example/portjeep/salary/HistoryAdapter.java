@@ -11,9 +11,13 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.portjeep.R;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHolder> {
 
@@ -37,10 +41,74 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
         return new ViewHolder(view);
     }
 
+    private String formatDisplayDate(String dateStr) {
+        if (dateStr == null || dateStr.trim().isEmpty() || dateStr.equalsIgnoreCase("N/A")) {
+            return dateStr;
+        }
+        
+        String cleaned = dateStr.trim();
+        String[] datePatterns = new String[]{
+                "EEEE, MMM d", "EEEE, MMMM d", "yyyy-MM-dd", "MM/dd/yyyy", "dd/MM/yyyy",
+                "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", "yyyy-MM-dd'T'HH:mm:ss'Z'",
+                "MMM dd, yyyy", "MMMM dd, yyyy", "MMM dd", "MMMM dd"
+        };
+        
+        int currentYear = Calendar.getInstance().get(Calendar.YEAR);
+        Date parsedDate = null;
+        
+        for (String pattern : datePatterns) {
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat(pattern, Locale.US);
+                Date parsed = sdf.parse(cleaned);
+                if (parsed != null) {
+                    if (!pattern.contains("yyyy")) {
+                        Calendar pCal = Calendar.getInstance();
+                        pCal.setTime(parsed);
+                        pCal.set(Calendar.YEAR, currentYear);
+                        parsedDate = pCal.getTime();
+                    } else {
+                        parsedDate = parsed;
+                    }
+                    break;
+                }
+            } catch (Exception ignored) {}
+        }
+
+        if (parsedDate == null) {
+            String low = cleaned.toLowerCase(Locale.US);
+            int targetDayOfWeek = -1;
+            if (low.contains("sunday")) targetDayOfWeek = Calendar.SUNDAY;
+            else if (low.contains("monday")) targetDayOfWeek = Calendar.MONDAY;
+            else if (low.contains("tuesday")) targetDayOfWeek = Calendar.TUESDAY;
+            else if (low.contains("wednesday")) targetDayOfWeek = Calendar.WEDNESDAY;
+            else if (low.contains("thursday")) targetDayOfWeek = Calendar.THURSDAY;
+            else if (low.contains("friday")) targetDayOfWeek = Calendar.FRIDAY;
+            else if (low.contains("saturday")) targetDayOfWeek = Calendar.SATURDAY;
+
+            if (targetDayOfWeek != -1) {
+                Calendar c = Calendar.getInstance();
+                int currentDayOfWeek = c.get(Calendar.DAY_OF_WEEK);
+                int diff = targetDayOfWeek - currentDayOfWeek;
+                if (diff > 0) diff -= 7;
+                c.add(Calendar.DATE, diff);
+                parsedDate = c.getTime();
+            }
+        }
+
+        if (parsedDate != null) {
+            SimpleDateFormat targetFormat = new SimpleDateFormat("EEE, MMM d", Locale.US);
+            return targetFormat.format(parsedDate).toUpperCase(Locale.US);
+        }
+
+        return dateStr;
+    }
+
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         HistoryItem item = items.get(position);
-        holder.tvDate.setText(item.date);
+        
+        String displayDate = formatDisplayDate(item.date);
+        holder.tvDate.setText(displayDate);
         
         if (item.isRest) {
             holder.llStatusBadge.setVisibility(View.GONE);

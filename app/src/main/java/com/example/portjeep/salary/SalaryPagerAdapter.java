@@ -285,7 +285,7 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                             totalGross += g;
                             totalRemittance += e;
                             totalNet += n;
-                            reports.add(0, new HistoryAdapter.PartialReport("Report #" + (j + 1) + " · " + time, df.format(g), df.format(e), df.format(n)));
+                            reports.add(new HistoryAdapter.PartialReport("Report #" + (j + 1) + " · " + time, df.format(g), df.format(e), df.format(n)));
                         }
                     }
 
