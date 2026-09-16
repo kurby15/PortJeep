@@ -133,6 +133,7 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
                     String dayName = dayGroup.optString("day", "N/A");
                     String groupDate = dayGroup.optString("date", dayName);
+                    String scheduleId = dayGroup.optString("schedule_id", "");
 
                     boolean isToday = dayName.equalsIgnoreCase(todayName) ||
                             groupDate.contains(todayFormatted) ||
@@ -173,6 +174,11 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                         }
                     }
 
+                    // Add incentive from schedule to history
+                    double totalIncentives = dayGroup.optDouble("incentive", 0.0);
+                    totalRemittance += (totalIncentives * 2);
+                    totalNet -= (totalIncentives * 2);
+
                     boolean hasSchedule = hasScheduleForDate(context, isToday ? todayName : yesterdayName, isToday ? todayDateKey : yesterdayDateKey);
                     boolean isRest = !hasRemittances && !hasSchedule;
 
@@ -203,13 +209,15 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
         if (todayItem == null) {
             boolean hasScheduleToday = hasScheduleForDate(context, todayName, todayDateKey);
-            todayItem = new HistoryAdapter.HistoryItem(todayFormatted, "0.00", "0.00", "0.00", !hasScheduleToday);
+            double todayIncentive = getIncentiveForDate(context, todayName, todayDateKey, "");
+            todayItem = new HistoryAdapter.HistoryItem(todayFormatted, "0.00", df.format(todayIncentive * 2), df.format(-(todayIncentive * 2)), !hasScheduleToday);
             todayItem.setExpanded(true);
         }
 
         if (yesterdayItem == null) {
             boolean hasScheduleYesterday = hasScheduleForDate(context, yesterdayName, yesterdayDateKey);
-            yesterdayItem = new HistoryAdapter.HistoryItem(yesterdayFormatted, "0.00", "0.00", "0.00", !hasScheduleYesterday);
+            double yesterdayIncentive = getIncentiveForDate(context, yesterdayName, yesterdayDateKey, "");
+            yesterdayItem = new HistoryAdapter.HistoryItem(yesterdayFormatted, "0.00", df.format(yesterdayIncentive * 2), df.format(-(yesterdayIncentive * 2)), !hasScheduleYesterday);
         }
 
         items.add(todayItem);
@@ -223,11 +231,17 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     private boolean hasScheduleForDate(Context context, String dayName, String dateStr) {
         String cachedSchedules = PreferenceManager.getSchedulesCache(context);
-        if (cachedSchedules == null) return false;
+        if (cachedSchedules == null || cachedSchedules.trim().isEmpty()) return false;
         try {
-            JSONObject root = new JSONObject(cachedSchedules);
-            JSONArray schedules = root.optJSONArray("schedules");
+            JSONArray schedules = null;
+            if (cachedSchedules.trim().startsWith("[")) {
+                schedules = new JSONArray(cachedSchedules);
+            } else {
+                JSONObject root = new JSONObject(cachedSchedules);
+                schedules = root.optJSONArray("schedules");
+            }
             if (schedules == null) return false;
+
             for (int i = 0; i < schedules.length(); i++) {
                 JSONObject sched = schedules.getJSONObject(i);
                 String schedDay = sched.optString("day", "");
@@ -313,8 +327,9 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                         }
                     }
 
-                    double totalIncentives = parseTotalIncentivesFromSchedule(context, scheduleId, holder);
-                    sumExpenses += totalIncentives;
+                    double totalIncentives = latestGroup.optDouble("incentive", 0.0);
+                    sumExpenses += (totalIncentives * 2);
+                    sumNet -= (totalIncentives * 2);
 
                     grossStr = "₱ " + df.format(sumGross);
                     expensesStr = "- ₱ " + df.format(sumExpenses);
@@ -399,44 +414,64 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         }
     }
 
-    private double parseTotalIncentivesFromSchedule(Context context, String scheduleId, SummaryViewHolder holder) {
+    private double getIncentiveForDate(Context context, String dayName, String dateStr, String scheduleId) {
         String cachedSchedules = PreferenceManager.getSchedulesCache(context);
-        if (cachedSchedules == null) return 0.0;
-        try {
-            JSONObject root = new JSONObject(cachedSchedules);
-            JSONArray schedules = root.optJSONArray("schedules");
-            if (schedules == null) return 0.0;
+        if (cachedSchedules == null || cachedSchedules.trim().isEmpty()) return 0.0;
 
-            String todayName = new SimpleDateFormat("EEEE", Locale.US).format(new Date());
-            String todayDateStr = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
+        try {
+            JSONArray schedules = null;
+            if (cachedSchedules.trim().startsWith("[")) {
+                schedules = new JSONArray(cachedSchedules);
+            } else {
+                JSONObject root = new JSONObject(cachedSchedules);
+                schedules = root.optJSONArray("schedules");
+            }
+            if (schedules == null) return 0.0;
 
             for (int i = 0; i < schedules.length(); i++) {
                 JSONObject sched = schedules.getJSONObject(i);
-                String schedId = sched.optString("id", "");
+
+                String schedId = sched.optString("schedule_id", "");
                 String schedDay = sched.optString("day", "");
                 String schedDate = sched.optString("date", "");
 
                 boolean isMatch = (!scheduleId.isEmpty() && schedId.equals(scheduleId)) ||
-                        todayName.equalsIgnoreCase(schedDay) ||
-                        todayDateStr.equals(schedDate);
+                        dayName.equalsIgnoreCase(schedDay) ||
+                        dateStr.equals(schedDate) ||
+                        (schedDate.length() >= 10 && schedDate.startsWith(dateStr));
 
                 if (isMatch) {
-                    double driverIncentive = 0;
-                    double paoIncentive = 0;
+                    double totalIncentive = 0.0;
+
+                    if (sched.has("incentive") && !sched.isNull("incentive")) {
+                        Object incObj = sched.get("incentive");
+                        if (incObj instanceof Number) {
+                            totalIncentive = ((Number) incObj).doubleValue();
+                        } else if (incObj instanceof String) {
+                            String incStr = (String) incObj;
+                            if (!incStr.equalsIgnoreCase("Found")) {
+                                try {
+                                    totalIncentive = Double.parseDouble(incStr);
+                                } catch (NumberFormatException e) {
+                                    totalIncentive = 0.0;
+                                }
+                            }
+                        }
+                    }
 
                     if (sched.has("driver") && !sched.isNull("driver")) {
                         Object d = sched.get("driver");
                         if (d instanceof JSONObject) {
-                            driverIncentive = ((JSONObject) d).optDouble("incentive", 0.0);
+                            totalIncentive += ((JSONObject) d).optDouble("incentive", 0.0);
                         }
                     }
                     if (sched.has("pao") && !sched.isNull("pao")) {
                         Object p = sched.get("pao");
                         if (p instanceof JSONObject) {
-                            paoIncentive = ((JSONObject) p).optDouble("incentive", 0.0);
+                            totalIncentive += ((JSONObject) p).optDouble("incentive", 0.0);
                         }
                     }
-                    return driverIncentive + paoIncentive;
+                    return totalIncentive;
                 }
             }
         } catch (Exception e) {
@@ -456,11 +491,16 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         safeSetText(holder.tvFuelDay, "No Plate");
         safeSetText(holder.tvScheduleDate, "Today");
 
-        if (cachedSchedules == null) return;
+        if (cachedSchedules == null || cachedSchedules.trim().isEmpty()) return;
 
         try {
-            JSONObject root = new JSONObject(cachedSchedules);
-            JSONArray schedules = root.optJSONArray("schedules");
+            JSONArray schedules = null;
+            if (cachedSchedules.trim().startsWith("[")) {
+                schedules = new JSONArray(cachedSchedules);
+            } else {
+                JSONObject root = new JSONObject(cachedSchedules);
+                schedules = root.optJSONArray("schedules");
+            }
             if (schedules == null) return;
 
             String todayName = new SimpleDateFormat("EEEE", Locale.US).format(new Date());

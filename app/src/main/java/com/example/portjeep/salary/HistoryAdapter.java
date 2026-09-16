@@ -181,26 +181,17 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 
         public double getGrossValue() {
             if (isRest) return 0;
-            if (partialReports.isEmpty()) return parse(gross);
-            double total = 0;
-            for (PartialReport r : partialReports) total += parse(r.amount);
-            return total;
+            return parse(gross);
         }
 
         public double getRemittanceValue() {
             if (isRest) return 0;
-            if (partialReports.isEmpty()) return parse(remittance);
-            double total = 0;
-            for (PartialReport r : partialReports) total += parse(r.remittance);
-            return total;
+            return parse(remittance);
         }
 
         public double getNetValue() {
             if (isRest) return 0;
-            if (partialReports.isEmpty()) return parse(net);
-            double total = 0;
-            for (PartialReport r : partialReports) total += parse(r.net);
-            return total;
+            return parse(net);
         }
 
         private double parse(String val) {
