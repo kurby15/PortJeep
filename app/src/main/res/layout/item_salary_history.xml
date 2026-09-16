@@ -108,7 +108,7 @@
                     android:layout_marginStart="12dp"
                     android:contentDescription="Expand"
                     android:src="@drawable/chevron"
-                    app:tint="@color/color_text_muted" />
+                    app:tint="@color/color_text_adaptive_muted" />
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -145,7 +145,7 @@
                     android:fontFamily="sans-serif-black"
                     android:gravity="start"
                     android:text="TOTAL GROSS"
-                    android:textColor="@color/color_text_muted"
+                    android:textColor="@color/color_text_adaptive_muted"
                     android:textSize="9sp"
                     android:textStyle="bold"
                     app:layout_constraintEnd_toStartOf="@+id/tv_summary_minus"
@@ -191,7 +191,7 @@
                     android:fontFamily="sans-serif-black"
                     android:gravity="center"
                     android:text="EXPENSES+BONUS"
-                    android:textColor="@color/color_text_muted"
+                    android:textColor="@color/color_text_adaptive_muted"
                     android:textSize="9sp"
                     android:textStyle="bold"
                     app:layout_constraintEnd_toStartOf="@+id/tv_summary_equal"
@@ -237,7 +237,7 @@
                     android:fontFamily="sans-serif-black"
                     android:gravity="end"
                     android:text="TOTAL NET"
-                    android:textColor="@color/color_text_muted"
+                    android:textColor="@color/color_text_adaptive_muted"
                     android:textSize="9sp"
                     android:textStyle="bold"
                     app:layout_constraintEnd_toEndOf="parent"

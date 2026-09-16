@@ -108,7 +108,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="DRIVER"
-                    android:textColor="@color/color_text_muted"
+                    android:textColor="@color/color_text_adaptive_muted"
                     android:textSize="10sp"
                     android:textStyle="bold"
                     android:gravity="center" />
@@ -130,7 +130,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:text="HARTMAN"
-                    android:textColor="@color/color_text_muted"
+                    android:textColor="@color/color_text_adaptive_muted"
                     android:textSize="11sp"
                     android:textStyle="bold"
                     android:gravity="center"
@@ -152,7 +152,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="JEEP"
-                    android:textColor="@color/color_text_muted"
+                    android:textColor="@color/color_text_adaptive_muted"
                     android:textSize="10sp"
                     android:textStyle="bold"
                     android:gravity="center" />
@@ -172,7 +172,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:text="AAA-0000"
-                    android:textColor="@color/color_text_muted"
+                    android:textColor="@color/color_text_adaptive_muted"
                     android:textSize="11sp"
                     android:textStyle="bold"
                     android:gravity="center" />
@@ -192,7 +192,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="PAO"
-                    android:textColor="@color/color_text_muted"
+                    android:textColor="@color/color_text_adaptive_muted"
                     android:textSize="10sp"
                     android:textStyle="bold"
                     android:gravity="center" />
@@ -214,7 +214,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:text="SUTTON"
-                    android:textColor="@color/color_text_muted"
+                    android:textColor="@color/color_text_adaptive_muted"
                     android:textSize="11sp"
                     android:textStyle="bold"
                     android:gravity="center"
@@ -246,7 +246,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="TOTAL GROSS"
-                    android:textColor="@color/color_text_muted"
+                    android:textColor="@color/color_text_adaptive_muted"
                     android:textSize="10sp"
                     android:textStyle="bold"
                     android:gravity="center" />
@@ -276,7 +276,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="TOTAL EXPENSES"
-                    android:textColor="@color/color_text_muted"
+                    android:textColor="@color/color_text_adaptive_muted"
                     android:textSize="10sp"
                     android:textStyle="bold"
                     android:gravity="center" />
@@ -306,7 +306,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="TOTAL SHARE"
-                    android:textColor="@color/color_text_muted"
+                    android:textColor="@color/color_text_adaptive_muted"
                     android:textSize="10sp"
                     android:textStyle="bold"
                     android:gravity="center" />
@@ -371,7 +371,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="DRIVER SHARE"
-                            android:textColor="@color/color_text_muted"
+                            android:textColor="@color/color_text_adaptive_muted"
                             android:textSize="11sp"
                             android:textStyle="bold" />
                         <TextView
@@ -417,7 +417,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="PAO SHARE"
-                            android:textColor="@color/color_text_muted"
+                            android:textColor="@color/color_text_adaptive_muted"
                             android:textSize="11sp"
                             android:textStyle="bold" />
                         <TextView
@@ -445,7 +445,7 @@
                     android:layout_marginHorizontal="24dp"
                     android:background="@color/color_divider" />
 
-                <!-- Gross Row -->
+                <!-- Gross Income Row -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -462,7 +462,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="GROSS INCOME"
-                            android:textColor="@color/color_text_muted"
+                            android:textColor="@color/color_text_adaptive_muted"
                             android:textSize="11sp"
                             android:textStyle="bold" />
                         <TextView
@@ -506,7 +506,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="EXPENSES"
-                            android:textColor="@color/color_text_muted"
+                            android:textColor="@color/color_text_adaptive_muted"
                             android:textSize="11sp"
                             android:textStyle="bold" />
                         <TextView
@@ -613,7 +613,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="DATE"
-                            android:textColor="@color/color_text_muted"
+                            android:textColor="@color/color_text_adaptive_muted"
                             android:textSize="10sp"
                             android:textStyle="bold" />
                         <TextView
@@ -635,7 +635,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="LAST PARTIAL"
-                            android:textColor="@color/color_text_muted"
+                            android:textColor="@color/color_text_adaptive_muted"
                             android:textSize="10sp"
                             android:textStyle="bold" />
                         <TextView
@@ -664,7 +664,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="PARTIAL AMT"
-                            android:textColor="@color/color_text_muted"
+                            android:textColor="@color/color_text_adaptive_muted"
                             android:textSize="10sp"
                             android:textStyle="bold" />
                         <TextView
@@ -686,7 +686,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="EXPENSES"
-                            android:textColor="@color/color_text_muted"
+                            android:textColor="@color/color_text_adaptive_muted"
                             android:textSize="10sp"
                             android:textStyle="bold" />
                         <TextView
@@ -708,7 +708,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="NET INCOME"
-                            android:textColor="@color/color_text_muted"
+                            android:textColor="@color/color_text_adaptive_muted"
                             android:textSize="10sp"
                             android:textStyle="bold" />
                         <TextView
