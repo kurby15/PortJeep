@@ -44,69 +44,108 @@
                 android:textColor="@color/white"
                 android:textSize="13sp" />
 
-        </LinearLayout>
-
-        <!-- Segmented Tab Bar -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="20dp"
-            android:layout_marginTop="-24dp"
-            app:cardBackgroundColor="@color/color_surface"
-            app:cardCornerRadius="@dimen/card_corner_radius_xlarge"
-            app:cardElevation="10dp"
-            app:strokeColor="@color/color_divider"
-            app:strokeWidth="1dp"
-            android:outlineAmbientShadowColor="@color/color_card_shadow_ambient"
-            android:outlineSpotShadowColor="@color/color_card_shadow_spot">
-
-            <LinearLayout
+            <!-- Segmented Tab Bar -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="6dp">
+                android:layout_height="56dp"
+                android:layout_marginTop="24dp"
+                app:cardBackgroundColor="#20FFFFFF"
+                app:cardCornerRadius="28dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp">
 
-                <TextView
-                    android:id="@+id/tab_today"
-                    android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_marginEnd="4dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/bg_tab_unselected"
-                    android:gravity="center"
-                    android:text="Today"
-                    android:textColor="@color/color_text_secondary"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:padding="4dp">
 
-                <TextView
-                    android:id="@+id/tab_upcoming"
-                    android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_marginEnd="4dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/bg_tab_unselected"
-                    android:gravity="center"
-                    android:text="Upcoming"
-                    android:textColor="@color/color_text_secondary"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+                    <FrameLayout
+                        android:id="@+id/btn_today"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:clickable="true"
+                        android:focusable="true">
 
-                <TextView
-                    android:id="@+id/tab_previous"
-                    android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/bg_tab_unselected"
-                    android:gravity="center"
-                    android:text="Previous"
-                    android:textColor="@color/color_text_secondary"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+                        <View
+                            android:id="@+id/view_today_indicator"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/bg_salary_tab_selected"
+                            android:backgroundTint="@color/white"
+                            android:visibility="visible" />
 
-            </LinearLayout>
+                        <TextView
+                            android:id="@+id/tab_today"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="Today"
+                            android:textColor="@color/color_brand_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+                    </FrameLayout>
 
-        </com.google.android.material.card.MaterialCardView>
+                    <FrameLayout
+                        android:id="@+id/btn_upcoming"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <View
+                            android:id="@+id/view_upcoming_indicator"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/bg_salary_tab_selected"
+                            android:backgroundTint="@color/white"
+                            android:visibility="gone" />
+
+                        <TextView
+                            android:id="@+id/tab_upcoming"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="Upcoming"
+                            android:textColor="@color/white"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+                    </FrameLayout>
+
+                    <FrameLayout
+                        android:id="@+id/btn_previous"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <View
+                            android:id="@+id/view_previous_indicator"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/bg_salary_tab_selected"
+                            android:backgroundTint="@color/white"
+                            android:visibility="gone" />
+
+                        <TextView
+                            android:id="@+id/tab_previous"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="Previous"
+                            android:textColor="@color/white"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+                    </FrameLayout>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -186,7 +225,6 @@
             </LinearLayout>
 
         </FrameLayout>
-
 
     </LinearLayout>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

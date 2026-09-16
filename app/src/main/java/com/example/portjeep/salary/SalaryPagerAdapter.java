@@ -620,13 +620,6 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             safeSetText(holder.tvScheduleExpenses, hiddenText);
             safeSetText(holder.tvScheduleNet, hiddenText);
 
-            safeSetText(holder.tvBoundaryDay, "••••");
-            safeSetText(holder.tvDriverLastName, hiddenPlate);
-            safeSetText(holder.tvWorkingDays, "••••");
-            safeSetText(holder.tvPaoLastName, hiddenPlate);
-            safeSetText(holder.tvJeepUnit, "UNIT ••");
-            safeSetText(holder.tvFuelDay, hiddenPlate);
-
             holder.ivToggleVisibility.setImageResource(R.drawable.hide);
         }
     }

@@ -8,12 +8,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -58,7 +60,11 @@ public class ScheduleFragment extends Fragment {
     private LinearLayout layoutEmptyState;
     private TextView tvEmptyState;
 
+    // Tab Views
+    private FrameLayout btnToday, btnUpcoming, btnPrevious;
+    private View viewTodayIndicator, viewUpcomingIndicator, viewPreviousIndicator;
     private TextView tabToday, tabUpcoming, tabPrevious;
+    
     private SchedulePagerAdapter pagerAdapter;
     private ScheduleViewModel viewModel;
 
@@ -90,17 +96,28 @@ public class ScheduleFragment extends Fragment {
         shimmerContainer = view.findViewById(R.id.shimmer_schedule_container);
         layoutEmptyState = view.findViewById(R.id.layout_empty_state);
         tvEmptyState = view.findViewById(R.id.tv_empty_state);
+        
+        // Bind Tab components
+        btnToday = view.findViewById(R.id.btn_today);
+        btnUpcoming = view.findViewById(R.id.btn_upcoming);
+        btnPrevious = view.findViewById(R.id.btn_previous);
+        
+        viewTodayIndicator = view.findViewById(R.id.view_today_indicator);
+        viewUpcomingIndicator = view.findViewById(R.id.view_upcoming_indicator);
+        viewPreviousIndicator = view.findViewById(R.id.view_previous_indicator);
+        
         tabToday = view.findViewById(R.id.tab_today);
         tabUpcoming = view.findViewById(R.id.tab_upcoming);
         tabPrevious = view.findViewById(R.id.tab_previous);
+        
         viewPagerSchedule = view.findViewById(R.id.view_pager_schedule);
 
         pagerAdapter = new SchedulePagerAdapter(this);
         viewPagerSchedule.setAdapter(pagerAdapter);
 
-        tabToday.setOnClickListener(v -> viewPagerSchedule.setCurrentItem(0, true));
-        tabUpcoming.setOnClickListener(v -> viewPagerSchedule.setCurrentItem(1, true));
-        tabPrevious.setOnClickListener(v -> viewPagerSchedule.setCurrentItem(2, true));
+        if (btnToday != null) btnToday.setOnClickListener(v -> viewPagerSchedule.setCurrentItem(0, true));
+        if (btnUpcoming != null) btnUpcoming.setOnClickListener(v -> viewPagerSchedule.setCurrentItem(1, true));
+        if (btnPrevious != null) btnPrevious.setOnClickListener(v -> viewPagerSchedule.setCurrentItem(2, true));
 
         viewPagerSchedule.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
@@ -201,18 +218,18 @@ public class ScheduleFragment extends Fragment {
     }
 
     private void updateTabsUi(int tabIndex) {
-        TextView[] tabs = {tabToday, tabUpcoming, tabPrevious};
-        for (int i = 0; i < tabs.length; i++) {
-            if (tabs[i] != null) {
-                if (i == tabIndex) {
-                    tabs[i].setBackgroundResource(R.drawable.bg_tab_selected);
-                    tabs[i].setTextColor(Color.WHITE);
-                } else {
-                    tabs[i].setBackgroundResource(R.drawable.bg_tab_unselected);
-                    tabs[i].setTextColor(Color.parseColor("#546E7A"));
-                }
-            }
-        }
+        if (!isAdded()) return;
+        
+        int colorPrimary = ContextCompat.getColor(requireContext(), R.color.color_brand_primary);
+        int colorWhite = ContextCompat.getColor(requireContext(), R.color.white);
+
+        if (viewTodayIndicator != null) viewTodayIndicator.setVisibility(tabIndex == 0 ? View.VISIBLE : View.GONE);
+        if (viewUpcomingIndicator != null) viewUpcomingIndicator.setVisibility(tabIndex == 1 ? View.VISIBLE : View.GONE);
+        if (viewPreviousIndicator != null) viewPreviousIndicator.setVisibility(tabIndex == 2 ? View.VISIBLE : View.GONE);
+
+        if (tabToday != null) tabToday.setTextColor(tabIndex == 0 ? colorPrimary : colorWhite);
+        if (tabUpcoming != null) tabUpcoming.setTextColor(tabIndex == 1 ? colorPrimary : colorWhite);
+        if (tabPrevious != null) tabPrevious.setTextColor(tabIndex == 2 ? colorPrimary : colorWhite);
     }
 
     private List<ScheduleItem> getActiveTabList(int tabIndex) {
