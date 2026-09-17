@@ -58,8 +58,9 @@ public class ChangePasswordActivity extends AppCompatActivity {
     private View mainLayout;
     private ConnectivityManager.NetworkCallback networkCallback;
 
+    // Added support for additional special characters from image: £, ÷, ×
     private static final Pattern PASSWORD_PATTERN = Pattern.compile(
-            "^(?=.{8,}$)(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[!@#$%&*]).*$"
+            "^(?=.{8,}$)(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?~£÷×]).*$"
     );
 
     @Override
@@ -197,7 +198,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
         boolean hasUpper = newPwd.matches(".*[A-Z].*");
         boolean hasLower = newPwd.matches(".*[a-z].*");
         boolean hasNum = newPwd.matches(".*[0-9].*");
-        boolean hasSpecial = newPwd.matches(".*[!@#$%&*].*");
+        boolean hasSpecial = newPwd.matches(".*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?~£÷×].*");
         boolean matches = !newPwd.isEmpty() && newPwd.equals(confirm);
 
         updateRequirementUI(has8, !newPwd.isEmpty(), ivReq8, tvReq8);
