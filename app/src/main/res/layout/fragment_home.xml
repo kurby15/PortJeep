@@ -6,1052 +6,125 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <androidx.core.widget.NestedScrollView
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@android:color/transparent"
-        android:clipChildren="false"
-        android:clipToPadding="false"
-        android:fillViewport="true"
-        android:overScrollMode="never"
-        tools:context="com.example.portjeep.home.HomeFragment">
+        android:background="@android:color/transparent">
 
+        <!-- Fixed Header Section (Modernized) -->
         <LinearLayout
+            android:id="@+id/ll_home_header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:clipChildren="false"
-            android:orientation="vertical">
+            android:background="@drawable/bg_header_gradient"
+            android:orientation="vertical"
+            app:layout_constraintTop_toTopOf="parent">
 
-            <FrameLayout
+            <com.facebook.shimmer.ShimmerFrameLayout
+                android:id="@+id/shimmer_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_header_gradient">
+                app:shimmer_auto_start="true"
+                app:shimmer_base_alpha="0.3"
+                app:shimmer_duration="1000"
+                app:shimmer_highlight_alpha="0.6">
+                <include layout="@layout/item_skeleton_header" />
+            </com.facebook.shimmer.ShimmerFrameLayout>
 
-                <com.facebook.shimmer.ShimmerFrameLayout
-                    android:id="@+id/shimmer_header"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:shimmer_auto_start="true"
-                    app:shimmer_base_alpha="0.3"
-                    app:shimmer_duration="1000"
-                    app:shimmer_highlight_alpha="0.6">
-                    <include layout="@layout/item_skeleton_header" />
-                </com.facebook.shimmer.ShimmerFrameLayout>
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/rl_header_content"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:clipChildren="false"
-                    android:clipToPadding="false"
-                    android:paddingHorizontal="@dimen/screen_margin_large"
-                    android:paddingTop="40dp"
-                    android:paddingBottom="44dp"
-                    android:visibility="gone"
-                    tools:visibility="visible">
-
-                    <LinearLayout
-                        android:id="@+id/ll_greeting"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/iv_robot"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent">
-
-                        <TextView
-                            android:id="@+id/tv_greeting"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:alpha="0.85"
-                            android:textColor="@color/white"
-                            android:textSize="15sp"
-                            tools:text="Good morning," />
-
-                        <TextView
-                            android:id="@+id/tv_driver_name"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:textColor="@color/white"
-                            android:textSize="34sp"
-                            android:textStyle="bold"
-                            app:layout_constrainedWidth="true"
-                            tools:text="Ricardo" />
-
-                        <TextView
-                            android:id="@+id/tv_role_badge"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="12dp"
-                            android:background="@drawable/bg_badge_role"
-                            android:letterSpacing="0.08"
-                            android:paddingStart="14dp"
-                            android:paddingTop="6dp"
-                            android:paddingEnd="14dp"
-                            android:paddingBottom="6dp"
-                            android:textColor="@color/white"
-                            android:textSize="11sp"
-                            android:textStyle="bold"
-                            tools:text="DRIVER" />
-
-                    </LinearLayout>
-
-                    <ImageView
-                        android:id="@+id/iv_robot"
-                        android:layout_width="128dp"
-                        android:layout_height="128dp"
-                        android:layout_marginBottom="-12dp"
-                        android:contentDescription="Robot assistant"
-                        android:scaleType="fitCenter"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </FrameLayout>
-
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/rl_header_content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="-24dp"
                 android:clipChildren="false"
-                android:orientation="vertical"
-                android:paddingHorizontal="20dp"
-                android:paddingBottom="40dp">
-
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:clipChildren="false">
-
-                    <com.facebook.shimmer.ShimmerFrameLayout
-                        android:id="@+id/shimmer_view_container"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        app:shimmer_auto_start="true"
-                        app:shimmer_base_alpha="0.5"
-                        app:shimmer_duration="1000"
-                        app:shimmer_highlight_alpha="0.9">
-
-                        <com.google.android.material.card.MaterialCardView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            app:cardBackgroundColor="@color/color_surface"
-                            app:cardCornerRadius="@dimen/card_corner_radius_xlarge"
-                            app:cardElevation="2dp"
-                            app:strokeColor="@color/color_divider"
-                            app:strokeWidth="1dp">
-
-                            <include layout="@layout/item_skeleton_home" />
-
-                        </com.google.android.material.card.MaterialCardView>
-
-                    </com.facebook.shimmer.ShimmerFrameLayout>
-
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/card_today_assignment"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:visibility="gone"
-                        app:cardBackgroundColor="@color/color_surface"
-                        app:cardCornerRadius="@dimen/card_corner_radius_xlarge"
-                        app:cardElevation="10dp"
-                        app:strokeColor="@color/color_divider"
-                        app:strokeWidth="1dp"
-                        android:outlineAmbientShadowColor="@color/color_card_shadow_ambient"
-                        android:outlineSpotShadowColor="@color/color_card_shadow_spot"
-                        tools:visibility="visible">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:padding="22dp">
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:gravity="center_vertical"
-                                android:orientation="horizontal">
-
-                                <LinearLayout
-                                    android:layout_width="0dp"
-                                    android:layout_height="wrap_content"
-                                    android:layout_weight="1"
-                                    android:orientation="vertical">
-
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:letterSpacing="0.08"
-                                        android:text="TODAY'S ASSIGNMENT"
-                                        android:textColor="@color/color_brand_accent"
-                                        android:textSize="11sp"
-                                        android:textStyle="bold" />
-
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginTop="4dp"
-                                        android:text="Your assigned vehicle"
-                                        android:textColor="@color/color_text_secondary"
-                                        android:textSize="13sp" />
-
-                                </LinearLayout>
-
-                                <TextView
-                                    android:id="@+id/tv_today_date"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:background="@drawable/bg_status_assigned_gradient"
-                                    android:paddingHorizontal="12dp"
-                                    android:paddingVertical="8dp"
-                                    android:textColor="@color/color_status_assigned_text"
-                                    android:textSize="11sp"
-                                    android:textStyle="bold"
-                                    tools:text="August 9, 2026" />
-
-                            </LinearLayout>
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="20dp"
-                                android:background="@drawable/bg_jeep_card_gradient"
-                                android:gravity="center_vertical"
-                                android:orientation="horizontal"
-                                android:padding="16dp">
-
-                                <ImageView
-                                    android:layout_width="56dp"
-                                    android:layout_height="56dp"
-                                    android:background="@drawable/bg_circle_icon"
-                                    android:backgroundTint="@color/color_surface"
-                                    android:contentDescription="Vehicle"
-                                    android:padding="12dp"
-                                    android:src="@drawable/car"
-                                    app:tint="@color/color_brand_primary" />
-
-                                <LinearLayout
-                                    android:layout_width="0dp"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginStart="16dp"
-                                    android:layout_weight="1"
-                                    android:orientation="vertical">
-
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:letterSpacing="0.08"
-                                        android:text="@string/label_unit_number"
-                                        android:textColor="@color/color_text_secondary"
-                                        android:textSize="11sp"
-                                        android:textStyle="bold" />
-
-                                    <TextView
-                                        android:id="@+id/tv_unit_no"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginTop="2dp"
-                                        android:textColor="@color/color_text_primary"
-                                        android:textSize="22sp"
-                                        android:textStyle="bold"
-                                        tools:text="Unit 3" />
-
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginTop="10dp"
-                                        android:letterSpacing="0.08"
-                                        android:text="@string/label_plate_number"
-                                        android:textColor="@color/color_text_secondary"
-                                        android:textSize="11sp"
-                                        android:textStyle="bold" />
-
-                                    <TextView
-                                        android:id="@+id/tv_plate_no"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginTop="2dp"
-                                        android:textColor="@color/color_text_primary"
-                                        android:textSize="18sp"
-                                        android:textStyle="bold"
-                                        tools:text="EJP 1234" />
-
-                                </LinearLayout>
-
-                                <TextView
-                                    android:id="@+id/tv_jeep_status"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:background="@drawable/bg_status_active_gradient"
-                                    android:paddingHorizontal="12dp"
-                                    android:paddingVertical="8dp"
-                                    android:textColor="@color/color_status_active_text"
-                                    android:textSize="11sp"
-                                    android:textStyle="bold"
-                                    tools:text="● Active" />
-
-                            </LinearLayout>
-
-                            <!-- Route Section -->
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="12dp"
-                                android:background="@drawable/bg_route_gradient"
-                                android:gravity="center_vertical"
-                                android:orientation="horizontal"
-                                android:padding="16dp">
-
-                                <ImageView
-                                    android:layout_width="24dp"
-                                    android:layout_height="24dp"
-                                    android:contentDescription="@string/desc_route_icon"
-                                    android:src="@drawable/location"
-                                    app:tint="@color/color_brand_primary" />
-
-                                <LinearLayout
-                                    android:layout_width="0dp"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginStart="16dp"
-                                    android:layout_weight="1"
-                                    android:orientation="vertical">
-
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:letterSpacing="0.08"
-                                        android:text="@string/label_route"
-                                        android:textColor="@color/color_text_secondary"
-                                        android:textSize="10sp"
-                                        android:textStyle="bold" />
-
-                                    <TextView
-                                        android:id="@+id/tv_today_route"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginTop="1dp"
-                                        android:text="@string/default_route"
-                                        android:textColor="@color/color_text_primary"
-                                        android:textSize="16sp"
-                                        android:textStyle="bold"
-                                        app:layout_constrainedWidth="true" />
-                                </LinearLayout>
-                            </LinearLayout>
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="22dp"
-                                android:letterSpacing="0.08"
-                                android:text="@string/label_squad"
-                                android:textColor="@color/color_text_secondary"
-                                android:textSize="11sp"
-                                android:textStyle="bold" />
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="10dp"
-                                android:orientation="horizontal">
-
-                                <LinearLayout
-                                    android:id="@+id/container_driver_pill"
-                                    android:layout_width="0dp"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginEnd="6dp"
-                                    android:layout_weight="1"
-                                    android:background="@drawable/bg_jeep_pill"
-                                    android:clickable="true"
-                                    android:focusable="true"
-                                    android:foreground="?attr/selectableItemBackground"
-                                    android:orientation="vertical"
-                                    android:padding="14dp">
-
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="@string/label_driver"
-                                        android:textColor="@color/color_text_secondary"
-                                        android:textSize="11sp" />
-
-                                    <TextView
-                                        android:id="@+id/tv_driver_fullname"
-                                        android:layout_width="match_parent"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginTop="4dp"
-                                        android:ellipsize="end"
-                                        android:maxLines="1"
-                                        android:textColor="@color/color_text_primary"
-                                        android:textSize="14sp"
-                                        android:textStyle="bold"
-                                        tools:text="Ricardo Dela Cruz" />
-
-                                </LinearLayout>
-
-                                <LinearLayout
-                                    android:id="@+id/container_pao_pill"
-                                    android:layout_width="0dp"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginStart="6dp"
-                                    android:layout_weight="1"
-                                    android:background="@drawable/bg_jeep_pill"
-                                    android:clickable="true"
-                                    android:focusable="true"
-                                    android:foreground="?attr/selectableItemBackground"
-                                    android:orientation="vertical"
-                                    android:padding="14dp">
-
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="@string/label_pao"
-                                        android:textColor="@color/color_text_secondary"
-                                        android:textSize="11sp" />
-
-                                    <TextView
-                                        android:id="@+id/tv_pao_fullname"
-                                        android:layout_width="match_parent"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginTop="4dp"
-                                        android:ellipsize="end"
-                                        android:maxLines="1"
-                                        android:textColor="@color/color_text_primary"
-                                        android:textSize="14sp"
-                                        android:textStyle="bold"
-                                        tools:text="Maria Buenaventura" />
-
-                                </LinearLayout>
-
-                            </LinearLayout>
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="20dp"
-                                android:gravity="center_vertical"
-                                android:orientation="horizontal">
-
-                                <TextView
-                                    android:layout_width="0dp"
-                                    android:layout_height="wrap_content"
-                                    android:layout_weight="1"
-                                    android:text="Assignment status"
-                                    android:textColor="@color/color_text_secondary"
-                                    android:textSize="13sp" />
-
-                                <TextView
-                                    android:id="@+id/tv_assignment_status"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:background="@drawable/bg_status_assigned_gradient"
-                                    android:paddingHorizontal="12dp"
-                                    android:paddingVertical="8dp"
-                                    android:textColor="@color/color_status_assigned_text"
-                                    android:textSize="11sp"
-                                    android:textStyle="bold"
-                                    tools:text="● Assigned" />
-
-                            </LinearLayout>
-
-                        </LinearLayout>
-
-                    </com.google.android.material.card.MaterialCardView>
-
-                </FrameLayout>
-
-                <!-- Today's Summary Section with Skeleton Wrapper -->
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="32dp"
-                    android:clipChildren="false">
-
-                    <com.facebook.shimmer.ShimmerFrameLayout
-                        android:id="@+id/shimmer_summary"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        app:shimmer_auto_start="true"
-                        app:shimmer_base_alpha="0.5"
-                        app:shimmer_duration="1000"
-                        app:shimmer_highlight_alpha="0.9">
-                        <include layout="@layout/item_skeleton_summary" />
-                    </com.facebook.shimmer.ShimmerFrameLayout>
-
-                    <LinearLayout
-                        android:id="@+id/ll_todays_summary"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:visibility="gone"
-                        tools:visibility="visible">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:letterSpacing="0.08"
-                            android:text="@string/title_todays_summary"
-                            android:textColor="@color/color_brand_primary"
-                            android:textSize="12sp"
-                            android:textStyle="bold" />
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="12dp"
-                            android:orientation="horizontal">
-
-                            <!-- Trips Completed -->
-                            <com.google.android.material.card.MaterialCardView
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:layout_marginEnd="6dp"
-                                app:cardBackgroundColor="@color/color_surface"
-                                app:cardCornerRadius="24dp"
-                                app:cardElevation="8dp"
-                                app:strokeColor="@color/color_divider"
-                                app:strokeWidth="1dp"
-                                android:outlineAmbientShadowColor="@color/color_card_shadow_ambient"
-                                android:outlineSpotShadowColor="@color/color_card_shadow_spot">
-                                <LinearLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:orientation="vertical"
-                                    android:padding="20dp">
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="@string/label_trips_completed"
-                                        android:textColor="@color/color_text_muted"
-                                        android:textSize="10sp"
-                                        android:textStyle="bold"
-                                        android:letterSpacing="0.05" />
-                                    <TextView
-                                        android:id="@+id/tv_summary_trips"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginTop="8dp"
-                                        android:text=""
-                                        android:textColor="@color/color_text_primary"
-                                        android:textSize="24sp"
-                                        android:textStyle="bold" />
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginTop="2dp"
-                                        android:text="@string/unit_trips"
-                                        android:textColor="@color/color_brand_primary"
-                                        android:textSize="12sp" />
-                                </LinearLayout>
-                            </com.google.android.material.card.MaterialCardView>
-
-                            <!-- Share Card (Replaced Distance Covered) -->
-                            <com.google.android.material.card.MaterialCardView
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:layout_marginStart="6dp"
-                                app:cardBackgroundColor="@color/color_surface"
-                                app:cardCornerRadius="24dp"
-                                app:cardElevation="8dp"
-                                app:strokeColor="@color/color_divider"
-                                app:strokeWidth="1dp"
-                                android:outlineAmbientShadowColor="@color/color_card_shadow_ambient"
-                                android:outlineSpotShadowColor="@color/color_card_shadow_spot">
-                                <LinearLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:orientation="vertical"
-                                    android:padding="20dp">
-                                    <TextView
-                                        android:id="@+id/tv_summary_share_label"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="@string/label_share"
-                                        android:textColor="@color/color_text_muted"
-                                        android:textSize="10sp"
-                                        android:textStyle="bold"
-                                        android:letterSpacing="0.05" />
-                                    <TextView
-                                        android:id="@+id/tv_summary_distance"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginTop="8dp"
-                                        android:text=" "
-                                        android:textColor="@color/color_text_primary"
-                                        android:textSize="24sp"
-                                        android:textStyle="bold"
-                                        tools:text=" " />
-                                    <TextView
-                                        android:id="@+id/tv_summary_share_unit"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginTop="2dp"
-                                        android:text="@string/unit_today"
-                                        android:textColor="@color/color_brand_primary"
-                                        android:textSize="12sp" />
-                                </LinearLayout>
-                            </com.google.android.material.card.MaterialCardView>
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="12dp"
-                            android:orientation="horizontal">
-
-                            <!-- Gross Collected -->
-                            <com.google.android.material.card.MaterialCardView
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:layout_marginEnd="6dp"
-                                app:cardBackgroundColor="@color/color_surface"
-                                app:cardCornerRadius="24dp"
-                                app:cardElevation="8dp"
-                                app:strokeColor="@color/color_divider"
-                                app:strokeWidth="1dp"
-                                android:outlineAmbientShadowColor="@color/color_card_shadow_ambient"
-                                android:outlineSpotShadowColor="@color/color_card_shadow_spot">
-                                <LinearLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:orientation="vertical"
-                                    android:padding="20dp">
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="@string/label_gross_collected"
-                                        android:textColor="@color/color_text_muted"
-                                        android:textSize="10sp"
-                                        android:textStyle="bold"
-                                        android:letterSpacing="0.05" />
-                                    <TextView
-                                        android:id="@+id/tv_summary_gross"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginTop="8dp"
-                                        android:text=" "
-                                        android:textColor="@color/color_text_primary"
-                                        android:textSize="24sp"
-                                        android:textStyle="bold" />
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginTop="2dp"
-                                        android:text="@string/unit_today"
-                                        android:textColor="@color/color_brand_primary"
-                                        android:textSize="12sp" />
-                                </LinearLayout>
-                            </com.google.android.material.card.MaterialCardView>
-
-                            <!-- Net Remittance -->
-                            <com.google.android.material.card.MaterialCardView
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:layout_marginStart="6dp"
-                                app:cardBackgroundColor="@color/color_surface"
-                                app:cardCornerRadius="24dp"
-                                app:cardElevation="8dp"
-                                app:strokeColor="@color/color_divider"
-                                app:strokeWidth="1dp"
-                                android:outlineAmbientShadowColor="@color/color_card_shadow_ambient"
-                                android:outlineSpotShadowColor="@color/color_card_shadow_spot">
-                                <LinearLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:orientation="vertical"
-                                    android:padding="20dp">
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="@string/label_net_remittance"
-                                        android:textColor="@color/color_text_muted"
-                                        android:textSize="10sp"
-                                        android:textStyle="bold"
-                                        android:letterSpacing="0.05" />
-                                    <TextView
-                                        android:id="@+id/tv_summary_net"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginTop="8dp"
-                                        android:text=" "
-                                        android:textColor="@color/color_text_primary"
-                                        android:textSize="24sp"
-                                        android:textStyle="bold" />
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginTop="2dp"
-                                        android:text="@string/unit_due"
-                                        android:textColor="@color/color_brand_primary"
-                                        android:textSize="12sp" />
-                                </LinearLayout>
-                            </com.google.android.material.card.MaterialCardView>
-                        </LinearLayout>
-
-                    </LinearLayout>
-                </FrameLayout>
+                android:clipToPadding="false"
+                android:paddingHorizontal="@dimen/screen_margin_large"
+                android:paddingTop="28dp"
+                android:paddingBottom="24dp"
+                android:visibility="gone"
+                tools:visibility="visible">
 
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:id="@+id/ll_greeting"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="32dp"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/iv_robot"
+                    app:layout_constraintHorizontal_bias="0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
 
                     <TextView
+                        android:id="@+id/tv_greeting"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:alpha="0.9"
+                        android:letterSpacing="0.02"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        tools:text="Good morning," />
+
+                    <TextView
+                        android:id="@+id/tv_driver_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        android:letterSpacing="-0.01"
+                        android:textColor="@color/white"
+                        android:textSize="30sp"
+                        android:textStyle="bold"
+                        app:layout_constrainedWidth="true"
+                        tools:text="Ricardo" />
+
+                    <TextView
+                        android:id="@+id/tv_role_badge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:background="@drawable/bg_badge_role"
                         android:letterSpacing="0.08"
-                        android:text="QUICK ACCESS"
-                        android:textColor="@color/color_brand_primary"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="Frequently used actions"
-                        android:textColor="@color/color_text_muted"
-                        android:textSize="13sp" />
+                        android:paddingStart="12dp"
+                        android:paddingTop="5dp"
+                        android:paddingEnd="12dp"
+                        android:paddingBottom="5dp"
+                        android:textColor="@color/white"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        tools:text="DRIVER" />
 
                 </LinearLayout>
 
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:clipChildren="false">
+                <ImageView
+                    android:id="@+id/iv_robot"
+                    android:layout_width="110dp"
+                    android:layout_height="110dp"
+                    android:layout_marginEnd="-4dp"
+                    android:layout_marginBottom="-24dp"
+                    android:contentDescription="Robot assistant"
+                    android:scaleType="fitCenter"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-                    <com.facebook.shimmer.ShimmerFrameLayout
-                        android:id="@+id/shimmer_quick_access"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        app:shimmer_auto_start="true"
-                        app:shimmer_base_alpha="0.5"
-                        app:shimmer_duration="1000"
-                        app:shimmer_highlight_alpha="0.9">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal">
-
-                            <com.google.android.material.card.MaterialCardView
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_marginEnd="8dp"
-                                android:layout_weight="1"
-                                app:cardBackgroundColor="@color/color_surface"
-                                app:cardCornerRadius="@dimen/card_corner_radius_large"
-                                app:cardElevation="2dp"
-                                app:strokeColor="@color/color_divider"
-                                app:strokeWidth="1dp">
-                                <include layout="@layout/item_skeleton_quick_access" />
-                            </com.google.android.material.card.MaterialCardView>
-
-                            <com.google.android.material.card.MaterialCardView
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="8dp"
-                                android:layout_weight="1"
-                                app:cardBackgroundColor="@color/color_surface"
-                                app:cardCornerRadius="@dimen/card_corner_radius_large"
-                                app:cardElevation="2dp"
-                                app:strokeColor="@color/color_divider"
-                                app:strokeWidth="1dp">
-                                <include layout="@layout/item_skeleton_quick_access" />
-                            </com.google.android.material.card.MaterialCardView>
-
-                        </LinearLayout>
-
-                    </com.facebook.shimmer.ShimmerFrameLayout>
-
-                    <LinearLayout
-                        android:id="@+id/ll_quick_access_content"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:clipChildren="false"
-                        android:orientation="horizontal"
-                        android:visibility="gone"
-                        tools:visibility="visible">
-
-                        <com.google.android.material.card.MaterialCardView
-                            android:id="@+id/card_my_schedule"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginEnd="8dp"
-                            android:layout_weight="1"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:foreground="?attr/selectableItemBackground"
-                            app:cardBackgroundColor="@color/color_surface"
-                            app:cardCornerRadius="24dp"
-                            app:cardElevation="6dp"
-                            app:strokeColor="@color/color_divider"
-                            app:strokeWidth="1dp"
-                            android:outlineAmbientShadowColor="@color/color_card_shadow_ambient"
-                            android:outlineSpotShadowColor="@color/color_card_shadow_spot">
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:orientation="vertical"
-                                android:padding="18dp">
-
-                                <RelativeLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content">
-
-                                    <ImageView
-                                        android:layout_width="56dp"
-                                        android:layout_height="56dp"
-                                        android:background="@drawable/bg_circle_icon"
-                                        android:backgroundTint="@color/color_quick_access_fill"
-                                        android:contentDescription="Schedule"
-                                        android:padding="14dp"
-                                        android:src="@drawable/calendar"
-                                        app:tint="@color/color_brand_primary" />
-
-                                    <ImageView
-                                        android:layout_width="22dp"
-                                        android:layout_height="22dp"
-                                        android:layout_alignParentEnd="true"
-                                        android:layout_centerVertical="true"
-                                        android:alpha="0.6"
-                                        android:src="@android:drawable/ic_menu_send"
-                                        app:tint="@color/color_text_primary" />
-                                </RelativeLayout>
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="16dp"
-                                    android:text="Schedule"
-                                    android:textColor="@color/color_text_primary"
-                                    android:textSize="17sp"
-                                    android:textStyle="bold" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="3dp"
-                                    android:text="View shifts"
-                                    android:textColor="@color/color_text_muted"
-                                    android:textSize="13sp" />
-
-                            </LinearLayout>
-
-                        </com.google.android.material.card.MaterialCardView>
-
-                        <com.google.android.material.card.MaterialCardView
-                            android:id="@+id/card_salary"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="8dp"
-                            android:layout_weight="1"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:foreground="?attr/selectableItemBackground"
-                            app:cardBackgroundColor="@color/color_surface"
-                            app:cardCornerRadius="24dp"
-                            app:cardElevation="6dp"
-                            app:strokeColor="@color/color_divider"
-                            app:strokeWidth="1dp"
-                            android:outlineAmbientShadowColor="@color/color_card_shadow_ambient"
-                            android:outlineSpotShadowColor="@color/color_card_shadow_spot">
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:orientation="vertical"
-                                android:padding="18dp">
-
-                                <RelativeLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content">
-
-                                    <ImageView
-                                        android:layout_width="56dp"
-                                        android:layout_height="56dp"
-                                        android:background="@drawable/bg_circle_icon"
-                                        android:backgroundTint="@color/color_quick_access_fill"
-                                        android:contentDescription="Salary"
-                                        android:padding="14dp"
-                                        android:src="@drawable/wallet"
-                                        app:tint="@color/color_brand_accent" />
-
-                                    <ImageView
-                                        android:layout_width="22dp"
-                                        android:layout_height="22dp"
-                                        android:layout_alignParentEnd="true"
-                                        android:layout_centerVertical="true"
-                                        android:alpha="0.6"
-                                        android:src="@android:drawable/ic_menu_send"
-                                        app:tint="@color/color_text_primary" />
-                                </RelativeLayout>
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="16dp"
-                                    android:text="Salary"
-                                    android:textColor="@color/color_text_primary"
-                                    android:textSize="17sp"
-                                    android:textStyle="bold" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="3dp"
-                                    android:text="Earnings"
-                                    android:textColor="@color/color_text_muted"
-                                    android:textSize="13sp" />
-
-                            </LinearLayout>
-
-                        </com.google.android.material.card.MaterialCardView>
-
-                    </LinearLayout>
-
-                </FrameLayout>
-
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
-                    android:clipChildren="false"
-                    android:clipToPadding="false">
-
-                    <com.facebook.shimmer.ShimmerFrameLayout
-                        android:id="@+id/shimmer_banner"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        app:shimmer_auto_start="true"
-                        app:shimmer_base_alpha="0.5"
-                        app:shimmer_duration="1000"
-                        app:shimmer_highlight_alpha="0.9">
-                        <include layout="@layout/item_skeleton_banner" />
-                    </com.facebook.shimmer.ShimmerFrameLayout>
-
-                    <LinearLayout
-                        android:id="@+id/ll_banner_content"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:clipChildren="false"
-                        android:clipToPadding="false"
-                        android:orientation="vertical"
-                        android:visibility="gone"
-                        tools:visibility="visible">
-
-                        <androidx.viewpager2.widget.ViewPager2
-                            android:id="@+id/vp_status_carousel"
-                            android:layout_width="match_parent"
-                            android:layout_height="290dp"
-                            android:clipChildren="false"
-                            android:clipToPadding="false"
-                            android:overScrollMode="never" />
-
-                        <LinearLayout
-                            android:id="@+id/container_dots_indicator"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center_horizontal"
-                            android:layout_marginTop="12dp"
-                            android:orientation="horizontal" />
-
-                    </LinearLayout>
-                </FrameLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="32dp"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:letterSpacing="0.08"
-                        android:text="UPCOMING SCHEDULES"
-                        android:textColor="@color/color_brand_primary"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="Your next assignments"
-                        android:textColor="@color/color_text_muted"
-                        android:textSize="13sp" />
-
-                </LinearLayout>
-
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    app:cardBackgroundColor="@color/color_surface"
-                    app:cardCornerRadius="@dimen/card_corner_radius_xlarge"
-                    app:cardElevation="8dp"
-                    app:strokeColor="@color/color_divider"
-                    app:strokeWidth="1dp"
-                    android:outlineAmbientShadowColor="@color/color_card_shadow_ambient"
-                    android:outlineSpotShadowColor="@color/color_card_shadow_spot">
-
-                    <FrameLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
-
-                        <com.facebook.shimmer.ShimmerFrameLayout
-                            android:id="@+id/shimmer_upcoming"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            app:shimmer_auto_start="true"
-                            app:shimmer_base_alpha="0.5"
-                            app:shimmer_duration="1000"
-                            app:shimmer_highlight_alpha="0.9">
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:orientation="vertical">
-                                <include layout="@layout/item_skeleton_upcoming" />
-                                <include layout="@layout/item_skeleton_upcoming" />
-                                <include layout="@layout/item_skeleton_upcoming" />
-                            </LinearLayout>
-
-                        </com.facebook.shimmer.ShimmerFrameLayout>
-
-                        <LinearLayout
-                            android:id="@+id/container_upcoming"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:divider="@color/color_divider"
-                            android:orientation="vertical"
-                            android:paddingTop="6dp"
-                            android:paddingBottom="6dp"
-                            android:showDividers="middle"
-                            android:visibility="gone"
-                            tools:visibility="visible" />
-
-                    </FrameLayout>
-
-                </com.google.android.material.card.MaterialCardView>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="160dp" />
-
-            </LinearLayout>
-
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </LinearLayout>
 
-    </androidx.core.widget.NestedScrollView>
+        <!-- Content Area Container -->
+        <FrameLayout
+            android:id="@+id/fl_home_content_container"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="8dp"
+            android:background="@android:color/transparent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ll_home_header" />
+
+        <!-- Fixed bottom spacing View -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="140dp"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
