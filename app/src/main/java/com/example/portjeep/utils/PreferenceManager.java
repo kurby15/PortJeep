@@ -17,13 +17,13 @@ public class PreferenceManager {
     private static final String KEY_USER_FIRST_NAME = "user_first_name";
     private static final String KEY_USER_ROLE = "user_role";
     private static final String KEY_USER_REST_DAYS = "user_rest_days";
+    private static final String KEY_FCM_TOKEN = "fcm_token";
 
     public static void saveCurrentUserId(Context context, String userId) {
         if (context == null) return;
         SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         String savedId = prefs.getString(KEY_USER_ID, "");
         
-        // If a different user is logging in, clear all previous cache
         if (userId != null && !userId.equals(savedId)) {
             clearAllCache(context);
         }
@@ -106,5 +106,16 @@ public class PreferenceManager {
     public static Set<String> getUserRestDays(Context context) {
         if (context == null) return new HashSet<>();
         return context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE).getStringSet(KEY_USER_REST_DAYS, new HashSet<>());
+    }
+
+    public static void saveFcmToken(Context context, String token) {
+        if (context == null) return;
+        context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+                .edit().putString(KEY_FCM_TOKEN, token).apply();
+    }
+
+    public static String getFcmToken(Context context) {
+        if (context == null) return null;
+        return context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE).getString(KEY_FCM_TOKEN, null);
     }
 }

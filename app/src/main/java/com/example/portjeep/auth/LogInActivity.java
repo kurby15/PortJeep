@@ -102,6 +102,7 @@ public class LogInActivity extends AppCompatActivity {
         etEmail.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_NEXT) {
                 etPassword.requestFocus();
+                scrollToView(etPassword);
                 return true;
             }
             return false;
@@ -178,10 +179,10 @@ public class LogInActivity extends AppCompatActivity {
 
         if (recaptchaTasksClient == null) {
             if (recaptchaInitError != null) {
-                showError("reCAPTCHA Error: " + recaptchaInitError);
+                showError("Security check error. Please contact technical support.");
                 initializeRecaptcha();
             } else {
-                showError("Security check initializing. Please wait a moment.");
+                showError("Security check is still loading. Please wait a moment.");
             }
             setLoadingState(false);
             return;
@@ -203,19 +204,30 @@ public class LogInActivity extends AppCompatActivity {
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful() && mAuth.getCurrentUser() != null) {
                         FirebaseUser user = mAuth.getCurrentUser();
-                        
-                        // Clear cache if this is a different user than the last session
                         PreferenceManager.saveCurrentUserId(this, user.getUid());
-
                         saveCredentials(email, password, user.getUid());
                         validateUserRoleAndProceed(user);
                     } else {
                         setLoadingState(false);
-                        String errorMsg = task.getException() != null ? 
-                                task.getException().getLocalizedMessage() : "Login failed.";
-                        showError(errorMsg);
+                        showError(getFriendlyErrorMessage(task.getException()));
                     }
                 });
+    }
+
+    private String getFriendlyErrorMessage(Exception exception) {
+        if (exception == null) return "Login failed. Please try again.";
+        String message = exception.getMessage() != null ? exception.getMessage() : "";
+        
+        if (exception instanceof com.google.firebase.auth.FirebaseAuthInvalidUserException) {
+            return "No account found with this email. Please check your email or sign up.";
+        } else if (exception instanceof com.google.firebase.auth.FirebaseAuthInvalidCredentialsException) {
+            return "Incorrect email or password. Please try again.";
+        } else if (exception instanceof com.google.firebase.FirebaseNetworkException) {
+            return "Network error. Please check your internet connection.";
+        } else if (message.contains("TOO_MANY_ATTEMPTS_TRY_LATER")) {
+            return "Too many failed attempts. Please try again later.";
+        }
+        return "Authentication failed. Please verify your credentials and try again.";
     }
 
     private void validateUserRoleAndProceed(FirebaseUser user) {
@@ -234,22 +246,22 @@ public class LogInActivity extends AppCompatActivity {
 
     private void fallbackFirestoreRoleCheck(String uid) {
         db.collection("File201").document(uid).get().addOnSuccessListener(doc -> {
-            if (!doc.exists()) { denyAccess("Access Denied: Profile not found."); return; }
+            if (!doc.exists()) { denyAccess("Access Denied: We couldn't find your account profile."); return; }
             String posId = doc.getString("position_id");
-            if (posId == null) { denyAccess("Access Denied: Incomplete profile."); return; }
+            if (posId == null) { denyAccess("Access Denied: Your profile setup is incomplete. Please contact support."); return; }
             db.collection("Positions").document(posId).get().addOnSuccessListener(posDoc -> {
                 String rawTitle = posDoc.getString("title");
-                if (rawTitle == null) { denyAccess("Access Denied: Permissions error."); return; }
+                if (rawTitle == null) { denyAccess("Access Denied: You don't have the required permissions."); return; }
                 String title = CryptoUtils.decrypt(rawTitle, BuildConfig.CRYPTO_SECRET_KEY);
                 if (isAuthorizedRole(title)) {
                     setLoadingState(false);
                     Toast.makeText(this, "Login Successful!", Toast.LENGTH_SHORT).show();
                     navigateToMain(uid);
                 } else {
-                    denyAccess("Unauthorized Access.");
+                    denyAccess("Unauthorized Access: This app is restricted to authorized personnel only.");
                 }
-            }).addOnFailureListener(e -> denyAccess("Verification failed."));
-        }).addOnFailureListener(e -> denyAccess("Profile retrieval failed."));
+            }).addOnFailureListener(e -> denyAccess("Verification failed. Please check your connection."));
+        }).addOnFailureListener(e -> denyAccess("Failed to retrieve profile. Please try again."));
     }
 
     private boolean isAuthorizedRole(String role) {
@@ -300,8 +312,12 @@ public class LogInActivity extends AppCompatActivity {
                 }
                 parent = parent.getParent();
             }
-            scrollView.smoothScrollTo(0, Math.max(0, target.getTop() - 100));
-        }, 100);
+            
+            Rect rect = new Rect();
+            target.getDrawingRect(rect);
+            scrollView.offsetDescendantRectToMyCoords(target, rect);
+            scrollView.smoothScrollTo(0, Math.max(0, rect.top - 150));
+        }, 200);
     }
 
     private void setupBiometricAuth() {
