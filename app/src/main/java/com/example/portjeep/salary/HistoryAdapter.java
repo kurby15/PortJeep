@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.portjeep.R;
 import java.text.SimpleDateFormat;
@@ -35,10 +36,6 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
         notifyDataSetChanged();
     }
 
-    /**
-     * Sets the container that will be used for beginDelayedTransition.
-     * For best results, this should be the common parent of the RecyclerViews.
-     */
     public void setTransitionContainer(ViewGroup container) {
         this.transitionContainer = container;
     }
@@ -134,17 +131,23 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
             holder.tvTripCount.setVisibility(View.VISIBLE);
             holder.itemView.setClickable(true);
 
+            // Dynamically set background and color
+            // TODAY (RECORD) -> Light Blue
+            // PREVIOUS (RECORDED) -> Green (matched to active theme)
             if (item.isToday) {
                 holder.tvStatusLabel.setText(R.string.status_record);
+                holder.tvStatusLabel.setBackgroundResource(R.drawable.bg_status_record);
+                holder.tvStatusLabel.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.color_status_record_text));
             } else {
                 holder.tvStatusLabel.setText(R.string.status_recorded);
+                holder.tvStatusLabel.setBackgroundResource(R.drawable.bg_status_recorded);
+                holder.tvStatusLabel.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.color_status_recorded_text));
             }
 
             String tripText = item.partialReports.size() + (item.partialReports.size() == 1 ? " trip recorded" : " trips recorded");
             holder.tvTripCount.setText(tripText);
             
             DecimalFormat df = new DecimalFormat("#,##0.00");
-            // Detail values
             if (isVisible) {
                 holder.tvValGross.setText("₱ " + df.format(item.getGrossValue()));
                 holder.tvValRemittance.setText("₱ " + df.format(item.getRemittanceValue()));
@@ -155,7 +158,6 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
                 holder.tvValNet.setText(hiddenText);
             }
 
-            // Populate partial reports
             holder.llPartialContainer.removeAllViews();
             LayoutInflater inflater = LayoutInflater.from(holder.itemView.getContext());
             for (PartialReport report : item.partialReports) {
@@ -179,20 +181,16 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
                 holder.llPartialContainer.addView(reportView);
             }
 
-            // Expansion logic
             updateExpansionState(holder, item, false);
 
             holder.itemView.setOnClickListener(v -> {
                 item.isExpanded = !item.isExpanded;
-                
-                // Animate the entire container (including shifting other items/lists)
                 ViewGroup target = transitionContainer != null ? transitionContainer : (ViewGroup) holder.itemView.getParent();
                 if (target != null) {
                     AutoTransition transition = new AutoTransition();
-                    transition.setDuration(100); // Super fast (snappy)
+                    transition.setDuration(100);
                     TransitionManager.beginDelayedTransition(target, transition);
                 }
-                
                 updateExpansionState(holder, item, true);
             });
         }
@@ -204,7 +202,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
         
         float rotation = item.isExpanded ? 90f : 0f;
         if (animate) {
-            holder.ivChevron.animate().rotation(rotation).setDuration(100).start(); // Super fast
+            holder.ivChevron.animate().rotation(rotation).setDuration(100).start();
         } else {
             holder.ivChevron.setRotation(rotation);
         }

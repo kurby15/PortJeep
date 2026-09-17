@@ -62,31 +62,48 @@
     <color name="color_status_active_start">#064E3B</color>
     <color name="color_status_active_end">#065F46</color>
 
+    <!-- Assigned (Blue) -->
     <color name="color_status_assigned_bg">#1E3A8A</color>
     <color name="color_status_assigned_text">#93C5FD</color>
-    <color name="color_status_assigned_start">#1E3A8A</color>
-    <color name="color_status_assigned_end">#1E40AF</color>
+    <color name="color_status_assigned_start">#172554</color>
+    <color name="color_status_assigned_end">#1E3A8A</color>
 
-    <color name="color_status_scheduled_bg">#075985</color>
-    <color name="color_status_scheduled_text">#7DD3FC</color>
-    <color name="color_status_scheduled_start">#075985</color>
-    <color name="color_status_scheduled_end">#0C4A6E</color>
+    <!-- Scheduled/Upcoming (Purple) -->
+    <color name="color_status_scheduled_bg">#4C1D95</color>
+    <color name="color_status_scheduled_text">#C4B5FD</color>
+    <color name="color_status_scheduled_start">#2E1065</color>
+    <color name="color_status_scheduled_end">#4C1D95</color>
 
+    <color name="color_status_upcoming_bg">#4C1D95</color>
+    <color name="color_status_upcoming_text">#C4B5FD</color>
+    <color name="color_status_upcoming_start">#2E1065</color>
+    <color name="color_status_upcoming_end">#4C1D95</color>
+
+    <!-- Completed (Slate) -->
     <color name="color_status_completed_bg">#1E1B3D</color>
     <color name="color_status_completed_text">#94A3B8</color>
     <color name="color_status_completed_start">#1E1B3D</color>
     <color name="color_status_completed_end">#121028</color>
 
+    <!-- Rest -->
     <color name="color_status_rest_bg">#1E1B3D</color>
     <color name="color_status_rest_text">#94A3B8</color>
     <color name="color_status_rest_start">#1E1B3D</color>
     <color name="color_status_rest_end">#121028</color>
 
-    <color name="color_status_recorded_bg">#1E1B3D</color>
-    <color name="color_status_recorded_text">#BAE6FD</color>
-    <color name="color_status_recorded_start">#075985</color>
-    <color name="color_status_recorded_end">#0C4A6E</color>
+    <!-- Record (Today) - Light Blue Variant -->
+    <color name="color_status_record_bg">#075985</color>
+    <color name="color_status_record_text">#7DD3FC</color>
+    <color name="color_status_record_start">#075985</color>
+    <color name="color_status_record_end">#0C4A6E</color>
 
+    <!-- Recorded - Matched to Active (Green) -->
+    <color name="color_status_recorded_bg">#064E3B</color>
+    <color name="color_status_recorded_text">#4ADE80</color>
+    <color name="color_status_recorded_start">#064E3B</color>
+    <color name="color_status_recorded_end">#065F46</color>
+
+    <!-- General Status Badge -->
     <color name="color_status_badge_text">#F8FAFC</color>
     <color name="color_status_badge_stroke">#251B4F</color>
 
