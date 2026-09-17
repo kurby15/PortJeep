@@ -7,16 +7,25 @@
     <!-- Modern Dark Brand Colors -->
     <color name="color_brand_primary">#60A5FA</color>
     <color name="color_brand_secondary">#A78BFA</color>
-    <color name="color_brand_accent">#FB7185</color>
+    <color name="color_brand_accent">#F43F5E</color>
 
     <!-- Modern Gradient Pairs - Dark Mode -->
     <!-- Primary Gradient: Soft Blue to Deep Purple -->
     <color name="color_gradient_primary_start">#3B82F6</color>
     <color name="color_gradient_primary_end">#7C3AED</color>
 
+    <!-- Header Gradient Colors - Dark Mode Variant -->
+    <color name="color_header_gradient_start">#070815</color>
+    <color name="color_header_gradient_center">#121028</color>
+    <color name="color_header_gradient_end">#251B4F</color>
+
+    <!-- Red Gradient for specific elements -->
+    <color name="color_gradient_red_start">#F43F5E</color>
+    <color name="color_gradient_red_end">#FB7185</color>
+
     <!-- Accent Gradient: Rose to Pink -->
-    <color name="color_gradient_accent_start">#E11D48</color>
-    <color name="color_gradient_accent_end">#FB7185</color>
+    <color name="color_gradient_accent_start">#FF9500</color>
+    <color name="color_gradient_accent_end">#FFB347</color>
 
     <!-- Surface Gradient -->
     <color name="color_gradient_surface_start">#1E293B</color>
@@ -98,5 +107,9 @@
     <color name="color_skeleton">#334155</color>
     <color name="color_quick_access_fill">#1E293B</color>
     <color name="color_logo_tint">#FFFFFF</color>
-    <color name="color_bottom_nav_bg">#FFFFFF</color>
+
+    <!-- Glass Bottom Nav Colors -->
+    <color name="color_bottom_nav_bg">#CC121212</color> <!-- Slightly deeper dark glass -->
+    <color name="color_bottom_nav_stroke">#26FFFFFF</color> <!-- Softer white border for dark mode -->
+    <color name="color_nav_item_active_bg">#4DFFFFFF</color> <!-- Translucent white/gray glass pill for high contrast -->
 </resources>

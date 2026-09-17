@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Selected icon color - White to contrast against the red circle indicator -->
-    <item android:color="@color/white" android:state_checked="true" />
+    <!-- Active state: Orange color as shown in the picture -->
+    <item android:color="@color/color_brand_accent" android:state_checked="true" />
 
-    <!-- Unselected icon color - Muted gray for both themes -->
+    <!-- Unselected state: Muted color -->
     <item android:color="@color/color_text_muted" />
 </selector>

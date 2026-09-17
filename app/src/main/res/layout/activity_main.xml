@@ -20,9 +20,9 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="@dimen/bottom_nav_margin_bottom"
         app:cardCornerRadius="32dp"
-        app:cardElevation="12dp"
+        app:cardElevation="0dp"
         app:cardBackgroundColor="@color/color_bottom_nav_bg"
-        app:strokeColor="@color/color_divider"
+        app:strokeColor="@color/color_bottom_nav_stroke"
         app:strokeWidth="1dp"
         android:outlineAmbientShadowColor="@color/color_card_shadow_ambient"
         android:outlineSpotShadowColor="@color/color_card_shadow_spot">
