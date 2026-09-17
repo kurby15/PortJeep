@@ -418,19 +418,19 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_sign_out"
-                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                     android:layout_width="match_parent"
                     android:layout_height="58dp"
                     android:layout_marginTop="12dp"
-                    android:backgroundTint="@color/color_quick_access_fill"
+                    android:background="@drawable/bg_button_gradient"
+                    app:backgroundTint="@null"
                     android:text="SIGN OUT"
-                    android:textColor="@color/color_brand_accent"
+                    android:textColor="@color/white"
                     android:textSize="14sp"
                     android:textStyle="bold"
                     app:cornerRadius="29dp"
                     app:icon="@drawable/logout"
                     app:iconGravity="textStart"
-                    app:iconTint="@color/color_brand_accent" />
+                    app:iconTint="@color/white" />
 
                 <View
                     android:layout_width="match_parent"

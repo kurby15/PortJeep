@@ -4,6 +4,7 @@
     <gradient
         android:angle="135"
         android:startColor="@color/color_gradient_primary_start"
+        android:centerColor="@color/color_brand_secondary"
         android:endColor="@color/color_gradient_primary_end"
         android:type="linear" />
     <stroke

@@ -27,11 +27,11 @@
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:background="@drawable/bg_circle_icon"
-                android:backgroundTint="@color/color_background_secondary"
+                android:backgroundTint="@color/color_quick_access_fill"
                 android:contentDescription="Logout Alert"
                 android:padding="16dp"
                 android:src="@drawable/logout"
-                app:tint="@color/color_brand_accent" />
+                app:tint="@color/color_brand_primary" />
 
             <!-- Title -->
             <TextView
@@ -70,7 +70,7 @@
                     android:layout_weight="1"
                     android:text="Cancel"
                     android:textAllCaps="false"
-                    android:textColor="@color/color_text_primary"
+                    android:textColor="@color/color_text_secondary"
                     android:textSize="16sp"
                     app:cornerRadius="28dp"
                     app:strokeColor="@color/color_divider" />
@@ -82,12 +82,12 @@
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
                     android:background="@drawable/bg_button_gradient"
-                    android:text="Log Out"
+                    app:backgroundTint="@null"
+                    android:text="Sign Out"
                     android:textAllCaps="false"
                     android:textColor="@color/white"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    app:backgroundTint="@null"
                     app:cornerRadius="28dp"
                     app:elevation="4dp" />
 
