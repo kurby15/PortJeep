@@ -14,37 +14,36 @@
         android:orientation="vertical"
         tools:context="com.example.portjeep.schedule.ScheduleFragment">
 
-        <!-- Header Section -->
+        <!-- Header Section (Matched with Salary Fragment) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/bg_header_gradient"
             android:orientation="vertical"
             android:paddingHorizontal="@dimen/screen_margin_large"
-            android:paddingTop="36dp"
+            android:paddingTop="32dp"
             android:paddingBottom="42dp">
 
             <TextView
                 android:id="@+id/tv_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="My Schedule"
+                android:text="MY SCHEDULE"
                 android:textColor="@color/white"
-                android:textSize="32sp"
-                android:textStyle="bold" />
+                android:textSize="22sp"
+                android:textStyle="bold"
+                app:layout_constrainedWidth="true" />
 
             <TextView
                 android:id="@+id/tv_subtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:alpha="0.85"
                 android:text="View your assigned trips"
-                android:textColor="@color/white"
-                android:textSize="13sp" />
+                android:textColor="#B3FFFFFF"
+                android:textSize="14sp" />
 
-            <!-- Segmented Tab Bar -->
+            <!-- Segmented Tab Bar (3 Tabs) -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
@@ -147,24 +146,7 @@
 
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="@dimen/screen_margin_large"
-            android:layout_marginTop="32dp"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:letterSpacing="0.08"
-                android:text="YOUR SCHEDULE"
-                android:textColor="@color/color_brand_primary"
-                android:textSize="12sp"
-                android:textStyle="bold" />
-
-        </LinearLayout>
-
+        <!-- Content Area -->
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
