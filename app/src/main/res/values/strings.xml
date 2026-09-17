@@ -70,6 +70,7 @@
     <string name="desc_terms_icon">Terms Icon</string>
     <string name="desc_go_icon">Go</string>
     <string name="desc_emoji">Emoji</string>
+    <string name="desc_change_photo">Change profile photo</string>
 
     <!-- Privacy Policy Content -->
     <string name="privacy_1_title">1. OUR COMMITMENT TO YOUR PRIVACY</string>

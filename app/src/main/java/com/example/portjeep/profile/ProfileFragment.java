@@ -1,10 +1,18 @@
 package com.example.portjeep.profile;
 
+import android.Manifest;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.RenderEffect;
 import android.graphics.Shader;
+import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,9 +20,12 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -34,6 +45,9 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
@@ -47,12 +61,41 @@ public class ProfileFragment extends Fragment {
     private ShimmerFrameLayout shimmerHeader;
     private MaterialCardView cardSummary;
     private TextView tvAvatarInitials, tvProfileName, tvEmployeeNumber;
+    private MaterialCardView btnChangePhoto;
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
 
     private ProfileContentFragment contentFragment;
     private DocumentSnapshot lastLoadedDoc;
+
+    private Uri cameraImageUri;
+
+    private final ActivityResultLauncher<String> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    showPhotoOptionsDialog();
+                } else {
+                    Toast.makeText(getContext(), "Camera permission is required to take a picture", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+    private final ActivityResultLauncher<Intent> cameraLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == android.app.Activity.RESULT_OK && cameraImageUri != null) {
+                    handleSelectedImageUri(cameraImageUri);
+                }
+            });
+
+    private final ActivityResultLauncher<Intent> galleryLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == android.app.Activity.RESULT_OK && result.getData() != null) {
+                    Uri selectedImageUri = result.getData().getData();
+                    if (selectedImageUri != null) {
+                        handleSelectedImageUri(selectedImageUri);
+                    }
+                }
+            });
 
     public ProfileFragment() {}
 
@@ -73,13 +116,17 @@ public class ProfileFragment extends Fragment {
         tvAvatarInitials = view.findViewById(R.id.tv_avatar_initials);
         tvProfileName = view.findViewById(R.id.tv_profile_name);
         tvEmployeeNumber = view.findViewById(R.id.tv_employee_number);
+        btnChangePhoto = view.findViewById(R.id.btn_change_photo);
+
+        if (btnChangePhoto != null) {
+            btnChangePhoto.setOnClickListener(v -> checkPermissionsAndOpenSelection());
+        }
 
         if (swipeRefreshLayout != null) {
             swipeRefreshLayout.setColorSchemeResources(R.color.color_brand_primary, R.color.color_brand_accent);
             swipeRefreshLayout.setOnRefreshListener(this::loadUserProfile);
         }
 
-        // Attach ProfileContentFragment into the container
         contentFragment = (ProfileContentFragment) getChildFragmentManager().findFragmentById(R.id.fl_profile_content_container);
         if (contentFragment == null) {
             contentFragment = new ProfileContentFragment();
@@ -89,8 +136,96 @@ public class ProfileFragment extends Fragment {
         }
 
         checkConnectionAndLoad();
+        loadSavedAvatar();
 
         return view;
+    }
+
+    private void checkPermissionsAndOpenSelection() {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            showPhotoOptionsDialog();
+        } else {
+            requestPermissionLauncher.launch(Manifest.permission.CAMERA);
+        }
+    }
+
+    private void showPhotoOptionsDialog() {
+        CharSequence[] options = {"Take Photo", "Choose from Gallery", "Cancel"};
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Change Profile Picture")
+                .setItems(options, (dialog, item) -> {
+                    if (options[item].equals("Take Photo")) {
+                        openCamera();
+                    } else if (options[item].equals("Choose from Gallery")) {
+                        openGallery();
+                    } else {
+                        dialog.dismiss();
+                    }
+                }).show();
+    }
+
+    private void openCamera() {
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.Images.Media.TITLE, "New Profile Picture");
+        values.put(MediaStore.Images.Media.DESCRIPTION, "From the Camera");
+        cameraImageUri = requireContext().getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, cameraImageUri);
+        cameraLauncher.launch(intent);
+    }
+
+    private void openGallery() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        galleryLauncher.launch(intent);
+    }
+
+    private void handleSelectedImageUri(Uri imageUri) {
+        try {
+            InputStream inputStream = requireContext().getContentResolver().openInputStream(imageUri);
+            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+            if (bitmap != null) {
+                saveAvatarLocally(bitmap);
+                setAvatarBitmap(bitmap);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error loading image details", e);
+            Toast.makeText(getContext(), "Failed to load image", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void saveAvatarLocally(Bitmap bitmap) {
+        try {
+            File storageDir = requireContext().getFilesDir();
+            File avatarFile = new File(storageDir, "profile_avatar.png");
+            FileOutputStream fos = new FileOutputStream(avatarFile);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            fos.flush();
+            fos.close();
+        } catch (Exception e) {
+            Log.e(TAG, "Error saving image locally", e);
+        }
+    }
+
+    private void loadSavedAvatar() {
+        try {
+            File avatarFile = new File(requireContext().getFilesDir(), "profile_avatar.png");
+            if (avatarFile.exists()) {
+                Bitmap bitmap = BitmapFactory.decodeFile(avatarFile.getAbsolutePath());
+                if (bitmap != null) {
+                    setAvatarBitmap(bitmap);
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error loading saved avatar", e);
+        }
+    }
+
+    private void setAvatarBitmap(Bitmap bitmap) {
+        if (tvAvatarInitials != null) {
+            tvAvatarInitials.setText("");
+            tvAvatarInitials.setBackground(new BitmapDrawable(getResources(), bitmap));
+        }
     }
 
     public void onContentFragmentReady() {
@@ -204,7 +339,12 @@ public class ProfileFragment extends Fragment {
         if (initials.isEmpty()) initials = "U";
 
         if (tvProfileName != null) tvProfileName.setText(fullName);
-        if (tvAvatarInitials != null) tvAvatarInitials.setText(initials);
+
+        File avatarFile = new File(requireContext().getFilesDir(), "profile_avatar.png");
+        if (!avatarFile.exists() && tvAvatarInitials != null) {
+            tvAvatarInitials.setText(initials);
+        }
+
         String empNum = doc.getString("employee_number") != null ? "EMP ID: " + doc.getString("employee_number") : "N/A";
         if (tvEmployeeNumber != null) tvEmployeeNumber.setText(empNum);
 
