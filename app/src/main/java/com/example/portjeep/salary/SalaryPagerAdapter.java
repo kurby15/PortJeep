@@ -175,6 +175,7 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
         Calendar cal = Calendar.getInstance();
         int todayIndex = cal.get(Calendar.DAY_OF_WEEK);
+           boolean isAfter10PM = cal.get(Calendar.HOUR_OF_DAY) >= 22;
 
         cal.add(Calendar.DATE, -1);
         Date yesterdayDate = cal.getTime();
@@ -310,10 +311,16 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     }
 
                     if (isToday) {
-                        item.setToday(true);
-                        item.setExpanded(true);
+                        if (isAfter10PM) {
+                            item.setToday(false);
+                            item.setExpanded(false);
+                            previousItems.add(item);
+                        } else {
+                            item.setToday(true);
+                            item.setExpanded(true);
+                            dailyItems.add(item);
+                        }
                         foundToday = true;
-                        dailyItems.add(item);
                     } else if (isYesterday) {
                         foundYesterday = true;
                         previousItems.add(item); // Moved Yesterday to Previous
@@ -331,9 +338,15 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             boolean hasScheduleToday = hasScheduleForDate(context, todayName, todayDateKey);
             double todayIncentive = getIncentiveForDate(context, todayName, todayDateKey, "");
             HistoryAdapter.HistoryItem todayItem = new HistoryAdapter.HistoryItem(todayFormatted, "0.00", df.format(todayIncentive * 2), df.format(-(todayIncentive * 2)), !hasScheduleToday);
-            todayItem.setToday(true);
-            todayItem.setExpanded(true);
-            dailyItems.add(todayItem);
+            if (isAfter10PM) {
+                todayItem.setToday(false);
+                todayItem.setExpanded(false);
+                previousItems.add(todayItem);
+            } else {
+                todayItem.setToday(true);
+                todayItem.setExpanded(true);
+                dailyItems.add(todayItem);
+            }
         }
 
         if (!foundYesterday) {
