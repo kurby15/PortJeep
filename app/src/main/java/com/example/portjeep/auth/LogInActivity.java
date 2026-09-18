@@ -217,7 +217,7 @@ public class LogInActivity extends AppCompatActivity {
     private String getFriendlyErrorMessage(Exception exception) {
         if (exception == null) return "Login failed. Please try again.";
         String message = exception.getMessage() != null ? exception.getMessage() : "";
-        
+
         if (exception instanceof com.google.firebase.auth.FirebaseAuthInvalidUserException) {
             return "No account found with this email. Please check your email or sign up.";
         } else if (exception instanceof com.google.firebase.auth.FirebaseAuthInvalidCredentialsException) {
@@ -312,7 +312,7 @@ public class LogInActivity extends AppCompatActivity {
                 }
                 parent = parent.getParent();
             }
-            
+
             Rect rect = new Rect();
             target.getDrawingRect(rect);
             scrollView.offsetDescendantRectToMyCoords(target, rect);
@@ -325,17 +325,59 @@ public class LogInActivity extends AppCompatActivity {
             MasterKey masterKey = new MasterKey.Builder(this).setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build();
             encryptedPrefs = EncryptedSharedPreferences.create(this, "secure_auth_prefs", masterKey,
                     EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV, EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM);
+        } catch (Exception e) {
+            Log.e("LogInActivity", "EncryptedSharedPreferences creation failed, attempting recovery...", e);
+            try {
+                deleteSharedPreferences("secure_auth_prefs");
+                MasterKey masterKey = new MasterKey.Builder(this).setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build();
+                encryptedPrefs = EncryptedSharedPreferences.create(this, "secure_auth_prefs", masterKey,
+                        EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV, EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM);
+            } catch (Exception ex) {
+                Log.e("LogInActivity", "Fallback to regular SharedPreferences due to Keystore issue", ex);
+                encryptedPrefs = getSharedPreferences("secure_auth_prefs_fallback", MODE_PRIVATE);
+            }
+        }
+
+        checkBiometricAvailability();
+
+        try {
             Executor executor = ContextCompat.getMainExecutor(this);
             BiometricPrompt biometricPrompt = new BiometricPrompt(this, executor, new BiometricPrompt.AuthenticationCallback() {
-                @Override public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) { performBiometricLogin(); }
+                @Override
+                public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
+                    performBiometricLogin();
+                }
+                @Override
+                public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
+                    Log.e("LogInActivity", "Biometric authentication error: " + errorCode + " - " + errString);
+                }
             });
-            BiometricPrompt.PromptInfo promptInfo = new BiometricPrompt.PromptInfo.Builder().setTitle("Secure Login").setSubtitle("Log in using biometrics")
-                    .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG | BiometricManager.Authenticators.DEVICE_CREDENTIAL).build();
-            
-            checkBiometricAvailability();
-            btnBiometric.setOnClickListener(view -> biometricPrompt.authenticate(promptInfo));
-        } catch (Exception e) { 
-            if (btnBiometric != null) btnBiometric.setVisibility(View.GONE); 
+
+            BiometricPrompt.PromptInfo promptInfo = new BiometricPrompt.PromptInfo.Builder()
+                    .setTitle("Secure Login")
+                    .setSubtitle("Log in using screen lock or biometrics")
+                    .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG | BiometricManager.Authenticators.DEVICE_CREDENTIAL)
+                    .build();
+
+            btnBiometric.setOnClickListener(view -> {
+                try {
+                    biometricPrompt.authenticate(promptInfo);
+                } catch (Exception e) {
+                    Log.e("LogInActivity", "Error authenticating biometric prompt", e);
+                }
+            });
+
+            if (btnBiometric.getVisibility() == View.VISIBLE) {
+                btnBiometric.post(() -> {
+                    try {
+                        biometricPrompt.authenticate(promptInfo);
+                    } catch (Exception e) {
+                        Log.e("LogInActivity", "Error during automatic biometric trigger", e);
+                    }
+                });
+            }
+        } catch (Exception e) {
+            Log.e("LogInActivity", "Error initializing BiometricPrompt components", e);
         }
     }
 
@@ -343,18 +385,46 @@ public class LogInActivity extends AppCompatActivity {
         if (btnBiometric == null) return;
         BiometricManager bm = BiometricManager.from(this);
         int canAuth = bm.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG | BiometricManager.Authenticators.DEVICE_CREDENTIAL);
+
+        android.app.KeyguardManager km = (android.app.KeyguardManager) getSystemService(KEYGUARD_SERVICE);
+        boolean isDeviceSecure = km != null && km.isDeviceSecure();
+
+        boolean isBiometricSupported = (canAuth == BiometricManager.BIOMETRIC_SUCCESS ||
+                canAuth == BiometricManager.BIOMETRIC_STATUS_UNKNOWN ||
+                isDeviceSecure);
+
         String savedUid = encryptedPrefs != null ? encryptedPrefs.getString("saved_uid", null) : null;
-        boolean isLockEnabled = getSharedPreferences(PREFS_SETTINGS, MODE_PRIVATE).getBoolean(KEY_SCREEN_LOCK + "_" + (savedUid != null ? savedUid : ""), false);
-        btnBiometric.setVisibility(canAuth == BiometricManager.BIOMETRIC_SUCCESS && savedUid != null && isLockEnabled ? View.VISIBLE : View.GONE);
+        String savedEmail = encryptedPrefs != null ? encryptedPrefs.getString("saved_email", "") : "";
+
+        // Per-user security check: If another user types their email, hide the biometric button immediately
+        if (etEmail != null && etEmail.getText() != null) {
+            String currentTypedEmail = etEmail.getText().toString().trim();
+            if (!currentTypedEmail.isEmpty() && !currentTypedEmail.equalsIgnoreCase(savedEmail)) {
+                btnBiometric.setVisibility(View.GONE);
+                return;
+            }
+        }
+
+        boolean isLockEnabled = false;
+        if (savedUid != null) {
+            isLockEnabled = getSharedPreferences(PREFS_SETTINGS, MODE_PRIVATE).getBoolean(KEY_SCREEN_LOCK + "_" + savedUid, false);
+        }
+        if (!isLockEnabled) {
+            isLockEnabled = getSharedPreferences(PREFS_SETTINGS, MODE_PRIVATE).getBoolean(KEY_SCREEN_LOCK, false);
+        }
+
+        boolean shouldShow = isBiometricSupported && savedUid != null && !savedEmail.isEmpty() && isLockEnabled;
+        btnBiometric.setVisibility(shouldShow ? View.VISIBLE : View.GONE);
     }
 
     private void performBiometricLogin() {
+        if (encryptedPrefs == null) return;
         String email = encryptedPrefs.getString("saved_email", "");
         String password = encryptedPrefs.getString("saved_password", "");
-        if (!email.isEmpty() && !password.isEmpty()) { 
-            etEmail.setText(email); 
-            etPassword.setText(password); 
-            handleLogin(); 
+        if (!email.isEmpty() && !password.isEmpty()) {
+            etEmail.setText(email);
+            etPassword.setText(password);
+            handleLogin();
         }
     }
 
@@ -368,7 +438,10 @@ public class LogInActivity extends AppCompatActivity {
     private void setupInputErrorReset() {
         TextWatcher tw = new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) { clearErrors(); }
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                clearErrors();
+                checkBiometricAvailability(); // Re-evaluate when typing to hide for different users
+            }
             @Override public void afterTextChanged(Editable s) {}
         };
         etEmail.addTextChangedListener(tw);
@@ -390,9 +463,9 @@ public class LogInActivity extends AppCompatActivity {
             String inputEmail = Objects.requireNonNull(etReset.getText()).toString().trim();
             if (inputEmail.isEmpty()) tilReset.setError("Email required");
             else if (!Patterns.EMAIL_ADDRESS.matcher(inputEmail).matches()) tilReset.setError("Invalid email");
-            else { 
-                dialog.dismiss(); 
-                mAuth.sendPasswordResetEmail(inputEmail).addOnSuccessListener(aVoid -> Toast.makeText(this, "Reset link sent", Toast.LENGTH_SHORT).show()); 
+            else {
+                dialog.dismiss();
+                mAuth.sendPasswordResetEmail(inputEmail).addOnSuccessListener(aVoid -> Toast.makeText(this, "Reset link sent", Toast.LENGTH_SHORT).show());
             }
         });
         dialog.show();

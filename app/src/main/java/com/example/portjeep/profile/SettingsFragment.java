@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.security.crypto.EncryptedSharedPreferences;
+import androidx.security.crypto.MasterKey;
 
 import com.example.portjeep.MainActivity;
 import com.example.portjeep.R;
@@ -45,7 +48,7 @@ public class SettingsFragment extends Fragment {
 
         mAuth = FirebaseAuth.getInstance();
         prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        
+
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
             userKey = KEY_SCREEN_LOCK + "_" + currentUser.getUid();
@@ -85,7 +88,7 @@ public class SettingsFragment extends Fragment {
         MaterialSwitch switchScreenLock = view.findViewById(R.id.switch_screen_lock);
         if (switchScreenLock != null) {
             switchScreenLock.setChecked(prefs.getBoolean(userKey, false));
-            
+
             // Using setOnClickListener to intercept the toggle before it's finalized
             switchScreenLock.setOnClickListener(v -> {
                 boolean isChecked = switchScreenLock.isChecked();
@@ -154,27 +157,51 @@ public class SettingsFragment extends Fragment {
                 etPassword.setError("Password required");
                 return;
             }
-            
+
             btnConfirm.setEnabled(false);
             btnConfirm.setText("Verifying...");
 
             FirebaseUser user = mAuth.getCurrentUser();
             if (user != null && user.getEmail() != null) {
                 user.reauthenticate(EmailAuthProvider.getCredential(user.getEmail(), password))
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            // Update preference and switch state
-                            prefs.edit().putBoolean(userKey, targetState).apply();
-                            switchView.setChecked(targetState);
-                            bottomSheetDialog.dismiss();
-                            showSuccessDialog("Settings updated", "Congratulations, you have successfully updated your preferred settings.");
-                        } else {
-                            btnConfirm.setEnabled(true);
-                            btnConfirm.setText("Confirm");
-                            bottomSheetDialog.dismiss();
-                            showErrorDialog("Authentication Failed", "The password you entered is incorrect. Please try again.");
-                        }
-                    });
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                // Update preference and switch state uniquely tied to userKey
+                                prefs.edit().putBoolean(userKey, targetState).apply();
+                                switchView.setChecked(targetState);
+
+                                // Save or clear credentials per user profile state
+                                try {
+                                    MasterKey masterKey = new MasterKey.Builder(requireContext()).setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build();
+                                    SharedPreferences encryptedPrefs = EncryptedSharedPreferences.create(
+                                            requireContext(), "secure_auth_prefs", masterKey,
+                                            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                                            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+                                    );
+
+                                    if (targetState) {
+                                        encryptedPrefs.edit()
+                                                .putString("saved_email", user.getEmail())
+                                                .putString("saved_password", password)
+                                                .putString("saved_uid", user.getUid())
+                                                .apply();
+                                    } else {
+                                        // If disabled, clear saved credentials so it won't auto-show for this user
+                                        encryptedPrefs.edit().clear().apply();
+                                    }
+                                } catch (Exception e) {
+                                    Log.e("SettingsFragment", "Failed to update encrypted credentials", e);
+                                }
+
+                                bottomSheetDialog.dismiss();
+                                showSuccessDialog("Settings updated", "Congratulations, you have successfully updated your preferred settings.");
+                            } else {
+                                btnConfirm.setEnabled(true);
+                                btnConfirm.setText("Confirm");
+                                bottomSheetDialog.dismiss();
+                                showErrorDialog("Authentication Failed", "The password you entered is incorrect. Please try again.");
+                            }
+                        });
             }
         });
 
@@ -185,7 +212,7 @@ public class SettingsFragment extends Fragment {
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_password_success, null);
         TextView tvTitle = dialogView.findViewById(R.id.tv_success_title);
         TextView tvMsg = dialogView.findViewById(R.id.tv_success_message);
-        
+
         if (tvTitle != null) tvTitle.setText(title);
         if (tvMsg != null) tvMsg.setText(message);
 
@@ -193,7 +220,7 @@ public class SettingsFragment extends Fragment {
                 .setView(dialogView)
                 .setCancelable(true)
                 .create();
-        
+
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         }
@@ -209,11 +236,11 @@ public class SettingsFragment extends Fragment {
 
         if (tvTitle != null) tvTitle.setText(title);
         if (tvMsg != null) tvMsg.setText(message);
-        
+
         AlertDialog dialog = new MaterialAlertDialogBuilder(requireContext())
                 .setView(dialogView)
                 .create();
-        
+
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         }
