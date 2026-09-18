@@ -2,8 +2,6 @@ package com.example.portjeep.salary;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Handler;
-import android.os.Looper;
 import android.transition.AutoTransition;
 import android.transition.TransitionManager;
 import android.util.Log;
@@ -12,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -42,17 +39,73 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     private boolean isSalaryVisible = true;
     private final String hiddenText = "₱ ••••";
-    private final String hiddenPlate = "••••••";
     private final DecimalFormat df = new DecimalFormat("#,##0.00");
 
     private JSONArray remittanceData;
+    private JSONArray rawIncomingData;
 
     public SalaryPagerAdapter() {
     }
 
     public void setRemittanceData(JSONArray data) {
+        this.rawIncomingData = data;
         this.remittanceData = data;
         notifyDataSetChanged();
+    }
+
+    private JSONArray getMergedRemittanceData(Context context) {
+        String userId = PreferenceManager.getCurrentUserId(context);
+        String localPrefsKey = "local_remittance_history_" + userId;
+        SharedPreferences sharedPrefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+
+        JSONArray mergedData = new JSONArray();
+        String savedHistoryStr = sharedPrefs.getString(localPrefsKey, "[]");
+        try {
+            mergedData = new JSONArray(savedHistoryStr);
+        } catch (Exception e) {
+            mergedData = new JSONArray();
+        }
+
+        if (this.rawIncomingData != null) {
+            if (this.rawIncomingData.length() > 0) {
+                for (int i = 0; i < this.rawIncomingData.length(); i++) {
+                    JSONObject newGroup = this.rawIncomingData.optJSONObject(i);
+                    if (newGroup == null) continue;
+                    
+                    String newDate = newGroup.optString("date", "").trim();
+                    if (newDate.isEmpty()) {
+                        newDate = newGroup.optString("day", "").trim();
+                    }
+                    if (newDate.isEmpty()) continue;
+
+                    boolean found = false;
+                    for (int j = 0; j < mergedData.length(); j++) {
+                        JSONObject existingGroup = mergedData.optJSONObject(j);
+                        if (existingGroup != null) {
+                            String existingDate = existingGroup.optString("date", "").trim();
+                            if (existingDate.isEmpty()) {
+                                existingDate = existingGroup.optString("day", "").trim();
+                            }
+                            if (newDate.equalsIgnoreCase(existingDate)) {
+                                try {
+                                    mergedData.put(j, newGroup);
+                                } catch (Exception ignored) {}
+                                found = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!found) {
+                        mergedData.put(newGroup);
+                    }
+                }
+                sharedPrefs.edit().putString(localPrefsKey, mergedData.toString()).apply();
+            }
+            this.rawIncomingData = null;
+        }
+
+        this.remittanceData = mergedData;
+        return mergedData;
     }
 
     @NonNull
@@ -84,6 +137,8 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
             isSalaryVisible = prefs.getBoolean(key, true);
 
+            getMergedRemittanceData(context);
+
             updateSummaryUI(summaryHolder);
 
             summaryHolder.ivToggleVisibility.setOnClickListener(v -> {
@@ -104,7 +159,9 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 notifyItemChanged(TYPE_HISTORY);
             });
         } else if (holder instanceof HistoryViewHolder) {
-            setupHistoryList((HistoryViewHolder) holder);
+            HistoryViewHolder historyHolder = (HistoryViewHolder) holder;
+            getMergedRemittanceData(historyHolder.itemView.getContext());
+            setupHistoryList(historyHolder);
         }
     }
 
@@ -164,6 +221,8 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         List<HistoryAdapter.HistoryItem> previousItems = new ArrayList<>();
         Context context = holder.itemView.getContext();
 
+        getMergedRemittanceData(context);
+
         SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE", Locale.US);
         SimpleDateFormat fullFormat = new SimpleDateFormat("EEEE, MMM d", Locale.US);
         SimpleDateFormat dateKeyFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
@@ -175,7 +234,7 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
         Calendar cal = Calendar.getInstance();
         int todayIndex = cal.get(Calendar.DAY_OF_WEEK);
-           boolean isAfter10PM = cal.get(Calendar.HOUR_OF_DAY) >= 22;
+        boolean isAfter10PM = cal.get(Calendar.HOUR_OF_DAY) >= 22;
 
         cal.add(Calendar.DATE, -1);
         Date yesterdayDate = cal.getTime();
@@ -193,7 +252,10 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     if (dayGroup == null) continue;
 
                     String dayName = dayGroup.optString("day", "N/A");
-                    String groupDate = dayGroup.optString("date", dayName);
+                    String groupDate = dayGroup.optString("date", "").trim();
+                    if (groupDate.isEmpty()) {
+                        groupDate = dayName;
+                    }
 
                     boolean isToday = dayName.equalsIgnoreCase(todayName) ||
                             groupDate.contains(todayFormatted) ||
@@ -205,66 +267,68 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                             groupDate.equalsIgnoreCase(yesterdayName) ||
                             groupDate.contains(yesterdayDateKey);
 
+                    JSONArray partialsArray = dayGroup.optJSONArray("remittances");
+                    boolean hasRemittances = partialsArray != null && partialsArray.length() > 0;
+
                     // Upcoming filter check
                     boolean isUpcoming = false;
-                    Date parsedDate = null;
-                    String[] datePatterns = new String[]{"yyyy-MM-dd", "MM/dd/yyyy", "dd/MM/yyyy", "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", "yyyy-MM-dd'T'HH:mm:ss'Z'", "MMM dd, yyyy", "MMMM dd, yyyy", "MMM dd", "MMMM dd"};
-                    int currentYear = Calendar.getInstance().get(Calendar.YEAR);
-                    for (String pattern : datePatterns) {
-                        try {
-                            SimpleDateFormat sdf = new SimpleDateFormat(pattern, Locale.US);
-                            Date parsed = sdf.parse(groupDate.trim());
-                            if (parsed != null) {
-                                if (!pattern.contains("yyyy")) {
-                                    Calendar pCal = Calendar.getInstance(); pCal.setTime(parsed);
-                                    pCal.set(Calendar.YEAR, currentYear);
-                                    parsedDate = pCal.getTime();
-                                } else {
-                                    parsedDate = parsed;
+                    if (!hasRemittances) {
+                        Date parsedDate = null;
+                        String[] datePatterns = new String[]{"yyyy-MM-dd", "MM/dd/yyyy", "dd/MM/yyyy", "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", "yyyy-MM-dd'T'HH:mm:ss'Z'", "MMM dd, yyyy", "MMMM dd, yyyy", "MMM dd", "MMMM dd"};
+                        int currentYear = Calendar.getInstance().get(Calendar.YEAR);
+                        for (String pattern : datePatterns) {
+                            try {
+                                SimpleDateFormat sdf = new SimpleDateFormat(pattern, Locale.US);
+                                Date parsed = sdf.parse(groupDate.trim());
+                                if (parsed != null) {
+                                    if (!pattern.contains("yyyy")) {
+                                        Calendar pCal = Calendar.getInstance(); pCal.setTime(parsed);
+                                        pCal.set(Calendar.YEAR, currentYear);
+                                        parsedDate = pCal.getTime();
+                                    } else {
+                                        parsedDate = parsed;
+                                    }
+                                    break;
                                 }
-                                break;
-                            }
-                        } catch (Exception ignored) {}
-                    }
-
-                    if (parsedDate != null) {
-                        Calendar todayCal = Calendar.getInstance();
-                        todayCal.set(Calendar.HOUR_OF_DAY, 0); todayCal.set(Calendar.MINUTE, 0);
-                        todayCal.set(Calendar.SECOND, 0); todayCal.set(Calendar.MILLISECOND, 0);
-                        Date todayAtMidnight = todayCal.getTime();
-
-                        Calendar parsedCal = Calendar.getInstance(); parsedCal.setTime(parsedDate);
-                        parsedCal.set(Calendar.HOUR_OF_DAY, 0); parsedCal.set(Calendar.MINUTE, 0);
-                        parsedCal.set(Calendar.SECOND, 0); parsedCal.set(Calendar.MILLISECOND, 0);
-                        if (parsedCal.getTime().after(todayAtMidnight)) {
-                            isUpcoming = true;
+                            } catch (Exception ignored) {}
                         }
-                    } else {
-                        int targetIndex = -1;
-                        switch (dayName.toLowerCase(Locale.US)) {
-                            case "sunday": targetIndex = Calendar.SUNDAY; break;
-                            case "monday": targetIndex = Calendar.MONDAY; break;
-                            case "tuesday": targetIndex = Calendar.TUESDAY; break;
-                            case "wednesday": targetIndex = Calendar.WEDNESDAY; break;
-                            case "thursday": targetIndex = Calendar.THURSDAY; break;
-                            case "friday": targetIndex = Calendar.FRIDAY; break;
-                            case "saturday": targetIndex = Calendar.SATURDAY; break;
-                        }
-                        if (targetIndex != -1 && !isToday && !isYesterday) {
-                            int diff = targetIndex - todayIndex;
-                            if (diff < 0) diff += 7;
-                            if (diff > 0 && diff <= 3) {
+
+                        if (parsedDate != null) {
+                            Calendar todayCal = Calendar.getInstance();
+                            todayCal.set(Calendar.HOUR_OF_DAY, 0); todayCal.set(Calendar.MINUTE, 0);
+                            todayCal.set(Calendar.SECOND, 0); todayCal.set(Calendar.MILLISECOND, 0);
+                            Date todayAtMidnight = todayCal.getTime();
+
+                            Calendar parsedCal = Calendar.getInstance(); parsedCal.setTime(parsedDate);
+                            parsedCal.set(Calendar.HOUR_OF_DAY, 0); parsedCal.set(Calendar.MINUTE, 0);
+                            parsedCal.set(Calendar.SECOND, 0); parsedCal.set(Calendar.MILLISECOND, 0);
+                            if (parsedCal.getTime().after(todayAtMidnight)) {
                                 isUpcoming = true;
+                            }
+                        } else {
+                            int targetIndex = -1;
+                            switch (dayName.toLowerCase(Locale.US)) {
+                                case "sunday": targetIndex = Calendar.SUNDAY; break;
+                                case "monday": targetIndex = Calendar.MONDAY; break;
+                                case "tuesday": targetIndex = Calendar.TUESDAY; break;
+                                case "wednesday": targetIndex = Calendar.WEDNESDAY; break;
+                                case "thursday": targetIndex = Calendar.THURSDAY; break;
+                                case "friday": targetIndex = Calendar.FRIDAY; break;
+                                case "saturday": targetIndex = Calendar.SATURDAY; break;
+                            }
+                            if (targetIndex != -1 && !isToday && !isYesterday) {
+                                int diff = targetIndex - todayIndex;
+                                if (diff > 0) {
+                                    isUpcoming = true;
+                                }
                             }
                         }
                     }
 
                     if (isUpcoming) continue;
 
-                    JSONArray partialsArray = dayGroup.optJSONArray("remittances");
                     double totalGross = 0, totalRemittance = 0, totalNet = 0;
                     List<HistoryAdapter.PartialReport> reports = new ArrayList<>();
-                    boolean hasRemittances = partialsArray != null && partialsArray.length() > 0;
 
                     if (hasRemittances) {
                         List<JSONObject> sortedPartials = new ArrayList<>();
@@ -323,7 +387,7 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                         foundToday = true;
                     } else if (isYesterday) {
                         foundYesterday = true;
-                        previousItems.add(item); // Moved Yesterday to Previous
+                        previousItems.add(item);
                     } else {
                         previousItems.add(item);
                     }
@@ -353,7 +417,7 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             boolean hasScheduleYesterday = hasScheduleForDate(context, yesterdayName, yesterdayDateKey);
             double yesterdayIncentive = getIncentiveForDate(context, yesterdayName, yesterdayDateKey, "");
             HistoryAdapter.HistoryItem yesterdayItem = new HistoryAdapter.HistoryItem(yesterdayFormatted, "0.00", df.format(yesterdayIncentive * 2), df.format(-(yesterdayIncentive * 2)), !hasScheduleYesterday);
-            previousItems.add(yesterdayItem); // Moved Yesterday to Previous
+            previousItems.add(yesterdayItem);
         }
 
         Collections.sort(dailyItems, (a, b) -> parseItemDate(b.date).compareTo(parseItemDate(a.date)));
@@ -393,7 +457,7 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         String cachedSchedules = PreferenceManager.getSchedulesCache(context);
         if (cachedSchedules == null || cachedSchedules.trim().isEmpty()) return false;
         try {
-            JSONArray schedules = null;
+            JSONArray schedules;
             if (cachedSchedules.trim().startsWith("[")) {
                 schedules = new JSONArray(cachedSchedules);
             } else {
@@ -423,6 +487,8 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         if (holder == null) return;
 
         Context context = holder.itemView.getContext();
+        getMergedRemittanceData(context);
+
         String totalNetStr = "₱ 0.00";
         String grossStr = "₱ 0.00";
         String expensesStr = "- ₱ 0.00";
@@ -490,7 +556,10 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     if (dayGroup == null) continue;
 
                     String dayName = dayGroup.optString("day", "N/A");
-                    String groupDate = dayGroup.optString("date", dayName);
+                    String groupDate = dayGroup.optString("date", "").trim();
+                    if (groupDate.isEmpty()) {
+                        groupDate = dayName;
+                    }
 
                     boolean isToday = dayName.equalsIgnoreCase(todayName) ||
                             groupDate.contains(todayFormatted) ||
@@ -508,12 +577,10 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     JSONArray partialsArray = latestGroup.optJSONArray("remittances");
 
                     double sumGross = 0, sumExpenses = 0, sumNet = 0, sumShare = 0;
-                    int count = 0;
                     long maxTimeMillis = -1;
 
                     if (partialsArray != null && partialsArray.length() > 0) {
-                        count = partialsArray.length();
-                        for (int j = 0; j < count; j++) {
+                        for (int j = 0; j < partialsArray.length(); j++) {
                             JSONObject p = partialsArray.optJSONObject(j);
                             if (p == null) continue;
 
@@ -665,7 +732,7 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         if (cachedSchedules == null || cachedSchedules.trim().isEmpty()) return 0.0;
 
         try {
-            JSONArray schedules = null;
+            JSONArray schedules;
             if (cachedSchedules.trim().startsWith("[")) {
                 schedules = new JSONArray(cachedSchedules);
             } else {
@@ -742,7 +809,7 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         if (cachedSchedules == null || cachedSchedules.trim().isEmpty()) return;
 
         try {
-            JSONArray schedules = null;
+            JSONArray schedules;
             if (cachedSchedules.trim().startsWith("[")) {
                 schedules = new JSONArray(cachedSchedules);
             } else {
