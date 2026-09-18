@@ -11,18 +11,19 @@
     android:orientation="vertical"
     tools:context="com.example.portjeep.auth.LogInActivity">
 
-    <!-- Logo Section -->
+    <!-- 1. Logo Section (Top) -->
     <LinearLayout
         android:id="@+id/layout_top_logo"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1.2"
+        android:layout_weight="1.0"
         android:gravity="center">
 
         <ImageView
             android:id="@+id/img_login_logo"
             android:layout_width="280dp"
             android:layout_height="220dp"
+            android:layout_marginTop="39dp"
             android:adjustViewBounds="true"
             android:contentDescription="@string/desc_login_logo"
             android:padding="16dp"
@@ -31,11 +32,20 @@
             app:tint="?attr/logoTint" />
     </LinearLayout>
 
-    <!-- Scrollable Form Container -->
+    <!-- 2. Organic Wave Divider (The real separator) -->
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:contentDescription="@null"
+        android:scaleType="fitXY"
+        android:src="@drawable/ic_wave_divider" />
+
+    <!-- 3. Welcome Container (Bottom) -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/login_scroll_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginTop="-1dp"
         android:layout_weight="2.2"
         android:background="@drawable/bg_bottom_sheet_card"
         android:fillViewport="true"
@@ -46,13 +56,14 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingHorizontal="@dimen/login_form_padding_horizontal"
-            android:paddingTop="32dp"
+            android:paddingTop="10dp"
             android:paddingBottom="32dp">
 
             <TextView
                 android:id="@+id/tv_login_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="-7dp"
                 android:gravity="center"
                 android:letterSpacing="-0.02"
                 android:text="@string/login_welcome_back"
@@ -192,7 +203,7 @@
                 android:id="@+id/tv_recaptcha_notice"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
+                android:layout_marginTop="12dp"
                 android:alpha="0.5"
                 android:gravity="center"
                 android:lineSpacingExtra="2dp"

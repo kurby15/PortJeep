@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="360dp"
+    android:height="100dp"
+    android:viewportWidth="360"
+    android:viewportHeight="100">
+    <!-- Solid fill with a single, larger, smooth organic wave pattern -->
+    <path
+        android:fillColor="@color/color_gradient_card_start"
+        android:pathData="M0,40 C120,-15 240,115 360,60 L360,100 L0,100 Z" />
+
+    <!-- Matching wavy divider line -->
+    <path
+        android:strokeColor="@color/color_card_border"
+        android:strokeWidth="1.2"
+        android:pathData="M0,40 C120,-15 240,115 360,60" />
+</vector>
