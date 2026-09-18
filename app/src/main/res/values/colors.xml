@@ -9,6 +9,22 @@
     <color name="color_brand_secondary">#8E89C9</color>
     <color name="color_brand_accent">#F43F5E</color>
 
+    <!-- Navigation Colors - glass style -->
+    <!-- Frosted glass background (higher opacity white for the blur effect) -->
+    <color name="color_bottom_nav_bg">#D9F2F2F7</color>
+
+    <!-- Highlighted border for the bottom nav pill - using brand primary with transparency -->
+    <color name="color_bottom_nav_stroke">#4D6371C7</color>
+
+    <!-- iOS System Blue (matches the notification sender name) -->
+    <color name="color_nav_item_active_blue">#007AFF</color>
+
+    <!-- iOS System Gray (matches secondary text/timestamps) -->
+    <color name="color_nav_item_unselected">#8E8E93</color>
+
+    <!-- Muted indicator color blending with the glass theme -->
+    <color name="color_nav_indicator_selected">#4D000000</color>
+
     <!-- Modern Gradient Pairs - Light Mode (Matched to Header) -->
     <color name="color_gradient_primary_start">#6371C7</color>
     <color name="color_gradient_primary_end">#8E89C9</color>
@@ -117,9 +133,4 @@
     <color name="color_skeleton">#E2E8F0</color>
     <color name="color_quick_access_fill">#F1F5F9</color>
     <color name="color_logo_tint">@color/color_brand_primary</color>
-
-    <!-- Glass Bottom Nav Colors -->
-    <color name="color_bottom_nav_bg">#B3000000</color>
-    <color name="color_bottom_nav_stroke">#33FFFFFF</color>
-    <color name="color_nav_item_active_bg">#66717171</color>
 </resources>

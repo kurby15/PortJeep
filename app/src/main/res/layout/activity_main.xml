@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <!-- Modern Floating Pill Navigation Bar -->
+    <!-- Modern Floating Pill Navigation Bar - Styled like the search bar in the image -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/nav_card_container"
         android:layout_width="@dimen/bottom_nav_width"
@@ -20,12 +20,12 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="@dimen/bottom_nav_margin_bottom"
         app:cardCornerRadius="32dp"
-        app:cardElevation="0dp"
+        app:cardElevation="12dp"
         app:cardBackgroundColor="@color/color_bottom_nav_bg"
         app:strokeColor="@color/color_bottom_nav_stroke"
-        app:strokeWidth="1dp"
-        android:outlineAmbientShadowColor="@color/color_card_shadow_ambient"
-        android:outlineSpotShadowColor="@color/color_card_shadow_spot">
+        app:strokeWidth="2dp"
+        android:outlineAmbientShadowColor="#20000000"
+        android:outlineSpotShadowColor="#30000000">
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottom_navigation"
@@ -36,8 +36,8 @@
             app:labelVisibilityMode="unlabeled"
             app:itemIconSize="@dimen/bottom_nav_icon_size"
             app:itemIconTint="@color/bottom_nav_color_selector"
-            app:itemBackground="@drawable/nav_item_background"
-            app:itemRippleColor="@android:color/transparent"
+            app:itemBackground="@android:color/transparent"
+            app:itemRippleColor="#1A000000"
             app:menu="@menu/bottom_nav_menu" />
 
     </com.google.android.material.card.MaterialCardView>
