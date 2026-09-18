@@ -26,7 +26,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Source;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -129,8 +128,17 @@ public class HomeFragment extends Fragment {
         resetDynamicUI();
         loadOfflineUserProfile();
 
-        boolean hasValidCache = false;
         Context ctx = getContext();
+        if (ctx != null) {
+            String cachedName = PreferenceManager.getUserFirstName(ctx);
+            if (cachedName == null || cachedName.isEmpty()) {
+                isProfileRefreshed = false;
+                isScheduleRefreshed = false;
+                isSummaryRefreshed = false;
+            }
+        }
+
+        boolean hasValidCache = false;
         if (ctx != null) {
             String cachedData = PreferenceManager.getSchedulesCache(ctx);
             long lastFetch = PreferenceManager.getSchedulesLastFetchTime(ctx);
@@ -151,6 +159,19 @@ public class HomeFragment extends Fragment {
         loadRemittanceSummary();
 
         return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Context ctx = getContext();
+        if (ctx != null) {
+            String cachedData = PreferenceManager.getSchedulesCache(ctx);
+            if (cachedData != null) {
+                parseAndDisplaySchedules(cachedData);
+            }
+            loadRemittanceSummary();
+        }
     }
 
     @Override
@@ -203,7 +224,6 @@ public class HomeFragment extends Fragment {
 
                 int code = connection.getResponseCode();
                 if (code == HttpURLConnection.HTTP_OK) {
-                    // Read input stream
                     InputStream in = connection.getInputStream();
                     BufferedReader reader = new BufferedReader(new InputStreamReader(in));
                     StringBuilder sb = new StringBuilder();
@@ -345,17 +365,12 @@ public class HomeFragment extends Fragment {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null) return;
         if (isProfileRefreshed) return;
-        db.collection("File201").document(currentUser.getUid()).get(Source.SERVER).addOnSuccessListener(documentSnapshot -> {
+        db.collection("File201").document(currentUser.getUid()).get().addOnSuccessListener(documentSnapshot -> {
             if (isAdded() && documentSnapshot.exists()) {
                 isProfileRefreshed = true;
                 extractUserProfileAndRestDays(documentSnapshot);
             }
-        }).addOnFailureListener(e -> {
-            if (!isAdded()) return;
-            db.collection("File201").document(currentUser.getUid()).get(Source.CACHE).addOnSuccessListener(cacheSnapshot -> {
-                if (isAdded() && cacheSnapshot.exists()) extractUserProfileAndRestDays(cacheSnapshot);
-            });
-        });
+        }).addOnFailureListener(e -> Log.e(TAG, "Error loading user profile", e));
     }
 
     @SuppressWarnings("unchecked")

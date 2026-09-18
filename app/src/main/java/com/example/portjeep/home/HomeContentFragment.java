@@ -124,6 +124,10 @@ public class HomeContentFragment extends Fragment {
         setupClickListeners();
         setNoAssignmentUI();
 
+        if (savedInstanceState != null) {
+            hideLoadingSkeleton();
+        }
+
         return view;
     }
 
@@ -162,19 +166,17 @@ public class HomeContentFragment extends Fragment {
     }
 
     public void refreshStatusCarousel(List<String> userRestDays, List<JSONObject> unassignedSchedulesList) {
-        if (!isAdded() || getContext() == null) return;
+        if (vpStatusCarousel == null || getContext() == null) return;
         bannerItems.clear();
         bannerItems.add(new StatusBannerAdapter.BannerItem(StatusBannerAdapter.BannerItem.TYPE_REST_DAY, "Rest Day Schedule", "Your upcoming rest day assignments:", userRestDays, null));
         String unassignedDesc = unassignedSchedulesList.isEmpty() ? "Perfect! All your shifts are successfully assigned." : "Heads up! These shifts currently have no unit assigned:";
         bannerItems.add(new StatusBannerAdapter.BannerItem(StatusBannerAdapter.BannerItem.TYPE_UNASSIGNED, "Unassigned Log", unassignedDesc, null, unassignedSchedulesList));
-        if (vpStatusCarousel != null && bannerAdapter != null) {
-            vpStatusCarousel.post(() -> {
-                if (isAdded() && bannerAdapter != null) {
-                    bannerAdapter.notifyDataSetChanged();
-                    setupDotsIndicator(bannerItems.size());
-                }
-            });
-        }
+        vpStatusCarousel.post(() -> {
+            if (vpStatusCarousel != null && bannerAdapter != null && getContext() != null) {
+                bannerAdapter.notifyDataSetChanged();
+                setupDotsIndicator(bannerItems.size());
+            }
+        });
     }
 
     private void setupDotsIndicator(int count) {
@@ -233,7 +235,7 @@ public class HomeContentFragment extends Fragment {
         if (shimmerQuickAccess != null) { shimmerQuickAccess.startShimmer(); shimmerQuickAccess.setVisibility(View.VISIBLE); }
         if (llQuickAccessContent != null) llQuickAccessContent.setVisibility(View.GONE);
         if (shimmerBanner != null) { shimmerBanner.startShimmer(); shimmerBanner.setVisibility(View.VISIBLE); }
-        if (llBannerContent != null) llBannerContent.setVisibility(View.VISIBLE);
+        if (llBannerContent != null) llBannerContent.setVisibility(View.GONE);
         if (shimmerUpcoming != null) { shimmerUpcoming.startShimmer(); shimmerUpcoming.setVisibility(View.VISIBLE); }
         if (containerUpcoming != null) containerUpcoming.setVisibility(View.GONE);
     }
@@ -252,7 +254,7 @@ public class HomeContentFragment extends Fragment {
     }
 
     public void updateTodaySummaryUI(int finalTrips, double finalGross, double finalNet, double finalShare) {
-        if (!isAdded()) return;
+        if (tvSummaryTrips == null) return;
         Context context = getContext();
         boolean isVisible = true;
         if (context != null) {
@@ -271,23 +273,25 @@ public class HomeContentFragment extends Fragment {
         if (tvSummaryGross != null) tvSummaryGross.setText(grossStr);
         if (tvSummaryNet != null) tvSummaryNet.setText(netStr);
 
-        String role = PreferenceManager.getUserRole(context);
-        if (role != null && role.toUpperCase().contains("DRIVER")) {
-            String name = (tvDriverFullName != null) ? tvDriverFullName.getText().toString() : "Driver";
-            if (name.isEmpty() || name.contains("Unassigned") || name.contains("Duty")) name = "Driver";
-            if (tvSummaryShareLabel != null) tvSummaryShareLabel.setText(getString(R.string.possessive_name, name, "Share"));
-            if (tvSummaryDistance != null) tvSummaryDistance.setText(shareStr);
-        } else if (role != null && (role.toUpperCase().contains("PAO") || role.toUpperCase().contains("ASSISTANT"))) {
-            String name = (tvPaoFullName != null) ? tvPaoFullName.getText().toString() : "PAO";
-            if (name.isEmpty() || name.contains("Unassigned") || name.contains("Duty")) name = "PAO";
-            if (tvSummaryShareLabel != null) tvSummaryShareLabel.setText(getString(R.string.possessive_name, name, "Share"));
-            if (tvSummaryDistance != null) tvSummaryDistance.setText(shareStr);
+        if (context != null) {
+            String role = PreferenceManager.getUserRole(context);
+            if (role != null && role.toUpperCase().contains("DRIVER")) {
+                String name = (tvDriverFullName != null) ? tvDriverFullName.getText().toString() : "Driver";
+                if (name.isEmpty() || name.contains("Unassigned") || name.contains("Duty")) name = "Driver";
+                if (tvSummaryShareLabel != null) tvSummaryShareLabel.setText(context.getString(R.string.possessive_name, name, "Share"));
+                if (tvSummaryDistance != null) tvSummaryDistance.setText(shareStr);
+            } else if (role != null && (role.toUpperCase().contains("PAO") || role.toUpperCase().contains("ASSISTANT"))) {
+                String name = (tvPaoFullName != null) ? tvPaoFullName.getText().toString() : "PAO";
+                if (name.isEmpty() || name.contains("Unassigned") || name.contains("Duty")) name = "PAO";
+                if (tvSummaryShareLabel != null) tvSummaryShareLabel.setText(context.getString(R.string.possessive_name, name, "Share"));
+                if (tvSummaryDistance != null) tvSummaryDistance.setText(shareStr);
+            }
         }
         if (tvSummaryShareUnit != null) tvSummaryShareUnit.setText("Today");
     }
 
     public void resetTodaySummaryUI() {
-        if (!isAdded()) return;
+        if (tvSummaryTrips == null) return;
         if (tvSummaryTrips != null) tvSummaryTrips.setText("0");
         if (tvSummaryGross != null) tvSummaryGross.setText("₱0.00");
         if (tvSummaryNet != null) tvSummaryNet.setText("₱0.00");
@@ -295,17 +299,20 @@ public class HomeContentFragment extends Fragment {
         if (tvSummaryShareUnit != null) tvSummaryShareUnit.setText("Today");
 
         Context context = getContext();
-        String role = PreferenceManager.getUserRole(context);
-        if (role != null && role.toUpperCase().contains("DRIVER")) {
-            if (tvSummaryShareLabel != null) tvSummaryShareLabel.setText("Driver's Share");
-        } else if (role != null && (role.toUpperCase().contains("PAO") || role.toUpperCase().contains("ASSISTANT"))) {
-            if (tvSummaryShareLabel != null) tvSummaryShareLabel.setText("PAO's Share");
-        } else {
-            if (tvSummaryShareLabel != null) tvSummaryShareLabel.setText("Your Share");
+        if (context != null) {
+            String role = PreferenceManager.getUserRole(context);
+            if (role != null && role.toUpperCase().contains("DRIVER")) {
+                if (tvSummaryShareLabel != null) tvSummaryShareLabel.setText("Driver's Share");
+            } else if (role != null && (role.toUpperCase().contains("PAO") || role.toUpperCase().contains("ASSISTANT"))) {
+                if (tvSummaryShareLabel != null) tvSummaryShareLabel.setText("PAO's Share");
+            } else {
+                if (tvSummaryShareLabel != null) tvSummaryShareLabel.setText("Your Share");
+            }
         }
     }
 
     public void setNoAssignmentUI() {
+        if (tvUnitNo == null) return;
         if (tvUnitNo != null) tvUnitNo.setText("No Unit");
         if (tvPlateNo != null) tvPlateNo.setText("No Duty Today");
         if (tvTodayRoute != null) tvTodayRoute.setText("No Route");
@@ -316,7 +323,7 @@ public class HomeContentFragment extends Fragment {
     }
 
     public void processTodaySchedule(JSONObject doc) {
-        if (!isAdded()) return;
+        if (tvUnitNo == null) return;
         String rawJeep = doc.optString("jeep", "N/A");
         String route = doc.optString("route", "Minuyan - Starmall Loop");
         String secretKey = BuildConfig.CRYPTO_SECRET_KEY;
@@ -369,12 +376,14 @@ public class HomeContentFragment extends Fragment {
     }
 
     public void renderUpcomingScheduleList(List<JSONObject> docs) {
-        if (!isAdded() || containerUpcoming == null) return;
+        if (containerUpcoming == null || getContext() == null) return;
         containerUpcoming.removeAllViews();
         LayoutInflater inflater = LayoutInflater.from(getContext());
         if (docs.isEmpty()) {
             TextView tvEmpty = new TextView(getContext()); tvEmpty.setText("No upcoming schedules found.");
             tvEmpty.setGravity(android.view.Gravity.CENTER);
+            tvEmpty.setTextColor(androidx.core.content.ContextCompat.getColor(getContext(), R.color.color_text_secondary));
+            tvEmpty.setTextSize(14);
             int padding = (int) (20 * getResources().getDisplayMetrics().density);
             tvEmpty.setPadding(0, padding, 0, padding); containerUpcoming.addView(tvEmpty);
             return;
@@ -401,7 +410,7 @@ public class HomeContentFragment extends Fragment {
     }
 
     private void showScheduleDetailsModal(String day, String date, String jeep, String route, String driver, String pao) {
-        Context context = getContext(); if (context == null || !isAdded()) return;
+        Context context = getContext(); if (context == null) return;
         View view = LayoutInflater.from(context).inflate(R.layout.dialog_schedule_details, null);
         ((TextView) view.findViewById(R.id.tv_schedule_day)).setText(day);
         ((TextView) view.findViewById(R.id.tv_schedule_date)).setText(date);
@@ -447,7 +456,7 @@ public class HomeContentFragment extends Fragment {
             tvContact.setText("N/A");
             if (userId != null && !userId.isEmpty()) {
                 db.collection("File201").document(userId).get().addOnSuccessListener(doc -> {
-                    if (doc.exists() && isAdded()) {
+                    if (doc.exists() && tvContact != null) {
                         String secretKey = BuildConfig.CRYPTO_SECRET_KEY;
                         String phone = CryptoUtils.decrypt(doc.getString("contact_no"), secretKey);
                         if (phone != null && !phone.isEmpty() && !phone.equalsIgnoreCase("null")) {
