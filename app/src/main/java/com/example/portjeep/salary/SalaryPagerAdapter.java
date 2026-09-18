@@ -68,6 +68,15 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
         if (this.rawIncomingData != null) {
             if (this.rawIncomingData.length() > 0) {
+                SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE", Locale.US);
+                SimpleDateFormat fullFormat = new SimpleDateFormat("EEEE, MMM d", Locale.US);
+                SimpleDateFormat dateKeyFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+
+                Date now = new Date();
+                String todayName = dayFormat.format(now);
+                String todayFormatted = fullFormat.format(now);
+                String todayDateKey = dateKeyFormat.format(now);
+
                 for (int i = 0; i < this.rawIncomingData.length(); i++) {
                     JSONObject newGroup = this.rawIncomingData.optJSONObject(i);
                     if (newGroup == null) continue;
@@ -78,6 +87,10 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     }
                     if (newDate.isEmpty()) continue;
 
+                    boolean isToday = newDate.equalsIgnoreCase(todayName) ||
+                            newDate.contains(todayFormatted) ||
+                            newDate.equalsIgnoreCase(todayDateKey);
+
                     boolean found = false;
                     for (int j = 0; j < mergedData.length(); j++) {
                         JSONObject existingGroup = mergedData.optJSONObject(j);
@@ -87,9 +100,11 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                                 existingDate = existingGroup.optString("day", "").trim();
                             }
                             if (newDate.equalsIgnoreCase(existingDate)) {
-                                try {
-                                    mergedData.put(j, newGroup);
-                                } catch (Exception ignored) {}
+                                if (isToday) {
+                                    try {
+                                        mergedData.put(j, newGroup);
+                                    } catch (Exception ignored) {}
+                                }
                                 found = true;
                                 break;
                             }
@@ -100,6 +115,7 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     }
                 }
                 sharedPrefs.edit().putString(localPrefsKey, mergedData.toString()).apply();
+                PreferenceManager.saveSalaryCache(context, mergedData.toString());
             }
             this.rawIncomingData = null;
         }
