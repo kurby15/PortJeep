@@ -236,7 +236,8 @@ public class ProfileFragment extends Fragment {
 
     public void navigateToSettings() {
         getParentFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, new SettingsFragment())
+                .add(R.id.fragment_container, new SettingsFragment())
+                .hide(this)
                 .addToBackStack(null)
                 .commit();
     }

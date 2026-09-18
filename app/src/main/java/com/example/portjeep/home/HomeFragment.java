@@ -213,12 +213,12 @@ public class HomeFragment extends Fragment {
                 if (getView() == null || !isAdded()) return;
                 View clRobotThought = getView().findViewById(R.id.cl_robot_thought);
                 TextView tvRobotBubbleText = getView().findViewById(R.id.tv_robot_bubble_text);
-                
+
                 if (clRobotThought != null && tvRobotBubbleText != null) {
-                    String name = (tvDriverName != null && tvDriverName.getText() != null) 
+                    String name = (tvDriverName != null && tvDriverName.getText() != null)
                             ? tvDriverName.getText().toString().trim() : "boss";
                     if (name.isEmpty()) name = "boss";
-                    
+
                     String[] currentThoughts = getTimeBasedThoughts();
                     String messageTemplate = currentThoughts[messageIndex % currentThoughts.length];
                     tvRobotBubbleText.setText(String.format(messageTemplate, name));
@@ -235,7 +235,7 @@ public class HomeFragment extends Fragment {
                         if (getView() == null || !isAdded()) return;
                         View clRobotThought = getView().findViewById(R.id.cl_robot_thought);
                         if (clRobotThought != null) {
-                            clRobotThought.animate().alpha(0f).setDuration(300).withEndAction(() -> 
+                            clRobotThought.animate().alpha(0f).setDuration(300).withEndAction(() ->
                                 clRobotThought.setVisibility(View.GONE)).start();
                         }
                     }

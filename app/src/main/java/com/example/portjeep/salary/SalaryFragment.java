@@ -41,7 +41,8 @@ import java.util.concurrent.Executors;
 public class SalaryFragment extends Fragment {
 
     private static final String TAG = "SalaryFragment";
-    private static final String API_URL = "https://port-jeep.vercel.app/api/mobile/remittances";
+    private static final String REMITTANCES_API_URL = "https://port-jeep.vercel.app/api/mobile/remittances";
+    private static final String SCHEDULES_API_URL = "https://port-jeep.vercel.app/api/mobile/schedules";
 
     private SwipeRefreshLayout swipeRefreshLayout;
     private ShimmerFrameLayout shimmerSalary;
@@ -207,7 +208,9 @@ public class SalaryFragment extends Fragment {
         currentUser.getIdToken(false)
                 .addOnSuccessListener(result -> {
                     if (!isAdded()) return;
-                    fetchRemittancesFromApi(result.getToken());
+                    String token = result.getToken();
+                    fetchRemittancesFromApi(token);
+                    fetchSchedulesFromApi(token);
                 })
                 .addOnFailureListener(e -> {
                     if (isAdded()) {
@@ -221,7 +224,7 @@ public class SalaryFragment extends Fragment {
         executor.execute(() -> {
             HttpURLConnection connection = null;
             try {
-                URL url = new URL(API_URL);
+                URL url = new URL(REMITTANCES_API_URL);
                 connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("GET");
                 connection.setRequestProperty("Authorization", "Bearer " + idToken);
@@ -254,6 +257,44 @@ public class SalaryFragment extends Fragment {
                         hideLoadingSkeleton();
                     }
                 });
+            } finally {
+                if (connection != null) connection.disconnect();
+            }
+        });
+    }
+
+    private void fetchSchedulesFromApi(String idToken) {
+        executor.execute(() -> {
+            HttpURLConnection connection = null;
+            try {
+                URL url = new URL(SCHEDULES_API_URL);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+                connection.setRequestProperty("Authorization", "Bearer " + idToken);
+                connection.setConnectTimeout(10000);
+                connection.setReadTimeout(10000);
+
+                int responseCode = connection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    InputStream inputStream = connection.getInputStream();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                    StringBuilder responseStr = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) responseStr.append(line);
+                    reader.close();
+
+                    String rawResult = responseStr.toString();
+                    handler.post(() -> {
+                        if (isAdded() && getContext() != null) {
+                            PreferenceManager.saveSchedulesCache(getContext(), rawResult);
+                            if (adapter != null) {
+                                adapter.notifyDataSetChanged();
+                            }
+                        }
+                    });
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Schedule fetch error", e);
             } finally {
                 if (connection != null) connection.disconnect();
             }

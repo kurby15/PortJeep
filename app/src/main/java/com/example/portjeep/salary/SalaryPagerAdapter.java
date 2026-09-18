@@ -197,12 +197,16 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 SimpleDateFormat sdf = new SimpleDateFormat(pattern, Locale.US);
                 Date parsed = sdf.parse(cleaned);
                 if (parsed != null) {
+                    Calendar pCal = Calendar.getInstance();
+                    pCal.setTime(parsed);
                     if (!pattern.contains("yyyy")) {
-                        Calendar pCal = Calendar.getInstance();
                         pCal.set(Calendar.YEAR, currentYear);
-                        return pCal.getTime();
                     }
-                    return parsed;
+                    pCal.set(Calendar.HOUR_OF_DAY, 0);
+                    pCal.set(Calendar.MINUTE, 0);
+                    pCal.set(Calendar.SECOND, 0);
+                    pCal.set(Calendar.MILLISECOND, 0);
+                    return pCal.getTime();
                 }
             } catch (Exception ignored) {}
         }
@@ -258,9 +262,6 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         String yesterdayFormatted = fullFormat.format(yesterdayDate);
         String yesterdayDateKey = dateKeyFormat.format(yesterdayDate);
 
-        boolean foundToday = false;
-        boolean foundYesterday = false;
-
         if (remittanceData != null) {
             for (int i = 0; i < remittanceData.length(); i++) {
                 try {
@@ -297,13 +298,16 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                                 SimpleDateFormat sdf = new SimpleDateFormat(pattern, Locale.US);
                                 Date parsed = sdf.parse(groupDate.trim());
                                 if (parsed != null) {
+                                    Calendar pCal = Calendar.getInstance();
+                                    pCal.setTime(parsed);
                                     if (!pattern.contains("yyyy")) {
-                                        Calendar pCal = Calendar.getInstance(); pCal.setTime(parsed);
                                         pCal.set(Calendar.YEAR, currentYear);
-                                        parsedDate = pCal.getTime();
-                                    } else {
-                                        parsedDate = parsed;
                                     }
+                                    pCal.set(Calendar.HOUR_OF_DAY, 0);
+                                    pCal.set(Calendar.MINUTE, 0);
+                                    pCal.set(Calendar.SECOND, 0);
+                                    pCal.set(Calendar.MILLISECOND, 0);
+                                    parsedDate = pCal.getTime();
                                     break;
                                 }
                             } catch (Exception ignored) {}
@@ -315,10 +319,7 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                             todayCal.set(Calendar.SECOND, 0); todayCal.set(Calendar.MILLISECOND, 0);
                             Date todayAtMidnight = todayCal.getTime();
 
-                            Calendar parsedCal = Calendar.getInstance(); parsedCal.setTime(parsedDate);
-                            parsedCal.set(Calendar.HOUR_OF_DAY, 0); parsedCal.set(Calendar.MINUTE, 0);
-                            parsedCal.set(Calendar.SECOND, 0); parsedCal.set(Calendar.MILLISECOND, 0);
-                            if (parsedCal.getTime().after(todayAtMidnight)) {
+                            if (parsedDate.after(todayAtMidnight)) {
                                 isUpcoming = true;
                             }
                         } else {
@@ -400,10 +401,6 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                             item.setExpanded(true);
                             dailyItems.add(item);
                         }
-                        foundToday = true;
-                    } else if (isYesterday) {
-                        foundYesterday = true;
-                        previousItems.add(item);
                     } else {
                         previousItems.add(item);
                     }
@@ -414,26 +411,133 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             }
         }
 
-        if (!foundToday) {
-            boolean hasScheduleToday = hasScheduleForDate(context, todayName, todayDateKey);
-            double todayIncentive = getIncentiveForDate(context, todayName, todayDateKey, "");
-            HistoryAdapter.HistoryItem todayItem = new HistoryAdapter.HistoryItem(todayFormatted, "0.00", df.format(todayIncentive * 2), df.format(-(todayIncentive * 2)), !hasScheduleToday);
-            if (isAfter10PM) {
-                todayItem.setToday(false);
-                todayItem.setExpanded(false);
-                previousItems.add(todayItem);
-            } else {
-                todayItem.setToday(true);
-                todayItem.setExpanded(true);
-                dailyItems.add(todayItem);
+        // Fill any missing days in the last 7 days continuous timeline
+        for (int d = 0; d < 7; d++) {
+            Calendar checkCal = Calendar.getInstance();
+            checkCal.add(Calendar.DATE, -d);
+            checkCal.set(Calendar.HOUR_OF_DAY, 0); checkCal.set(Calendar.MINUTE, 0);
+            checkCal.set(Calendar.SECOND, 0); checkCal.set(Calendar.MILLISECOND, 0);
+            Date checkDate = checkCal.getTime();
+
+            boolean alreadyAdded = false;
+            int y1 = checkCal.get(Calendar.YEAR);
+            int dayOfYear1 = checkCal.get(Calendar.DAY_OF_YEAR);
+
+            for (HistoryAdapter.HistoryItem item : dailyItems) {
+                Calendar c2 = Calendar.getInstance();
+                c2.setTime(parseItemDate(item.date));
+                if (c2.get(Calendar.YEAR) == y1 && c2.get(Calendar.DAY_OF_YEAR) == dayOfYear1) {
+                    alreadyAdded = true;
+                    break;
+                }
+            }
+            if (!alreadyAdded) {
+                for (HistoryAdapter.HistoryItem item : previousItems) {
+                    Calendar c2 = Calendar.getInstance();
+                    c2.setTime(parseItemDate(item.date));
+                    if (c2.get(Calendar.YEAR) == y1 && c2.get(Calendar.DAY_OF_YEAR) == dayOfYear1) {
+                        alreadyAdded = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!alreadyAdded) {
+                String dName = dayFormat.format(checkDate);
+                String dFormatted = fullFormat.format(checkDate);
+                String dDateKey = dateKeyFormat.format(checkDate);
+
+                boolean hasSched = hasScheduleForDate(context, dName, dDateKey);
+                double incentive = getIncentiveForDate(context, dName, dDateKey, "");
+                HistoryAdapter.HistoryItem missingItem = new HistoryAdapter.HistoryItem(
+                        dFormatted, "0.00", df.format(incentive * 2), df.format(-(incentive * 2)), !hasSched
+                );
+
+                if (d == 0) { // Today
+                    if (isAfter10PM) {
+                        missingItem.setToday(false);
+                        missingItem.setExpanded(false);
+                        previousItems.add(missingItem);
+                    } else {
+                        missingItem.setToday(true);
+                        missingItem.setExpanded(true);
+                        dailyItems.add(missingItem);
+                    }
+                } else {
+                    missingItem.setToday(false);
+                    missingItem.setExpanded(false);
+                    previousItems.add(missingItem);
+                }
             }
         }
 
-        if (!foundYesterday) {
-            boolean hasScheduleYesterday = hasScheduleForDate(context, yesterdayName, yesterdayDateKey);
-            double yesterdayIncentive = getIncentiveForDate(context, yesterdayName, yesterdayDateKey, "");
-            HistoryAdapter.HistoryItem yesterdayItem = new HistoryAdapter.HistoryItem(yesterdayFormatted, "0.00", df.format(yesterdayIncentive * 2), df.format(-(yesterdayIncentive * 2)), !hasScheduleYesterday);
-            previousItems.add(yesterdayItem);
+        // Fill any other missing days specifically listed in the schedules cache
+        String cachedSchedules = PreferenceManager.getSchedulesCache(context);
+        if (cachedSchedules != null && !cachedSchedules.trim().isEmpty()) {
+            try {
+                JSONArray schedules;
+                if (cachedSchedules.trim().startsWith("[")) {
+                    schedules = new JSONArray(cachedSchedules);
+                } else {
+                    JSONObject root = new JSONObject(cachedSchedules);
+                    schedules = root.optJSONArray("schedules");
+                }
+                if (schedules != null) {
+                    Calendar todayMidnight = Calendar.getInstance();
+                    todayMidnight.set(Calendar.HOUR_OF_DAY, 0); todayMidnight.set(Calendar.MINUTE, 0);
+                    todayMidnight.set(Calendar.SECOND, 0); todayMidnight.set(Calendar.MILLISECOND, 0);
+
+                    for (int i = 0; i < schedules.length(); i++) {
+                        JSONObject sched = schedules.getJSONObject(i);
+                        String schedDateStr = sched.optString("date", "");
+                        if (schedDateStr.isEmpty()) continue;
+
+                        Date schedDate = parseItemDate(schedDateStr);
+                        if (schedDate.getTime() == 0 || schedDate.after(todayMidnight.getTime())) {
+                            continue;
+                        }
+
+                        Calendar c1 = Calendar.getInstance();
+                        c1.setTime(schedDate);
+                        int y1 = c1.get(Calendar.YEAR);
+                        int dayOfYear1 = c1.get(Calendar.DAY_OF_YEAR);
+
+                        boolean alreadyAdded = false;
+                        for (HistoryAdapter.HistoryItem item : dailyItems) {
+                            Calendar c2 = Calendar.getInstance();
+                            c2.setTime(parseItemDate(item.date));
+                            if (c2.get(Calendar.YEAR) == y1 && c2.get(Calendar.DAY_OF_YEAR) == dayOfYear1) {
+                                alreadyAdded = true;
+                                break;
+                            }
+                        }
+                        if (!alreadyAdded) {
+                            for (HistoryAdapter.HistoryItem item : previousItems) {
+                                Calendar c2 = Calendar.getInstance();
+                                c2.setTime(parseItemDate(item.date));
+                                if (c2.get(Calendar.YEAR) == y1 && c2.get(Calendar.DAY_OF_YEAR) == dayOfYear1) {
+                                    alreadyAdded = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (!alreadyAdded) {
+                            String dName = dayFormat.format(schedDate);
+                            String dFormatted = fullFormat.format(schedDate);
+                            double incentive = getIncentiveForDate(context, dName, schedDateStr, "");
+                            HistoryAdapter.HistoryItem missingItem = new HistoryAdapter.HistoryItem(
+                                    dFormatted, "0.00", df.format(incentive * 2), df.format(-(incentive * 2)), false
+                            );
+                            missingItem.setToday(false);
+                            missingItem.setExpanded(false);
+                            previousItems.add(missingItem);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                Log.e("SalaryPagerAdapter", "Error processing missing schedules", e);
+            }
         }
 
         Collections.sort(dailyItems, (a, b) -> parseItemDate(b.date).compareTo(parseItemDate(a.date)));
