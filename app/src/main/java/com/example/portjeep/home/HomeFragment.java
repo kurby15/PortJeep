@@ -204,6 +204,25 @@ public class HomeFragment extends Fragment {
         }
     }
 
+    public void onContentFragmentReady() {
+        Context ctx = getContext();
+        if (ctx != null) {
+            String cachedData = PreferenceManager.getSchedulesCache(ctx);
+            if (cachedData != null) {
+                parseAndDisplaySchedules(cachedData);
+            }
+            String cachedSalary = PreferenceManager.getSalaryCache(ctx);
+            if (cachedSalary != null) {
+                try {
+                    processRemittanceSummary(new JSONArray(cachedSalary));
+                } catch (Exception ignored) {}
+            }
+        }
+        if (isScheduleRefreshed) {
+            hideLoadingSkeleton();
+        }
+    }
+
     private void startRobotTalkingLoop() {
         stopRobotTalkingLoop();
 
@@ -378,7 +397,7 @@ public class HomeFragment extends Fragment {
     private void stopRobotTalkingLoop() {
         if (robotShowRunnable != null) robotHandler.removeCallbacks(robotShowRunnable);
         if (robotHideRunnable != null) robotHandler.removeCallbacks(robotHideRunnable);
-        if (getView() != null) {
+        if (getView() == null) {
             View clRobotThought = getView().findViewById(R.id.cl_robot_thought);
             if (clRobotThought != null) clRobotThought.setVisibility(View.GONE);
         }

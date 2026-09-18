@@ -128,6 +128,11 @@ public class HomeContentFragment extends Fragment {
             hideLoadingSkeleton();
         }
 
+        Fragment parent = getParentFragment();
+        if (parent instanceof HomeFragment) {
+            ((HomeFragment) parent).onContentFragmentReady();
+        }
+
         return view;
     }
 
