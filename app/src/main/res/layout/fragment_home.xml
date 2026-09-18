@@ -59,22 +59,20 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:alpha="0.9"
-                        android:letterSpacing="0.02"
                         android:textColor="@color/white"
                         android:textSize="14sp"
-                        tools:text="Good morning," />
+                        tools:text="Good afternoon," />
 
                     <TextView
                         android:id="@+id/tv_driver_name"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
-                        android:letterSpacing="-0.01"
                         android:textColor="@color/white"
                         android:textSize="30sp"
                         android:textStyle="bold"
                         app:layout_constrainedWidth="true"
-                        tools:text="Ricardo" />
+                        tools:text="Gustavo" />
 
                     <TextView
                         android:id="@+id/tv_role_badge"
@@ -82,17 +80,83 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
                         android:background="@drawable/bg_badge_role"
-                        android:letterSpacing="0.08"
                         android:paddingStart="12dp"
-                        android:paddingTop="5dp"
                         android:paddingEnd="12dp"
+                        android:paddingTop="5dp"
                         android:paddingBottom="5dp"
                         android:textColor="@color/white"
                         android:textSize="10sp"
                         android:textStyle="bold"
                         tools:text="DRIVER" />
-
                 </LinearLayout>
+
+                <!-- Refined Thought Bubble & Trail following curved red line path -->
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/cl_robot_thought"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    app:layout_constraintEnd_toStartOf="@id/iv_robot"
+                    app:layout_constraintTop_toTopOf="@id/iv_robot"
+                    android:layout_marginEnd="-12dp"
+                    android:layout_marginTop="2dp">
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cv_thought_main"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:cardCornerRadius="14dp"
+                        app:cardElevation="2dp"
+                        app:cardBackgroundColor="@color/white"
+                        app:strokeWidth="0dp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent">
+
+                        <TextView
+                            android:id="@+id/tv_robot_bubble_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="5dp"
+                            android:textColor="#333333"
+                            android:textSize="10sp"
+                            android:textStyle="bold"
+                            android:maxWidth="115dp"
+                            tools:text="Kumain ka na ba, Gustavo?" />
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Trail of dots following the curved path -->
+                    <View
+                        android:id="@+id/v_thought_dot_1"
+                        android:layout_width="8dp"
+                        android:layout_height="8dp"
+                        android:background="@drawable/bg_thought_dot"
+                        app:layout_constraintTop_toBottomOf="@id/cv_thought_main"
+                        app:layout_constraintEnd_toEndOf="@id/cv_thought_main"
+                        android:layout_marginTop="-2dp"
+                        android:layout_marginEnd="8dp" />
+
+                    <View
+                        android:id="@+id/v_thought_dot_2"
+                        android:layout_width="5dp"
+                        android:layout_height="5dp"
+                        android:background="@drawable/bg_thought_dot"
+                        app:layout_constraintTop_toBottomOf="@id/v_thought_dot_1"
+                        app:layout_constraintStart_toEndOf="@id/v_thought_dot_1"
+                        android:layout_marginTop="1dp"
+                        android:layout_marginStart="0dp" />
+
+                    <View
+                        android:id="@+id/v_thought_dot_3"
+                        android:layout_width="3dp"
+                        android:layout_height="3dp"
+                        android:background="@drawable/bg_thought_dot"
+                        app:layout_constraintTop_toBottomOf="@id/v_thought_dot_2"
+                        app:layout_constraintStart_toEndOf="@id/v_thought_dot_2"
+                        android:layout_marginTop="1dp"
+                        android:layout_marginStart="2dp" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <ImageView
                     android:id="@+id/iv_robot"
@@ -100,7 +164,7 @@
                     android:layout_height="110dp"
                     android:layout_marginEnd="-4dp"
                     android:layout_marginBottom="-24dp"
-                    android:contentDescription="Robot assistant"
+                    android:contentDescription="Robot Assistant"
                     android:scaleType="fitCenter"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -109,17 +173,14 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
         </LinearLayout>
 
-        <!-- Content Area Container -->
         <FrameLayout
             android:id="@+id/fl_home_content_container"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginTop="8dp"
-            android:background="@android:color/transparent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@id/ll_home_header" />
 
-        <!-- Fixed bottom spacing View -->
         <View
             android:layout_width="match_parent"
             android:layout_height="140dp"

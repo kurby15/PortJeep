@@ -73,6 +73,12 @@ public class HomeFragment extends Fragment {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final Handler handler = new Handler(Looper.getMainLooper());
 
+    // Robot Talking Loop Handler & Runnables
+    private final Handler robotHandler = new Handler(Looper.getMainLooper());
+    private Runnable robotShowRunnable;
+    private Runnable robotHideRunnable;
+    private int messageIndex = 0;
+
     // User Profile & Unassigned Schedule Data State
     private final List<String> userRestDays = new ArrayList<>();
     private final List<JSONObject> unassignedSchedulesList = new ArrayList<>();
@@ -178,6 +184,13 @@ public class HomeFragment extends Fragment {
     public void onResume() {
         super.onResume();
         loadRemittanceSummary();
+        startRobotTalkingLoop();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        stopRobotTalkingLoop();
     }
 
     @Override
@@ -185,6 +198,189 @@ public class HomeFragment extends Fragment {
         super.onHiddenChanged(hidden);
         if (!hidden) {
             loadRemittanceSummary();
+            startRobotTalkingLoop();
+        } else {
+            stopRobotTalkingLoop();
+        }
+    }
+
+    private void startRobotTalkingLoop() {
+        stopRobotTalkingLoop();
+
+        robotShowRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (getView() == null || !isAdded()) return;
+                View clRobotThought = getView().findViewById(R.id.cl_robot_thought);
+                TextView tvRobotBubbleText = getView().findViewById(R.id.tv_robot_bubble_text);
+                
+                if (clRobotThought != null && tvRobotBubbleText != null) {
+                    String name = (tvDriverName != null && tvDriverName.getText() != null) 
+                            ? tvDriverName.getText().toString().trim() : "boss";
+                    if (name.isEmpty()) name = "boss";
+                    
+                    String[] currentThoughts = getTimeBasedThoughts();
+                    String messageTemplate = currentThoughts[messageIndex % currentThoughts.length];
+                    tvRobotBubbleText.setText(String.format(messageTemplate, name));
+                    messageIndex++;
+
+                    clRobotThought.setVisibility(View.VISIBLE);
+                    clRobotThought.setAlpha(0f);
+                    clRobotThought.animate().alpha(1f).setDuration(300).start();
+                }
+
+                robotHideRunnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        if (getView() == null || !isAdded()) return;
+                        View clRobotThought = getView().findViewById(R.id.cl_robot_thought);
+                        if (clRobotThought != null) {
+                            clRobotThought.animate().alpha(0f).setDuration(300).withEndAction(() -> 
+                                clRobotThought.setVisibility(View.GONE)).start();
+                        }
+                    }
+                };
+                robotHandler.postDelayed(robotHideRunnable, 5000);
+                robotHandler.postDelayed(this, 15000);
+            }
+        };
+
+        robotHandler.postDelayed(robotShowRunnable, 2000);
+    }
+
+    private String[] getTimeBasedThoughts() {
+        int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+        boolean isPAO = userRole.toUpperCase().contains("PAO") || userRole.toUpperCase().contains("ASSISTANT");
+
+        if (hour >= 0 && hour < 5) { // Madaling Araw
+            if (isPAO) {
+                return new String[]{
+                    "Madaling araw na, PAO %s. Gising na ba?",
+                    "Sipag naman ni PAO %s, hataw agad.",
+                    "Ingat sa biyahe boss %s, dilim pa.",
+                    "Pang-kape muna bago mangolekta, %s.",
+                    "Keep alert, %s! Ready na sa first trip?",
+                    "Stay warm, boss %s. Malamig pa."
+                };
+            } else {
+                return new String[]{
+                    "Madaling araw na, Driver %s. Antok pa?",
+                    "Drive safe sa dilim, %s!",
+                    "Ingat sa biyahe boss %s, dilim pa.",
+                    "Sipag naman ni %s, gising na.",
+                    "Coffee break muna, %s?",
+                    "Keep alert, %s! Hataw na.",
+                    "Ready for the early shift, %s?",
+                    "Stay warm, boss %s.",
+                    "Tulog pa ba sila, %s?"
+                };
+            }
+        } else if (hour >= 5 && hour < 11) { // Umaga
+            if (isPAO) {
+                return new String[]{
+                    "Gandang umaga, PAO %s! Ready mangolekta?",
+                    "Smile sa pasahero, %s! Positive vibes.",
+                    "Check your change bag, %s.",
+                    "Morning boss %s! Fighting tayo ngayon.",
+                    "Breakfast check, %s? Energy is key.",
+                    "Dami nating pasahero ngayon, %s!",
+                    "Handa na ba ang barya, PAO %s?"
+                };
+            } else {
+                return new String[]{
+                    "Gandang umaga, Driver %s! Kape tayo?",
+                    "Ready na ba pumasok, %s?",
+                    "Morning boss %s! Fighting!",
+                    "Breakfast check, %s?",
+                    "Have a productive day, %s!",
+                    "Smiling face tayo, %s!",
+                    "Road trip na, %s!",
+                    "Check your tires, Driver %s.",
+                    "May gas na ba ang jeep, %s?",
+                    "Ang ganda ng gising natin, %s!"
+                };
+            }
+        } else if (hour >= 11 && hour < 13) { // Tanghalian
+            if (isPAO) {
+                return new String[]{
+                    "Tanghalian na, PAO %s! Kain na tayo.",
+                    "Bilangin ang barya, %s! Solve ba?",
+                    "Nag-break ka na ba, %s? Rest muna.",
+                    "Gutom ka na ba boss %s?",
+                    "Ano ulam natin, %s? Ulam reveal!",
+                    "Siesta time muna kahit 5 mins, %s.",
+                    "Remit check tayo mamaya, PAO %s."
+                };
+            } else {
+                return new String[]{
+                    "Tanghalian na, Driver %s! Kain na tayo.",
+                    "Nag-break ka na ba, %s?",
+                    "Gutom ka na ba boss %s?",
+                    "Ano ulam natin, %s?",
+                    "Siesta time muna, %s?",
+                    "Hydrate yourself, boss %s.",
+                    "Kain na tayo, boss %s!",
+                    "Lunch time na, rest muna %s."
+                };
+            }
+        } else if (hour >= 13 && hour < 18) { // Hapon
+            if (isPAO) {
+                return new String[]{
+                    "Gandang hapon, PAO %s! Mainit ba?",
+                    "Konti na lang boss %s, uwian na.",
+                    "Kamusta ang koleksyon ngayong hapon, %s?",
+                    "Keep hydrated, %s! Init sa pagsingil.",
+                    "Stay safe sa kalsada, %s.",
+                    "Afternoon rush is coming, ready na %s?",
+                    "Miryenda muna tayo, PAO %s!",
+                    "Sukli check muna, %s."
+                };
+            } else {
+                return new String[]{
+                    "Gandang hapon, Driver %s! Mainit ba?",
+                    "Konti na lang boss %s, uwian na.",
+                    "Kamusta ang biyahe ngayong hapon, %s?",
+                    "Keep hydrated, %s! Init.",
+                    "Stay safe sa kalsada, %s.",
+                    "Looking good today, boss %s.",
+                    "Miryenda muna tayo, %s!",
+                    "Traffic check tayo, Driver %s."
+                };
+            }
+        } else { // Gabi
+            if (isPAO) {
+                return new String[]{
+                    "Gandang gabi, PAO %s! Pagod ka ba?",
+                    "Good job sa pagkolekta ngayon, %s!",
+                    "Pahinga na tayo mamaya, %s.",
+                    "Ingat sa pag-uwi, boss %s!",
+                    "Safe trip pauwi, PAO %s.",
+                    "Miss ka na nila sa bahay, %s.",
+                    "Kumpleto ba ang remit, PAO %s?",
+                    "Good night in advance, %s!"
+                };
+            } else {
+                return new String[]{
+                    "Gandang gabi, Driver %s! Pagod ka ba?",
+                    "Pahinga na tayo mamaya, %s.",
+                    "Ingat sa pag-uwi, boss %s!",
+                    "Uwi na tayo, %s. Miss ka na nila.",
+                    "One last trip, %s?",
+                    "Good job for today, %s!",
+                    "You earned this rest, boss %s.",
+                    "Check your lights, Driver %s.",
+                    "Good night in advance, %s!"
+                };
+            }
+        }
+    }
+
+    private void stopRobotTalkingLoop() {
+        if (robotShowRunnable != null) robotHandler.removeCallbacks(robotShowRunnable);
+        if (robotHideRunnable != null) robotHandler.removeCallbacks(robotHideRunnable);
+        if (getView() != null) {
+            View clRobotThought = getView().findViewById(R.id.cl_robot_thought);
+            if (clRobotThought != null) clRobotThought.setVisibility(View.GONE);
         }
     }
 
@@ -608,6 +804,7 @@ public class HomeFragment extends Fragment {
         int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
         if (hour < 5) tvGreeting.setText("Drive Safe boss,");
         else if (hour < 12) tvGreeting.setText("Good morning boss,");
+        else if (hour < 13) tvGreeting.setText("Tanghalian boss,");
         else if (hour < 18) tvGreeting.setText("Good afternoon boss,");
         else tvGreeting.setText("Good evening boss,");
     }
