@@ -195,9 +195,12 @@ public class ProfileFragment extends Fragment {
     }
 
     private void saveAvatarLocally(Bitmap bitmap) {
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user == null) return;
+        String uid = user.getUid();
         try {
             File storageDir = requireContext().getFilesDir();
-            File avatarFile = new File(storageDir, "profile_avatar.png");
+            File avatarFile = new File(storageDir, "profile_avatar_" + uid + ".png");
             FileOutputStream fos = new FileOutputStream(avatarFile);
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
             fos.flush();
@@ -208,13 +211,18 @@ public class ProfileFragment extends Fragment {
     }
 
     private void loadSavedAvatar() {
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user == null) return;
+        String uid = user.getUid();
         try {
-            File avatarFile = new File(requireContext().getFilesDir(), "profile_avatar.png");
+            File avatarFile = new File(requireContext().getFilesDir(), "profile_avatar_" + uid + ".png");
             if (avatarFile.exists()) {
                 Bitmap bitmap = BitmapFactory.decodeFile(avatarFile.getAbsolutePath());
                 if (bitmap != null) {
                     setAvatarBitmap(bitmap);
                 }
+            } else if (tvAvatarInitials != null) {
+                tvAvatarInitials.setBackground(null);
             }
         } catch (Exception e) {
             Log.e(TAG, "Error loading saved avatar", e);
@@ -341,9 +349,15 @@ public class ProfileFragment extends Fragment {
 
         if (tvProfileName != null) tvProfileName.setText(fullName);
 
-        File avatarFile = new File(requireContext().getFilesDir(), "profile_avatar.png");
-        if (!avatarFile.exists() && tvAvatarInitials != null) {
-            tvAvatarInitials.setText(initials);
+        FirebaseUser user = mAuth.getCurrentUser();
+        String uid = user != null ? user.getUid() : "";
+        File avatarFile = new File(requireContext().getFilesDir(), "profile_avatar_" + uid + ".png");
+        if (tvAvatarInitials != null) {
+            if (!avatarFile.exists()) {
+                tvAvatarInitials.setText(initials);
+            } else {
+                tvAvatarInitials.setText("");
+            }
         }
 
         String empNum = doc.getString("employee_number") != null ? "EMP ID: " + doc.getString("employee_number") : "N/A";

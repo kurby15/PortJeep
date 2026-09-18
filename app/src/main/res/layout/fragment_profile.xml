@@ -118,7 +118,8 @@
                                 android:layout_height="80dp"
                                 app:cardCornerRadius="40dp"
                                 app:cardElevation="0dp"
-                                app:strokeWidth="0dp">
+                                app:strokeWidth="1dp"
+                                app:strokeColor="@color/color_brand_primary">
 
                                 <FrameLayout
                                     android:layout_width="match_parent"

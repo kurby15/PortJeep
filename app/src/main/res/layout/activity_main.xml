@@ -22,7 +22,7 @@
         app:cardElevation="12dp"
         app:cardBackgroundColor="@color/color_bottom_nav_bg"
         app:strokeColor="@color/color_bottom_nav_stroke"
-        app:strokeWidth="2dp"
+        app:strokeWidth="1dp"
         app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
         android:outlineAmbientShadowColor="#20000000"
         android:outlineSpotShadowColor="#30000000">
