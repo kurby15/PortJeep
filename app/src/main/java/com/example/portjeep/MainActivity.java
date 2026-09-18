@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
@@ -51,7 +52,6 @@ public class MainActivity extends AppCompatActivity {
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
                     updateFcmToken();
-                    // Permission granted, schedule the alarms
                     ScheduleAlarmReceiver.scheduleDailyAlarms(this);
                 } else {
                     Toast.makeText(this, getString(R.string.notif_permission_denied), Toast.LENGTH_SHORT).show();
@@ -71,11 +71,8 @@ public class MainActivity extends AppCompatActivity {
             bottomNavigationView.setItemActiveIndicatorEnabled(false);
         }
 
-        // Initialize Notification Channel and Request Permissions
         NotificationHelper.createNotificationChannel(this);
         askNotificationPermission();
-
-        // Initial schedule call to ensure it's set for all intervals (4AM, 8AM, 12PM, 4PM, 8PM)
         ScheduleAlarmReceiver.scheduleDailyAlarms(this);
 
         if (navCardContainer != null) {
@@ -254,7 +251,31 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void setBottomNavVisibility(int visibility) {
-        if (navCardContainer != null) navCardContainer.setVisibility(visibility);
-        else if (bottomNavigationView != null) bottomNavigationView.setVisibility(visibility);
+        View targetView = navCardContainer != null ? navCardContainer : bottomNavigationView;
+        if (targetView == null) return;
+
+        if (visibility == View.VISIBLE) {
+            targetView.setVisibility(View.VISIBLE);
+            targetView.animate()
+                    .translationY(0f)
+                    .alpha(1f)
+                    .setDuration(300)
+                    .setListener(null)
+                    .start();
+        } else {
+            // Slide down out of screen and fade out
+            float translationTarget = targetView.getHeight() + 100f;
+            targetView.animate()
+                    .translationY(translationTarget)
+                    .alpha(0f)
+                    .setDuration(300)
+                    .setListener(new android.animation.AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(android.animation.Animator animation) {
+                            targetView.setVisibility(visibility);
+                        }
+                    })
+                    .start();
+        }
     }
 }
