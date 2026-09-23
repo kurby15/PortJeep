@@ -94,7 +94,8 @@
                         android:text="@string/settings_account"
                         android:textColor="@color/color_brand_primary"
                         android:textSize="12sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:visibility="gone" />
 
                     <!-- Email address row -->
                     <LinearLayout
@@ -107,7 +108,8 @@
                         android:focusable="true"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
-                        android:paddingVertical="14dp">
+                        android:paddingVertical="14dp"
+                        android:visibility="gone">
 
                         <ImageView
                             android:layout_width="24dp"
@@ -137,19 +139,22 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:background="@color/color_divider" />
+                        android:background="@color/color_divider"
+                        android:visibility="gone" />
 
                     <!-- Change mobile number row -->
                     <LinearLayout
                         android:id="@+id/btn_change_mobile"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
                         android:background="?attr/selectableItemBackground"
                         android:clickable="true"
                         android:focusable="true"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
-                        android:paddingVertical="14dp">
+                        android:paddingVertical="14dp"
+                        android:visibility="gone">
 
                         <ImageView
                             android:layout_width="24dp"
@@ -180,7 +185,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="24dp"
+                        android:layout_marginTop="8dp"
                         android:layout_marginBottom="12dp"
                         android:letterSpacing="0.08"
                         android:text="PRIVACY &amp; SECURITY"
