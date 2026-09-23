@@ -1,6 +1,6 @@
 import java.util.Properties
 
-// Read secret key from local.properties
+// Read keys and signing info from local.properties
 val localProperties = Properties()
 val localPropertiesFile = rootProject.file("local.properties")
 if (localPropertiesFile.exists()) {
@@ -33,11 +33,19 @@ android {
         buildConfigField("String", "RECAPTCHA_SITE_KEY", recaptchaKey)
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = localProperties.getProperty("RELEASE_STORE_FILE")?.let { file(it) }
+            storePassword = localProperties.getProperty("RELEASE_STORE_PASSWORD")
+            keyAlias = localProperties.getProperty("RELEASE_KEY_ALIAS")
+            keyPassword = localProperties.getProperty("RELEASE_KEY_PASSWORD")
+        }
+    }
+
     androidResources {
         localeFilters += "en"
     }
 
-    // Enables BuildConfig generation in modern AGP
     buildFeatures {
         buildConfig = true
     }
@@ -46,6 +54,7 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

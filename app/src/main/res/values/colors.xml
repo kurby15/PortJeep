@@ -25,6 +25,9 @@
     <!-- Muted indicator color blending with the glass theme -->
     <color name="color_nav_indicator_selected">#4D000000</color>
 
+    <!-- Active background for navigation items (Light Mode) -->
+    <color name="color_nav_item_active_bg">#1A000000</color>
+
     <!-- Modern Gradient Pairs - Light Mode (Matched to Header) -->
     <color name="color_gradient_primary_start">#6371C7</color>
     <color name="color_gradient_primary_end">#8E89C9</color>

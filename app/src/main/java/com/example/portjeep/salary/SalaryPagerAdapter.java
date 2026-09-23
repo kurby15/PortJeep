@@ -80,7 +80,7 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 for (int i = 0; i < this.rawIncomingData.length(); i++) {
                     JSONObject newGroup = this.rawIncomingData.optJSONObject(i);
                     if (newGroup == null) continue;
-                    
+
                     String newDate = newGroup.optString("date", "").trim();
                     if (newDate.isEmpty()) {
                         newDate = newGroup.optString("day", "").trim();
@@ -236,6 +236,15 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         return new Date(0);
     }
 
+    private boolean isCurrentWeek(Date date) {
+        if (date == null || date.getTime() == 0) return false;
+        Calendar currentCal = Calendar.getInstance();
+        Calendar targetCal = Calendar.getInstance();
+        targetCal.setTime(date);
+        return currentCal.get(Calendar.YEAR) == targetCal.get(Calendar.YEAR) &&
+                currentCal.get(Calendar.WEEK_OF_YEAR) == targetCal.get(Calendar.WEEK_OF_YEAR);
+    }
+
     private void setupHistoryList(HistoryViewHolder holder) {
         List<HistoryAdapter.HistoryItem> dailyItems = new ArrayList<>();
         List<HistoryAdapter.HistoryItem> previousItems = new ArrayList<>();
@@ -273,6 +282,9 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     if (groupDate.isEmpty()) {
                         groupDate = dayName;
                     }
+
+                    Date itemDate = parseItemDate(groupDate);
+                    if (!isCurrentWeek(itemDate)) continue;
 
                     boolean isToday = dayName.equalsIgnoreCase(todayName) ||
                             groupDate.contains(todayFormatted) ||
@@ -419,6 +431,8 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             checkCal.set(Calendar.SECOND, 0); checkCal.set(Calendar.MILLISECOND, 0);
             Date checkDate = checkCal.getTime();
 
+            if (!isCurrentWeek(checkDate)) continue;
+
             boolean alreadyAdded = false;
             int y1 = checkCal.get(Calendar.YEAR);
             int dayOfYear1 = checkCal.get(Calendar.DAY_OF_YEAR);
@@ -496,6 +510,8 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                         if (schedDate.getTime() == 0 || schedDate.after(todayMidnight.getTime())) {
                             continue;
                         }
+
+                        if (!isCurrentWeek(schedDate)) continue;
 
                         Calendar c1 = Calendar.getInstance();
                         c1.setTime(schedDate);
@@ -636,6 +652,15 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 for (int i = 0; i < remittanceData.length(); i++) {
                     JSONObject dayGroup = remittanceData.optJSONObject(i);
                     if (dayGroup == null) continue;
+
+                    String dayName = dayGroup.optString("day", "N/A");
+                    String groupDate = dayGroup.optString("date", "").trim();
+                    if (groupDate.isEmpty()) {
+                        groupDate = dayName;
+                    }
+                    Date itemDate = parseItemDate(groupDate);
+                    if (!isCurrentWeek(itemDate)) continue;
+
                     JSONArray partialsArray = dayGroup.optJSONArray("remittances");
                     double dayNet = 0;
                     if (partialsArray != null) {
