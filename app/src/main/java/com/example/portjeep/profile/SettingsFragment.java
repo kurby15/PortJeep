@@ -18,6 +18,7 @@ import androidx.fragment.app.Fragment;
 import androidx.security.crypto.EncryptedSharedPreferences;
 import androidx.security.crypto.MasterKey;
 
+import com.example.portjeep.BuildConfig;
 import com.example.portjeep.MainActivity;
 import com.example.portjeep.R;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -66,24 +67,6 @@ public class SettingsFragment extends Fragment {
             });
         }
 
-        // Email address row
-        View rowEmail = view.findViewById(R.id.btn_email_address);
-        if (rowEmail != null) {
-            rowEmail.setOnClickListener(v -> {
-                Intent intent = new Intent(getContext(), UpdateEmailActivity.class);
-                startActivity(intent);
-            });
-        }
-
-        // Change mobile number row
-        View rowMobile = view.findViewById(R.id.btn_change_mobile);
-        if (rowMobile != null) {
-            rowMobile.setOnClickListener(v -> {
-                Intent intent = new Intent(getContext(), ChangeMobileActivity.class);
-                startActivity(intent);
-            });
-        }
-
         // Screen Lock Switch
         MaterialSwitch switchScreenLock = view.findViewById(R.id.switch_screen_lock);
         if (switchScreenLock != null) {
@@ -125,6 +108,13 @@ public class SettingsFragment extends Fragment {
                 intent.putExtra(LegalActivity.EXTRA_TYPE, LegalActivity.TYPE_TERMS);
                 startActivity(intent);
             });
+        }
+
+        // Dynamically set the version code and name from BuildConfig
+        TextView tvVersion = view.findViewById(R.id.tv_version);
+        if (tvVersion != null) {
+            String versionText = "Version " + BuildConfig.VERSION_NAME;
+            tvVersion.setText(versionText);
         }
 
         return view;
