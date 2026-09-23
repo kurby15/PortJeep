@@ -398,6 +398,7 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                             df.format(totalNet),
                             isRest
                     );
+                    item.setNoRecorded(!hasRemittances && hasSchedule);
 
                     for (HistoryAdapter.PartialReport report : reports) {
                         item.addPartial(report.header, report.amount, report.remittance, report.net);
@@ -466,6 +467,7 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 HistoryAdapter.HistoryItem missingItem = new HistoryAdapter.HistoryItem(
                         dFormatted, "0.00", df.format(incentive * 2), df.format(-(incentive * 2)), !hasSched
                 );
+                missingItem.setNoRecorded(hasSched);
 
                 if (d == 0) { // Today
                     if (isAfter10PM) {
@@ -545,6 +547,7 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                             HistoryAdapter.HistoryItem missingItem = new HistoryAdapter.HistoryItem(
                                     dFormatted, "0.00", df.format(incentive * 2), df.format(-(incentive * 2)), false
                             );
+                            missingItem.setNoRecorded(true);
                             missingItem.setToday(false);
                             missingItem.setExpanded(false);
                             previousItems.add(missingItem);

@@ -119,6 +119,12 @@
     <color name="color_status_recorded_start">#DCFCE7</color>
     <color name="color_status_recorded_end">#BBF7D0</color>
 
+    <!-- No Recorded - Red Gradient (Matched to Home Role Badge) -->
+    <color name="color_status_no_recorded_bg">#F43F5E</color>
+    <color name="color_status_no_recorded_text">#FFFFFF</color>
+    <color name="color_status_no_recorded_start">#F43F5E</color>
+    <color name="color_status_no_recorded_end">#FB7185</color>
+
     <!-- General Status Badge -->
     <color name="color_status_badge_text">#0F172A</color>
     <color name="color_status_badge_stroke">#E2E8F0</color>

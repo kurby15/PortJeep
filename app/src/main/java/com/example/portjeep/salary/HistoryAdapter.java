@@ -132,12 +132,17 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
             holder.itemView.setClickable(true);
 
             // Dynamically set background and color
-            // TODAY (RECORD) -> Light Blue
-            // PREVIOUS (RECORDED) -> Green (matched to active theme)
+            // 1. TODAY (RECORD) -> Light Blue (Prioritize active recording state for today)
+            // 2. NO DATA BUT HAS SCHEDULE (NO RECORDED) -> Orange (Missed entry)
+            // 3. PREVIOUS WITH DATA (RECORDED) -> Green
             if (item.isToday) {
                 holder.tvStatusLabel.setText(R.string.status_record);
                 holder.tvStatusLabel.setBackgroundResource(R.drawable.bg_status_record);
                 holder.tvStatusLabel.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.color_status_record_text));
+            } else if (item.isNoRecorded) {
+                holder.tvStatusLabel.setText(R.string.status_no_recorded);
+                holder.tvStatusLabel.setBackgroundResource(R.drawable.bg_status_no_recorded);
+                holder.tvStatusLabel.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.color_status_no_recorded_text));
             } else {
                 holder.tvStatusLabel.setText(R.string.status_recorded);
                 holder.tvStatusLabel.setBackgroundResource(R.drawable.bg_status_recorded);
@@ -242,6 +247,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
         String net;
         boolean isRest;
         boolean isToday = false;
+        boolean isNoRecorded = false;
         boolean isExpanded = false;
         List<PartialReport> partialReports = new ArrayList<>();
 
@@ -284,6 +290,11 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 
         public HistoryItem setToday(boolean today) {
             this.isToday = today;
+            return this;
+        }
+
+        public HistoryItem setNoRecorded(boolean noRecorded) {
+            this.isNoRecorded = noRecorded;
             return this;
         }
 
