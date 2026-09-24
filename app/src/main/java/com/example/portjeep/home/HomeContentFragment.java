@@ -59,7 +59,7 @@ public class HomeContentFragment extends Fragment {
     private final List<StatusBannerAdapter.BannerItem> bannerItems = new ArrayList<>();
 
     // View References
-    private TextView tvUnitNo, tvPlateNo, tvDriverFullName, tvPaoFullName, tvTodayRoute;
+    private TextView tvUnitNo, tvPlateNo, tvDriverFullName, tvPaoFullName;
     private TextView tvTodayDate, tvJeepStatus, tvAssignmentStatus;
     private MaterialCardView cardMySchedule, cardSalary;
     private LinearLayout containerUpcoming;
@@ -104,7 +104,6 @@ public class HomeContentFragment extends Fragment {
 
         tvUnitNo = view.findViewById(R.id.tv_unit_no);
         tvPlateNo = view.findViewById(R.id.tv_plate_no);
-        tvTodayRoute = view.findViewById(R.id.tv_today_route);
         tvJeepStatus = view.findViewById(R.id.tv_jeep_status);
         tvAssignmentStatus = view.findViewById(R.id.tv_assignment_status);
         tvDriverFullName = view.findViewById(R.id.tv_driver_fullname);
@@ -320,7 +319,6 @@ public class HomeContentFragment extends Fragment {
         if (tvUnitNo == null) return;
         if (tvUnitNo != null) tvUnitNo.setText("No Unit");
         if (tvPlateNo != null) tvPlateNo.setText("No Duty Today");
-        if (tvTodayRoute != null) tvTodayRoute.setText("No Route");
         if (tvJeepStatus != null) tvJeepStatus.setText("● Off Duty");
         if (tvAssignmentStatus != null) tvAssignmentStatus.setText("● Off Duty");
         if (tvDriverFullName != null) tvDriverFullName.setText("Rest Day / Unassigned");
@@ -330,7 +328,6 @@ public class HomeContentFragment extends Fragment {
     public void processTodaySchedule(JSONObject doc) {
         if (tvUnitNo == null) return;
         String rawJeep = doc.optString("jeep", "N/A");
-        String route = doc.optString("route", "Minuyan - Starmall Loop");
         String secretKey = BuildConfig.CRYPTO_SECRET_KEY;
 
         String dName = "Unassigned Driver", dEmail = "", dContact = "";
@@ -368,7 +365,6 @@ public class HomeContentFragment extends Fragment {
         }
         if (tvUnitNo != null) tvUnitNo.setText(unit);
         if (tvPlateNo != null) tvPlateNo.setText(plate);
-        if (tvTodayRoute != null) tvTodayRoute.setText(route);
         if (tvDriverFullName != null) tvDriverFullName.setText(dName);
         if (tvPaoFullName != null) tvPaoFullName.setText(pName);
         if (tvAssignmentStatus != null) tvAssignmentStatus.setText("● Assigned");
@@ -396,12 +392,12 @@ public class HomeContentFragment extends Fragment {
         for (JSONObject doc : docs) {
             View itemView = inflater.inflate(R.layout.item_upcoming_schedule, containerUpcoming, false);
             String day = doc.optString("day", "Scheduled"), date = doc.optString("date", "N/A");
-            String jeep = doc.optString("jeep", "Unassigned Unit"), route = doc.optString("route", "Minuyan - Starmall Loop");
+            String jeep = doc.optString("jeep", "Unassigned Unit");
             String driver = parseName(doc, "driver", "Unassigned Driver"), pao = parseName(doc, "pao", "Unassigned PAO");
             ((TextView) itemView.findViewById(R.id.tv_schedule_day)).setText(day);
             ((TextView) itemView.findViewById(R.id.tv_schedule_date)).setText(date);
             ((TextView) itemView.findViewById(R.id.tv_schedule_status)).setText("● Scheduled");
-            itemView.setOnClickListener(v -> showScheduleDetailsModal(day, date, jeep, route, driver, pao));
+            itemView.setOnClickListener(v -> showScheduleDetailsModal(day, date, jeep, driver, pao));
             containerUpcoming.addView(itemView);
         }
     }
@@ -414,7 +410,7 @@ public class HomeContentFragment extends Fragment {
         } catch (Exception e) { return fallback; }
     }
 
-    private void showScheduleDetailsModal(String day, String date, String jeep, String route, String driver, String pao) {
+    private void showScheduleDetailsModal(String day, String date, String jeep, String driver, String pao) {
         Context context = getContext(); if (context == null) return;
         View view = LayoutInflater.from(context).inflate(R.layout.dialog_schedule_details, null);
         ((TextView) view.findViewById(R.id.tv_schedule_day)).setText(day);
@@ -429,7 +425,6 @@ public class HomeContentFragment extends Fragment {
         }
         ((TextView) view.findViewById(R.id.tv_jeep_unit)).setText(unit);
         ((TextView) view.findViewById(R.id.tv_plate_no)).setText(plate);
-        ((TextView) view.findViewById(R.id.tv_schedule_route)).setText(route);
         ((TextView) view.findViewById(R.id.tv_driver_name)).setText(driver);
         ((TextView) view.findViewById(R.id.tv_pao_name)).setText(pao);
         showCenteredDialog(view);
