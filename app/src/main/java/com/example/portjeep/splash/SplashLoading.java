@@ -23,6 +23,18 @@ public class SplashLoading extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (currentUser != null) {
+            // User is already logged in, navigate directly to MainActivity without showing splash screen
+            Intent intent = new Intent(SplashLoading.this, MainActivity.class);
+            intent.putExtra("USER_UID", currentUser.getUid());
+            startActivity(intent);
+            finish();
+            return;
+        }
+
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_splash_loading);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -31,24 +43,14 @@ public class SplashLoading extends AppCompatActivity {
             return insets;
         });
 
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-
         runnable = () -> {
-            if (currentUser != null) {
-                // User is already logged in, navigate to MainActivity
-                Intent intent = new Intent(SplashLoading.this, MainActivity.class);
-                intent.putExtra("USER_UID", currentUser.getUid());
-                startActivity(intent);
-            } else {
-                // No user logged in, navigate to LogInActivity
-                startActivity(new Intent(SplashLoading.this, LogInActivity.class));
-            }
+            // No user logged in, navigate to LogInActivity
+            startActivity(new Intent(SplashLoading.this, LogInActivity.class));
             finish();
         };
 
-        // Determine delay based on login status
-        long delay = (currentUser != null) ? 4500 : 7100;
-        handler.postDelayed(runnable, delay);
+        // Delay for splash screen when user is not logged in
+        handler.postDelayed(runnable, 7100);
     }
 
     @Override
