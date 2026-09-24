@@ -155,4 +155,8 @@
     <string name="label_pao">PAO</string>
     <string name="default_route">Minuyan - Starmall Loop</string>
     <string name="desc_route_icon">Route Icon</string>
+
+    <!-- Salary History Empty State -->
+    <string name="salary_history_empty_title">No records found</string>
+    <string name="salary_history_empty_desc">There are no salary records for this period.</string>
 </resources>

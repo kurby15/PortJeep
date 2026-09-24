@@ -12,6 +12,52 @@
         android:orientation="vertical"
         android:padding="20dp">
 
+        <!-- Week Selector Navigation -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/bg_pill_input"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="8dp">
+
+            <ImageView
+                android:id="@+id/btn_prev_week"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="6dp"
+                android:rotation="180"
+                android:src="@drawable/chevron"
+                app:tint="@color/color_text_primary" />
+
+            <TextView
+                android:id="@+id/tv_week_range"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="20dp"
+                android:fontFamily="sans-serif-medium"
+                android:text="Sep 14 - Sep 20"
+                android:textColor="@color/color_text_primary"
+                android:textSize="14sp" />
+
+            <ImageView
+                android:id="@+id/btn_next_week"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="6dp"
+                android:src="@drawable/chevron"
+                app:tint="@color/color_text_primary" />
+        </LinearLayout>
+
         <!-- History Header -->
         <TextView
             android:id="@+id/tv_history_header"
@@ -59,15 +105,43 @@
             android:visibility="gone" />
 
         <!-- Empty State -->
-        <TextView
-            android:id="@+id/tv_empty_history"
+        <LinearLayout
+            android:id="@+id/layout_empty_history"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
+            android:layout_marginTop="140dp"
             android:gravity="center"
-            android:text="No records found"
-            android:textColor="@color/color_text_adaptive_muted"
-            android:visibility="gone" />
+            android:orientation="vertical"
+            android:padding="32dp"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_marginBottom="16dp"
+                android:src="@drawable/wallet"
+                android:alpha="0.2"
+                app:tint="@color/color_text_primary" />
+
+            <TextView
+                android:id="@+id/tv_empty_history"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:text="@string/salary_history_empty_title"
+                android:textColor="@color/color_text_adaptive_muted"
+                android:textSize="15sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/salary_history_empty_desc"
+                android:textColor="@color/color_text_adaptive_muted"
+                android:textSize="13sp"
+                android:alpha="0.7"
+                android:gravity="center" />
+        </LinearLayout>
 
         <!-- Bottom Spacer -->
         <View

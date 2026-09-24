@@ -38,6 +38,7 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -260,10 +261,21 @@ public class ScheduleFragment extends Fragment {
             try {
                 URL url = new URL(API_URL);
                 connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
+                connection.setRequestMethod("POST");
                 connection.setRequestProperty("Authorization", "Bearer " + idToken);
+                connection.setRequestProperty("Content-Type", "application/json");
+                connection.setDoOutput(true);
                 connection.setConnectTimeout(10000);
                 connection.setReadTimeout(10000);
+
+                JSONObject body = new JSONObject();
+                String dateStr = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
+                body.put("date", dateStr);
+
+                try (OutputStream os = connection.getOutputStream()) {
+                    byte[] input = body.toString().getBytes("utf-8");
+                    os.write(input, 0, input.length);
+                }
 
                 int responseCode = connection.getResponseCode();
                 InputStream inputStream = (responseCode == HttpURLConnection.HTTP_OK) ? connection.getInputStream() : connection.getErrorStream();

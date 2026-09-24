@@ -44,6 +44,9 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private JSONArray remittanceData;
     private JSONArray rawIncomingData;
 
+    // Week offset filter state (0 = current week, -1 = previous week, etc.)
+    private int currentWeekOffset = 0;
+
     public SalaryPagerAdapter() {
     }
 
@@ -159,7 +162,7 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
             summaryHolder.ivToggleVisibility.setOnClickListener(v -> {
                 Context ctx = v.getContext();
-                
+
                 // Snappy animation for toggle
                 AutoTransition transition = new AutoTransition();
                 transition.setDuration(100);
@@ -177,6 +180,7 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         } else if (holder instanceof HistoryViewHolder) {
             HistoryViewHolder historyHolder = (HistoryViewHolder) holder;
             getMergedRemittanceData(historyHolder.itemView.getContext());
+            setupWeekNavigation(historyHolder);
             setupHistoryList(historyHolder);
         }
     }
@@ -236,6 +240,49 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         return new Date(0);
     }
 
+    private void setupWeekNavigation(HistoryViewHolder holder) {
+        // Calculate the selected week start and end dates
+        Calendar calStart = Calendar.getInstance(Locale.US);
+        calStart.setFirstDayOfWeek(Calendar.MONDAY);
+        calStart.add(Calendar.WEEK_OF_YEAR, currentWeekOffset);
+        calStart.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+
+        Calendar calEnd = Calendar.getInstance(Locale.US);
+        calEnd.setFirstDayOfWeek(Calendar.MONDAY);
+        calEnd.add(Calendar.WEEK_OF_YEAR, currentWeekOffset);
+        calEnd.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+
+        SimpleDateFormat rangeFormat = new SimpleDateFormat("MMM d", Locale.US);
+        String label = rangeFormat.format(calStart.getTime()) + " - " + rangeFormat.format(calEnd.getTime());
+        holder.tvWeekRange.setText(label);
+
+        holder.btnPrevWeek.setOnClickListener(v -> {
+            currentWeekOffset--;
+            setupWeekNavigation(holder);
+            setupHistoryList(holder);
+        });
+
+        holder.btnNextWeek.setOnClickListener(v -> {
+            currentWeekOffset++;
+            setupWeekNavigation(holder);
+            setupHistoryList(holder);
+        });
+    }
+
+    private boolean isTargetWeek(Date date) {
+        if (date == null || date.getTime() == 0) return false;
+        Calendar targetWeekCal = Calendar.getInstance(Locale.US);
+        targetWeekCal.setFirstDayOfWeek(Calendar.MONDAY);
+        targetWeekCal.add(Calendar.WEEK_OF_YEAR, currentWeekOffset);
+
+        Calendar dateCal = Calendar.getInstance(Locale.US);
+        dateCal.setFirstDayOfWeek(Calendar.MONDAY);
+        dateCal.setTime(date);
+
+        return targetWeekCal.get(Calendar.YEAR) == dateCal.get(Calendar.YEAR) &&
+                targetWeekCal.get(Calendar.WEEK_OF_YEAR) == dateCal.get(Calendar.WEEK_OF_YEAR);
+    }
+
     private boolean isCurrentWeek(Date date) {
         if (date == null || date.getTime() == 0) return false;
         Calendar currentCal = Calendar.getInstance();
@@ -271,6 +318,8 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         String yesterdayFormatted = fullFormat.format(yesterdayDate);
         String yesterdayDateKey = dateKeyFormat.format(yesterdayDate);
 
+        boolean isPreviousWeek = currentWeekOffset < 0;
+
         if (remittanceData != null) {
             for (int i = 0; i < remittanceData.length(); i++) {
                 try {
@@ -284,7 +333,7 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     }
 
                     Date itemDate = parseItemDate(groupDate);
-                    if (!isCurrentWeek(itemDate)) continue;
+                    if (!isTargetWeek(itemDate)) continue;
 
                     boolean isToday = dayName.equalsIgnoreCase(todayName) ||
                             groupDate.contains(todayFormatted) ||
@@ -298,6 +347,11 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
                     JSONArray partialsArray = dayGroup.optJSONArray("remittances");
                     boolean hasRemittances = partialsArray != null && partialsArray.length() > 0;
+
+                    // If viewing a previous week, ignore entries with no actual remittances so it stays blank
+                    if (isPreviousWeek && !hasRemittances) {
+                        continue;
+                    }
 
                     // Upcoming filter check
                     boolean isUpcoming = false;
@@ -424,30 +478,26 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             }
         }
 
-        // Fill any missing days in the last 7 days continuous timeline
-        for (int d = 0; d < 7; d++) {
-            Calendar checkCal = Calendar.getInstance();
-            checkCal.add(Calendar.DATE, -d);
-            checkCal.set(Calendar.HOUR_OF_DAY, 0); checkCal.set(Calendar.MINUTE, 0);
-            checkCal.set(Calendar.SECOND, 0); checkCal.set(Calendar.MILLISECOND, 0);
-            Date checkDate = checkCal.getTime();
+        // Fill missing days ONLY if we are NOT viewing a previous week
+        if (!isPreviousWeek) {
+            for (int d = 0; d < 7; d++) {
+                Calendar checkCal = Calendar.getInstance(Locale.US);
+                checkCal.setFirstDayOfWeek(Calendar.MONDAY);
+                checkCal.add(Calendar.WEEK_OF_YEAR, currentWeekOffset);
+                checkCal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+                checkCal.add(Calendar.DATE, d);
+                checkCal.set(Calendar.HOUR_OF_DAY, 0); checkCal.set(Calendar.MINUTE, 0);
+                checkCal.set(Calendar.SECOND, 0); checkCal.set(Calendar.MILLISECOND, 0);
+                Date checkDate = checkCal.getTime();
 
-            if (!isCurrentWeek(checkDate)) continue;
+                // Do not fill future dates beyond today
+                if (checkDate.after(new Date())) continue;
 
-            boolean alreadyAdded = false;
-            int y1 = checkCal.get(Calendar.YEAR);
-            int dayOfYear1 = checkCal.get(Calendar.DAY_OF_YEAR);
+                boolean alreadyAdded = false;
+                int y1 = checkCal.get(Calendar.YEAR);
+                int dayOfYear1 = checkCal.get(Calendar.DAY_OF_YEAR);
 
-            for (HistoryAdapter.HistoryItem item : dailyItems) {
-                Calendar c2 = Calendar.getInstance();
-                c2.setTime(parseItemDate(item.date));
-                if (c2.get(Calendar.YEAR) == y1 && c2.get(Calendar.DAY_OF_YEAR) == dayOfYear1) {
-                    alreadyAdded = true;
-                    break;
-                }
-            }
-            if (!alreadyAdded) {
-                for (HistoryAdapter.HistoryItem item : previousItems) {
+                for (HistoryAdapter.HistoryItem item : dailyItems) {
                     Calendar c2 = Calendar.getInstance();
                     c2.setTime(parseItemDate(item.date));
                     if (c2.get(Calendar.YEAR) == y1 && c2.get(Calendar.DAY_OF_YEAR) == dayOfYear1) {
@@ -455,82 +505,85 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                         break;
                     }
                 }
-            }
+                if (!alreadyAdded) {
+                    for (HistoryAdapter.HistoryItem item : previousItems) {
+                        Calendar c2 = Calendar.getInstance();
+                        c2.setTime(parseItemDate(item.date));
+                        if (c2.get(Calendar.YEAR) == y1 && c2.get(Calendar.DAY_OF_YEAR) == dayOfYear1) {
+                            alreadyAdded = true;
+                            break;
+                        }
+                    }
+                }
 
-            if (!alreadyAdded) {
-                String dName = dayFormat.format(checkDate);
-                String dFormatted = fullFormat.format(checkDate);
-                String dDateKey = dateKeyFormat.format(checkDate);
+                if (!alreadyAdded) {
+                    String dName = dayFormat.format(checkDate);
+                    String dFormatted = fullFormat.format(checkDate);
+                    String dDateKey = dateKeyFormat.format(checkDate);
 
-                boolean hasSched = hasScheduleForDate(context, dName, dDateKey);
-                double incentive = getIncentiveForDate(context, dName, dDateKey, "");
-                HistoryAdapter.HistoryItem missingItem = new HistoryAdapter.HistoryItem(
-                        dFormatted, "0.00", df.format(incentive * 2), df.format(-(incentive * 2)), !hasSched
-                );
-                missingItem.setNoRecorded(hasSched);
+                    boolean hasSched = hasScheduleForDate(context, dName, dDateKey);
+                    double incentive = getIncentiveForDate(context, dName, dDateKey, "");
+                    HistoryAdapter.HistoryItem missingItem = new HistoryAdapter.HistoryItem(
+                            dFormatted, "0.00", df.format(incentive * 2), df.format(-(incentive * 2)), !hasSched
+                    );
+                    missingItem.setNoRecorded(hasSched);
 
-                if (d == 0) { // Today
-                    if (isAfter10PM) {
+                    Calendar todayCal = Calendar.getInstance();
+                    boolean isCheckToday = (y1 == todayCal.get(Calendar.YEAR) && dayOfYear1 == todayCal.get(Calendar.DAY_OF_YEAR));
+
+                    if (isCheckToday) {
+                        if (isAfter10PM) {
+                            missingItem.setToday(false);
+                            missingItem.setExpanded(false);
+                            previousItems.add(missingItem);
+                        } else {
+                            missingItem.setToday(true);
+                            missingItem.setExpanded(true);
+                            dailyItems.add(missingItem);
+                        }
+                    } else {
                         missingItem.setToday(false);
                         missingItem.setExpanded(false);
                         previousItems.add(missingItem);
-                    } else {
-                        missingItem.setToday(true);
-                        missingItem.setExpanded(true);
-                        dailyItems.add(missingItem);
                     }
-                } else {
-                    missingItem.setToday(false);
-                    missingItem.setExpanded(false);
-                    previousItems.add(missingItem);
                 }
             }
-        }
 
-        // Fill any other missing days specifically listed in the schedules cache
-        String cachedSchedules = PreferenceManager.getSchedulesCache(context);
-        if (cachedSchedules != null && !cachedSchedules.trim().isEmpty()) {
-            try {
-                JSONArray schedules;
-                if (cachedSchedules.trim().startsWith("[")) {
-                    schedules = new JSONArray(cachedSchedules);
-                } else {
-                    JSONObject root = new JSONObject(cachedSchedules);
-                    schedules = root.optJSONArray("schedules");
-                }
-                if (schedules != null) {
-                    Calendar todayMidnight = Calendar.getInstance();
-                    todayMidnight.set(Calendar.HOUR_OF_DAY, 0); todayMidnight.set(Calendar.MINUTE, 0);
-                    todayMidnight.set(Calendar.SECOND, 0); todayMidnight.set(Calendar.MILLISECOND, 0);
+            // Fill missing days specifically listed in schedules cache for current/future weeks
+            String cachedSchedules = PreferenceManager.getSchedulesCache(context);
+            if (cachedSchedules != null && !cachedSchedules.trim().isEmpty()) {
+                try {
+                    JSONArray schedules;
+                    if (cachedSchedules.trim().startsWith("[")) {
+                        schedules = new JSONArray(cachedSchedules);
+                    } else {
+                        JSONObject root = new JSONObject(cachedSchedules);
+                        schedules = root.optJSONArray("schedules");
+                    }
+                    if (schedules != null) {
+                        Calendar todayMidnight = Calendar.getInstance();
+                        todayMidnight.set(Calendar.HOUR_OF_DAY, 0); todayMidnight.set(Calendar.MINUTE, 0);
+                        todayMidnight.set(Calendar.SECOND, 0); todayMidnight.set(Calendar.MILLISECOND, 0);
 
-                    for (int i = 0; i < schedules.length(); i++) {
-                        JSONObject sched = schedules.getJSONObject(i);
-                        String schedDateStr = sched.optString("date", "");
-                        if (schedDateStr.isEmpty()) continue;
+                        for (int i = 0; i < schedules.length(); i++) {
+                            JSONObject sched = schedules.getJSONObject(i);
+                            String schedDateStr = sched.optString("date", "");
+                            if (schedDateStr.isEmpty()) continue;
 
-                        Date schedDate = parseItemDate(schedDateStr);
-                        if (schedDate.getTime() == 0 || schedDate.after(todayMidnight.getTime())) {
-                            continue;
-                        }
-
-                        if (!isCurrentWeek(schedDate)) continue;
-
-                        Calendar c1 = Calendar.getInstance();
-                        c1.setTime(schedDate);
-                        int y1 = c1.get(Calendar.YEAR);
-                        int dayOfYear1 = c1.get(Calendar.DAY_OF_YEAR);
-
-                        boolean alreadyAdded = false;
-                        for (HistoryAdapter.HistoryItem item : dailyItems) {
-                            Calendar c2 = Calendar.getInstance();
-                            c2.setTime(parseItemDate(item.date));
-                            if (c2.get(Calendar.YEAR) == y1 && c2.get(Calendar.DAY_OF_YEAR) == dayOfYear1) {
-                                alreadyAdded = true;
-                                break;
+                            Date schedDate = parseItemDate(schedDateStr);
+                            if (schedDate.getTime() == 0 || schedDate.after(todayMidnight.getTime())) {
+                                continue;
                             }
-                        }
-                        if (!alreadyAdded) {
-                            for (HistoryAdapter.HistoryItem item : previousItems) {
+
+                            if (!isTargetWeek(schedDate)) continue;
+
+                            Calendar c1 = Calendar.getInstance();
+                            c1.setTime(schedDate);
+                            int y1 = c1.get(Calendar.YEAR);
+                            int dayOfYear1 = c1.get(Calendar.DAY_OF_YEAR);
+
+                            boolean alreadyAdded = false;
+                            for (HistoryAdapter.HistoryItem item : dailyItems) {
                                 Calendar c2 = Calendar.getInstance();
                                 c2.setTime(parseItemDate(item.date));
                                 if (c2.get(Calendar.YEAR) == y1 && c2.get(Calendar.DAY_OF_YEAR) == dayOfYear1) {
@@ -538,24 +591,34 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                                     break;
                                 }
                             }
-                        }
+                            if (!alreadyAdded) {
+                                for (HistoryAdapter.HistoryItem item : previousItems) {
+                                    Calendar c2 = Calendar.getInstance();
+                                    c2.setTime(parseItemDate(item.date));
+                                    if (c2.get(Calendar.YEAR) == y1 && c2.get(Calendar.DAY_OF_YEAR) == dayOfYear1) {
+                                        alreadyAdded = true;
+                                        break;
+                                    }
+                                }
+                            }
 
-                        if (!alreadyAdded) {
-                            String dName = dayFormat.format(schedDate);
-                            String dFormatted = fullFormat.format(schedDate);
-                            double incentive = getIncentiveForDate(context, dName, schedDateStr, "");
-                            HistoryAdapter.HistoryItem missingItem = new HistoryAdapter.HistoryItem(
-                                    dFormatted, "0.00", df.format(incentive * 2), df.format(-(incentive * 2)), false
-                            );
-                            missingItem.setNoRecorded(true);
-                            missingItem.setToday(false);
-                            missingItem.setExpanded(false);
-                            previousItems.add(missingItem);
+                            if (!alreadyAdded) {
+                                String dName = dayFormat.format(schedDate);
+                                String dFormatted = fullFormat.format(schedDate);
+                                double incentive = getIncentiveForDate(context, dName, schedDateStr, "");
+                                HistoryAdapter.HistoryItem missingItem = new HistoryAdapter.HistoryItem(
+                                        dFormatted, "0.00", df.format(incentive * 2), df.format(-(incentive * 2)), false
+                                );
+                                missingItem.setNoRecorded(true);
+                                missingItem.setToday(false);
+                                missingItem.setExpanded(false);
+                                previousItems.add(missingItem);
+                            }
                         }
                     }
+                } catch (Exception e) {
+                    Log.e("SalaryPagerAdapter", "Error processing missing schedules", e);
                 }
-            } catch (Exception e) {
-                Log.e("SalaryPagerAdapter", "Error processing missing schedules", e);
             }
         }
 
@@ -569,26 +632,42 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             if (child instanceof ViewGroup) animContainer = (ViewGroup) child;
         }
 
-        // Daily Records Adapter
-        HistoryAdapter dailyAdapter = new HistoryAdapter(dailyItems);
-        dailyAdapter.setVisible(isSalaryVisible);
-        dailyAdapter.setTransitionContainer(animContainer);
-        holder.rvHistory.setLayoutManager(new LinearLayoutManager(holder.itemView.getContext()));
-        holder.rvHistory.setAdapter(dailyAdapter);
+        // Daily Records Adapter Setup
+        if (!dailyItems.isEmpty()) {
+            if (holder.tvHistoryHeader != null) holder.tvHistoryHeader.setVisibility(View.VISIBLE);
+            holder.rvHistory.setVisibility(View.VISIBLE);
+            HistoryAdapter dailyAdapter = new HistoryAdapter(dailyItems);
+            dailyAdapter.setVisible(isSalaryVisible);
+            dailyAdapter.setTransitionContainer(animContainer);
+            holder.rvHistory.setLayoutManager(new LinearLayoutManager(holder.itemView.getContext()));
+            holder.rvHistory.setAdapter(dailyAdapter);
+        } else {
+            if (holder.tvHistoryHeader != null) holder.tvHistoryHeader.setVisibility(View.GONE);
+            holder.rvHistory.setVisibility(View.GONE);
+        }
 
-        // Previous Records Logic
+        // Previous Records Adapter Setup
         if (!previousItems.isEmpty()) {
-            holder.tvPreviousHeader.setVisibility(View.VISIBLE);
+            if (holder.tvPreviousHeader != null) holder.tvPreviousHeader.setVisibility(View.VISIBLE);
             holder.rvPreviousHistory.setVisibility(View.VISIBLE);
-            
+
             HistoryAdapter previousAdapter = new HistoryAdapter(previousItems);
             previousAdapter.setVisible(isSalaryVisible);
             previousAdapter.setTransitionContainer(animContainer);
             holder.rvPreviousHistory.setLayoutManager(new LinearLayoutManager(holder.itemView.getContext()));
             holder.rvPreviousHistory.setAdapter(previousAdapter);
         } else {
-            holder.tvPreviousHeader.setVisibility(View.GONE);
+            if (holder.tvPreviousHeader != null) holder.tvPreviousHeader.setVisibility(View.GONE);
             holder.rvPreviousHistory.setVisibility(View.GONE);
+        }
+
+        // Handle Empty State Message
+        if (holder.layoutEmptyHistory != null) {
+            if (dailyItems.isEmpty() && previousItems.isEmpty()) {
+                holder.layoutEmptyHistory.setVisibility(View.VISIBLE);
+            } else {
+                holder.layoutEmptyHistory.setVisibility(View.GONE);
+            }
         }
     }
 
@@ -1006,7 +1085,7 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     // Split names for Stats Row
                     setSplitName(holder.tvBoundaryDay, holder.tvDriverLastName, driver);
                     setSplitName(holder.tvWorkingDays, holder.tvPaoLastName, pao);
-                    
+
                     safeSetText(holder.tvDriverShareName, driver);
                     safeSetText(holder.tvPaoShareName, pao);
 
@@ -1044,7 +1123,7 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 last = rawLast.substring(0, 1).toUpperCase() + rawLast.substring(1).toLowerCase();
             }
         }
-        
+
         safeSetText(tvFirst, first);
         safeSetText(tvLast, last);
     }
@@ -1113,12 +1192,20 @@ public class SalaryPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     static class HistoryViewHolder extends RecyclerView.ViewHolder {
         RecyclerView rvHistory, rvPreviousHistory;
-        TextView tvPreviousHeader;
+        TextView tvHistoryHeader, tvPreviousHeader, tvWeekRange;
+        View layoutEmptyHistory;
+        ImageView btnPrevWeek, btnNextWeek;
+
         HistoryViewHolder(View itemView) {
             super(itemView);
             rvHistory = itemView.findViewById(R.id.rv_salary_history);
             rvPreviousHistory = itemView.findViewById(R.id.rv_previous_history);
+            tvHistoryHeader = itemView.findViewById(R.id.tv_history_header);
             tvPreviousHeader = itemView.findViewById(R.id.tv_previous_header);
+            tvWeekRange = itemView.findViewById(R.id.tv_week_range);
+            btnPrevWeek = itemView.findViewById(R.id.btn_prev_week);
+            btnNextWeek = itemView.findViewById(R.id.btn_next_week);
+            layoutEmptyHistory = itemView.findViewById(R.id.layout_empty_history);
         }
     }
 }
