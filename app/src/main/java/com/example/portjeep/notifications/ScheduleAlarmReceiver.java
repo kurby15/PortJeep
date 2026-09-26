@@ -10,6 +10,7 @@ import android.util.Log;
 
 import com.example.portjeep.utils.NotificationHelper;
 import com.example.portjeep.utils.PreferenceManager;
+import com.example.portjeep.utils.ScheduleUtils;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -33,6 +34,13 @@ public class ScheduleAlarmReceiver extends BroadcastReceiver {
         Log.d(TAG, "Alarm received! RequestCode: " + requestCode);
 
         if (intent != null && Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
+            scheduleDailyAlarms(context);
+            return;
+        }
+
+        // Only show notifications if the user has a schedule today
+        if (!ScheduleUtils.hasScheduleToday(context)) {
+            Log.d(TAG, "No schedule for today. Skipping greetings.");
             scheduleDailyAlarms(context);
             return;
         }
@@ -116,9 +124,26 @@ public class ScheduleAlarmReceiver extends BroadcastReceiver {
 
             SimpleDateFormat sdfKey = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
             String todayDateStr = sdfKey.format(new Date());
+            String currentUid = PreferenceManager.getCurrentUserId(context);
 
             for (int i = 0; i < schedules.length(); i++) {
                 JSONObject doc = schedules.getJSONObject(i);
+                
+                String driverId = doc.optString("driver_id", doc.optString("driverId", ""));
+                String paoId = doc.optString("pao_id", doc.optString("paoId", ""));
+                
+                if (driverId.isEmpty() && doc.has("driver")) {
+                    JSONObject d = doc.optJSONObject("driver");
+                    if (d != null) driverId = d.optString("uid", d.optString("id", ""));
+                }
+                if (paoId.isEmpty() && doc.has("pao")) {
+                    JSONObject p = doc.optJSONObject("pao");
+                    if (p != null) paoId = p.optString("uid", p.optString("id", ""));
+                }
+
+                boolean isCurrentUser = !currentUid.isEmpty() && (currentUid.equals(driverId) || currentUid.equals(paoId));
+                if (!isCurrentUser) continue;
+
                 String dayStr = doc.optString("day", "").trim();
                 String dateStr = doc.optString("date", "").trim();
 
@@ -142,7 +167,9 @@ public class ScheduleAlarmReceiver extends BroadcastReceiver {
 
     private String getUserName(Context context) {
         String firstName = PreferenceManager.getUserFirstName(context);
-        return (firstName != null && !firstName.isEmpty()) ? firstName : "Driver";
+        String role = PreferenceManager.getUserRole(context);
+        String fallback = (role != null && role.toUpperCase().contains("PAO")) ? "PAO" : "Driver";
+        return (firstName != null && !firstName.isEmpty()) ? firstName : fallback;
     }
 
     private void showMorningGreeting(Context context) {

@@ -5,6 +5,7 @@ import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -82,24 +83,25 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ViewHo
                 textColor = ContextCompat.getColor(context, R.color.color_status_completed_text);
             }
 
-            // Apply Gradient Background and clean any existing tints
             holder.tvStatus.setBackgroundResource(bgRes);
             holder.tvStatus.setBackgroundTintList(null);
-
-            // Apply Matching Text Color
             holder.tvStatus.setTextColor(textColor);
 
-            // Render Dot & Status Text with HTML using the matched text color
             String hexTextColor = String.format("#%06X", (0xFFFFFF & textColor));
             String formattedHtml = "<font color='" + hexTextColor + "'>●</font>&nbsp;&nbsp;" + status;
             holder.tvStatus.setText(Html.fromHtml(formattedHtml, Html.FROM_HTML_MODE_LEGACY));
         }
 
-        // Driver Card Click Listener
+        // Driver Card Click Listener & Animation
         if (holder.cardDriver != null) {
             boolean clickable = isClickableMember(item.getDriverName());
             holder.cardDriver.setClickable(clickable);
             holder.cardDriver.setFocusable(clickable);
+            
+            if (holder.ivDriverChevron != null) {
+                holder.ivDriverChevron.setVisibility(clickable ? View.VISIBLE : View.GONE);
+                holder.ivDriverChevron.setRotation(0f); // Reset to default rotation
+            }
 
             if (clickable) {
                 holder.cardDriver.setOnClickListener(v -> showBottomSheet(
@@ -107,18 +109,24 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ViewHo
                         "DRIVER DETAILS",
                         item.getDriverName(),
                         item.getDriverEmail(),
-                        item.getDriverContact()
+                        item.getDriverContact(),
+                        holder.ivDriverChevron
                 ));
             } else {
                 holder.cardDriver.setOnClickListener(null);
             }
         }
 
-        // PAO Card Click Listener
+        // PAO Card Click Listener & Animation
         if (holder.cardPao != null) {
             boolean clickable = isClickableMember(item.getPaoName());
             holder.cardPao.setClickable(clickable);
             holder.cardPao.setFocusable(clickable);
+            
+            if (holder.ivPaoChevron != null) {
+                holder.ivPaoChevron.setVisibility(clickable ? View.VISIBLE : View.GONE);
+                holder.ivPaoChevron.setRotation(0f); // Reset to default rotation
+            }
 
             if (clickable) {
                 holder.cardPao.setOnClickListener(v -> showBottomSheet(
@@ -126,7 +134,8 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ViewHo
                         "PAO DETAILS",
                         item.getPaoName(),
                         item.getPaoEmail(),
-                        item.getPaoContact()
+                        item.getPaoContact(),
+                        holder.ivPaoChevron
                 ));
             } else {
                 holder.cardPao.setOnClickListener(null);
@@ -140,8 +149,13 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ViewHo
         return !clean.contains("unassigned") && !clean.contains("rest day") && !clean.equals("n/a");
     }
 
-    private void showBottomSheet(Context context, String role, String name, String email, String contact) {
+    private void showBottomSheet(Context context, String role, String name, String email, String contact, ImageView chevron) {
         if (context == null) return;
+
+        // Smoothly animate the chevron to face downward (90 degrees rotation)
+        if (chevron != null) {
+            chevron.animate().rotation(90f).setDuration(250).start();
+        }
 
         try {
             BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(context);
@@ -163,10 +177,20 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ViewHo
                 tvContact.setText((contact != null && !contact.trim().isEmpty() && !contact.equalsIgnoreCase("null")) ? contact : "N/A");
             }
 
+            // Smoothly animate the chevron back to default (0 degrees) when clicking any outside space or dismissing
+            bottomSheetDialog.setOnDismissListener(dialog -> {
+                if (chevron != null) {
+                    chevron.animate().rotation(0f).setDuration(250).start();
+                }
+            });
+
             bottomSheetDialog.setContentView(sheetView);
             bottomSheetDialog.show();
         } catch (Exception e) {
             e.printStackTrace();
+            if (chevron != null) {
+                chevron.setRotation(0f);
+            }
         }
     }
 
@@ -182,6 +206,7 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ViewHo
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvDay, tvDate, tvStatus, tvJeepUnit, tvPlateNo, tvDriverName, tvPaoName;
+        ImageView ivDriverChevron, ivPaoChevron;
         View cardDriver, cardPao;
 
         public ViewHolder(@NonNull View itemView) {
@@ -193,7 +218,8 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ViewHo
             tvPlateNo = itemView.findViewById(R.id.tv_plate_no);
             tvDriverName = itemView.findViewById(R.id.tv_driver_name);
             tvPaoName = itemView.findViewById(R.id.tv_pao_name);
-
+            ivDriverChevron = itemView.findViewById(R.id.iv_driver_chevron);
+            ivPaoChevron = itemView.findViewById(R.id.iv_pao_chevron);
             cardDriver = itemView.findViewById(R.id.card_driver);
             cardPao = itemView.findViewById(R.id.card_pao);
         }

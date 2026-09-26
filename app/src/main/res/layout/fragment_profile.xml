@@ -33,7 +33,7 @@
                     android:layout_height="wrap_content"
                     android:text="My Profile"
                     android:textColor="@color/white"
-                    android:textSize="28sp"
+                    android:textSize="22sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -44,7 +44,7 @@
                     android:alpha="0.8"
                     android:text="View and manage your account details"
                     android:textColor="@color/white"
-                    android:textSize="12sp" />
+                    android:textSize="14sp" />
             </LinearLayout>
 
             <!-- Profile Summary Card Overlap -->

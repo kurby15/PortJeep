@@ -64,6 +64,7 @@ public class HomeContentFragment extends Fragment {
     private MaterialCardView cardMySchedule, cardSalary;
     private LinearLayout containerUpcoming;
     private LinearLayout containerDriverPill, containerPaoPill;
+    private ImageView ivDriverChevron, ivPaoChevron;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final DecimalFormat df = new DecimalFormat("#,##0.00");
@@ -110,6 +111,8 @@ public class HomeContentFragment extends Fragment {
         tvPaoFullName = view.findViewById(R.id.tv_pao_fullname);
         containerDriverPill = view.findViewById(R.id.container_driver_pill);
         containerPaoPill = view.findViewById(R.id.container_pao_pill);
+        ivDriverChevron = view.findViewById(R.id.iv_driver_chevron);
+        ivPaoChevron = view.findViewById(R.id.iv_pao_chevron);
         cardMySchedule = view.findViewById(R.id.card_my_schedule);
         cardSalary = view.findViewById(R.id.card_salary);
 
@@ -323,6 +326,8 @@ public class HomeContentFragment extends Fragment {
         tvAssignmentStatus.setText(isRestDay ? "● Rest Day" : "● Off Duty");
         tvDriverFullName.setText(isRestDay ? "Rest Day" : "Unassigned / No Duty");
         tvPaoFullName.setText(isRestDay ? "Rest Day" : "Unassigned / No Duty");
+        if (ivDriverChevron != null) ivDriverChevron.setVisibility(View.GONE);
+        if (ivPaoChevron != null) ivPaoChevron.setVisibility(View.GONE);
     }
 
     public void processTodaySchedule(JSONObject doc) {
@@ -370,10 +375,30 @@ public class HomeContentFragment extends Fragment {
         if (tvAssignmentStatus != null) tvAssignmentStatus.setText("● Assigned");
         if (tvJeepStatus != null) tvJeepStatus.setText("● Active");
 
+        // Set Chevron Visibility based on assignment
+        boolean isDriverAssigned = !dName.toLowerCase().contains("unassigned") && !dName.toLowerCase().contains("no duty");
+        if (ivDriverChevron != null) {
+            ivDriverChevron.setVisibility(isDriverAssigned ? View.VISIBLE : View.GONE);
+            ivDriverChevron.setRotation(0f);
+        }
+        
+        boolean isPaoAssigned = !pName.toLowerCase().contains("unassigned") && !pName.toLowerCase().contains("no duty");
+        if (ivPaoChevron != null) {
+            ivPaoChevron.setVisibility(isPaoAssigned ? View.VISIBLE : View.GONE);
+            ivPaoChevron.setRotation(0f);
+        }
+
         final String fDName = dName, fDEmail = dEmail, fDContact = dContact, fDriverId = driverId;
-        if (containerDriverPill != null) containerDriverPill.setOnClickListener(v -> showBottomSheet("DRIVER DETAILS", fDName, fDEmail, fDContact, fDriverId));
+        if (containerDriverPill != null) {
+            containerDriverPill.setClickable(isDriverAssigned);
+            containerDriverPill.setOnClickListener(isDriverAssigned ? v -> showBottomSheet("DRIVER DETAILS", fDName, fDEmail, fDContact, fDriverId, ivDriverChevron) : null);
+        }
+        
         final String fPName = pName, fPEmail = pEmail, fPContact = pContact, fPaoId = paoId;
-        if (containerPaoPill != null) containerPaoPill.setOnClickListener(v -> showBottomSheet("PAO DETAILS", fPName, fPEmail, fPContact, fPaoId));
+        if (containerPaoPill != null) {
+            containerPaoPill.setClickable(isPaoAssigned);
+            containerPaoPill.setOnClickListener(isPaoAssigned ? v -> showBottomSheet("PAO DETAILS", fPName, fPEmail, fPContact, fPaoId, ivPaoChevron) : null);
+        }
     }
 
     public void renderUpcomingScheduleList(List<JSONObject> docs) {
@@ -441,8 +466,14 @@ public class HomeContentFragment extends Fragment {
         dialog.show();
     }
 
-    private void showBottomSheet(String role, String name, String email, String contact, String userId) {
+    private void showBottomSheet(String role, String name, String email, String contact, String userId, ImageView chevron) {
         Context context = getContext(); if (context == null) return;
+
+        // Animate chevron down
+        if (chevron != null) {
+            chevron.animate().rotation(90f).setDuration(250).start();
+        }
+
         BottomSheetDialog dialog = new BottomSheetDialog(context);
         View view = LayoutInflater.from(context).inflate(R.layout.bottom_sheet_user_info, null);
         ((TextView) view.findViewById(R.id.tv_dialog_role)).setText(role);
@@ -466,6 +497,14 @@ public class HomeContentFragment extends Fragment {
                 });
             }
         }
+
+        // Reset chevron rotation when bottom sheet is dismissed
+        dialog.setOnDismissListener(d -> {
+            if (chevron != null) {
+                chevron.animate().rotation(0f).setDuration(250).start();
+            }
+        });
+
         dialog.setContentView(view); dialog.show();
     }
 }
