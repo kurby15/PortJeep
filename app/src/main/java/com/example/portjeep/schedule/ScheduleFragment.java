@@ -53,7 +53,7 @@ import java.util.concurrent.Executors;
 public class ScheduleFragment extends Fragment {
 
     private static final String TAG = "ScheduleFragment";
-    private static final String API_URL = "https://port-jeep.vercel.app/api/mobile/schedules";
+    private static final String API_URL = BuildConfig.SCHEDULES_API_URL;
 
     private SwipeRefreshLayout swipeRefreshLayout;
     private ShimmerFrameLayout shimmerContainer;

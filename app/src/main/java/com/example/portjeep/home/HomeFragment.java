@@ -33,8 +33,10 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -49,8 +51,8 @@ import java.util.concurrent.Executors;
 public class HomeFragment extends Fragment {
 
     private static final String TAG = "HomeFragment";
-    private static final String API_URL = "https://port-jeep.vercel.app/api/mobile/schedules";
-    private static final String REMITTANCE_API_URL = "https://port-jeep.vercel.app/api/mobile/remittances";
+    private static final String API_URL = BuildConfig.SCHEDULES_API_URL;
+    private static final String REMITTANCE_API_URL = BuildConfig.REMITTANCES_API_URL;
     private static final long CACHE_DURATION = 60 * 60 * 1000; // 1 hour
 
     private static boolean isProfileRefreshed = false;
@@ -433,9 +435,21 @@ public class HomeFragment extends Fragment {
             try {
                 URL url = new URL(REMITTANCE_API_URL);
                 connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
                 connection.setRequestProperty("Authorization", "Bearer " + token);
+                connection.setRequestProperty("Content-Type", "application/json");
+                connection.setDoOutput(true);
                 connection.setConnectTimeout(10000);
                 connection.setReadTimeout(10000);
+
+                JSONObject body = new JSONObject();
+                String dateStr = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
+                body.put("date", dateStr);
+
+                try (OutputStream os = connection.getOutputStream()) {
+                    byte[] input = body.toString().getBytes(StandardCharsets.UTF_8);
+                    os.write(input, 0, input.length);
+                }
 
                 int code = connection.getResponseCode();
                 if (code == HttpURLConnection.HTTP_OK) {
@@ -671,10 +685,22 @@ public class HomeFragment extends Fragment {
             try {
                 URL url = new URL(API_URL);
                 connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
+                connection.setRequestMethod("POST");
                 connection.setRequestProperty("Authorization", "Bearer " + idToken);
+                connection.setRequestProperty("Content-Type", "application/json");
+                connection.setDoOutput(true);
                 connection.setConnectTimeout(10000);
                 connection.setReadTimeout(10000);
+
+                JSONObject body = new JSONObject();
+                String dateStr = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
+                body.put("date", dateStr);
+
+                try (OutputStream os = connection.getOutputStream()) {
+                    byte[] input = body.toString().getBytes(StandardCharsets.UTF_8);
+                    os.write(input, 0, input.length);
+                }
+
                 int responseCode = connection.getResponseCode();
                 InputStream inputStream = (responseCode == HttpURLConnection.HTTP_OK) ? connection.getInputStream() : connection.getErrorStream();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));

@@ -31,6 +31,12 @@ android {
 
         val recaptchaKey = localProperties.getProperty("RECAPTCHA_SITE_KEY") ?: "\"\""
         buildConfigField("String", "RECAPTCHA_SITE_KEY", recaptchaKey)
+
+        val schedulesApi = localProperties.getProperty("SCHEDULES_API_URL") ?: "\"\""
+        buildConfigField("String", "SCHEDULES_API_URL", schedulesApi)
+
+        val remittancesApi = localProperties.getProperty("REMITTANCES_API_URL") ?: "\"\""
+        buildConfigField("String", "REMITTANCES_API_URL", remittancesApi)
     }
 
     signingConfigs {

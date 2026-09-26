@@ -18,6 +18,7 @@ import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.example.portjeep.BuildConfig;
 import com.example.portjeep.R;
 import com.example.portjeep.utils.PreferenceManager;
 import com.facebook.shimmer.ShimmerFrameLayout;
@@ -30,8 +31,10 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
@@ -41,14 +44,13 @@ import java.util.concurrent.Executors;
 public class SalaryFragment extends Fragment {
 
     private static final String TAG = "SalaryFragment";
-    private static final String REMITTANCES_API_URL = "https://port-jeep.vercel.app/api/mobile/remittances";
-    private static final String SCHEDULES_API_URL = "https://port-jeep.vercel.app/api/mobile/schedules";
+    private static final String REMITTANCES_API_URL = BuildConfig.REMITTANCES_API_URL;
+    private static final String SCHEDULES_API_URL = BuildConfig.SCHEDULES_API_URL;
 
     private SwipeRefreshLayout swipeRefreshLayout;
     private ShimmerFrameLayout shimmerSalary;
     private ViewPager2 vpSalaryContent;
 
-    // Tab Views
     private FrameLayout btnSummary, btnHistory;
     private View viewSummaryIndicator, viewHistoryIndicator;
     private TextView tvSummaryLabel, tvHistoryLabel;
@@ -59,21 +61,17 @@ public class SalaryFragment extends Fragment {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final Handler handler = new Handler(Looper.getMainLooper());
 
-    private static final long CACHE_DURATION = 60 * 60 * 1000; // 1 hour cache
+    private static final long CACHE_DURATION = 60 * 60 * 1000;
     private static boolean sessionRefreshed = false;
 
-    public SalaryFragment() {
-        // Required empty public constructor
-    }
+    public SalaryFragment() {}
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_salary, container, false);
-
         mAuth = FirebaseAuth.getInstance();
 
-        // Bind Views
         swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_salary);
         shimmerSalary = view.findViewById(R.id.shimmer_salary);
         vpSalaryContent = view.findViewById(R.id.vp_salary_content);
@@ -95,9 +93,7 @@ public class SalaryFragment extends Fragment {
             swipeRefreshLayout.setOnRefreshListener(this::loadRemittanceData);
         }
 
-        // Offline support and Read optimization
         loadCachedDataOrFetch();
-
         return view;
     }
 
@@ -109,45 +105,17 @@ public class SalaryFragment extends Fragment {
         if (cachedJson != null) {
             try {
                 JSONArray remittances = new JSONArray(cachedJson);
-                if (adapter != null) {
-                    adapter.setRemittanceData(remittances);
-                }
-                
-                // Use cache if fresh AND we have already refreshed once this session
+                if (adapter != null) adapter.setRemittanceData(remittances);
                 if (now - lastFetch < CACHE_DURATION && sessionRefreshed) {
                     hideLoadingSkeleton();
-                    return; 
+                    return;
                 }
-            } catch (Exception e) {
-                Log.e(TAG, "Error loading cache", e);
-            }
+            } catch (Exception e) { Log.e(TAG, "Error loading cache", e); }
         }
 
-        // Fetch if no cache, expired, or first time in session
         sessionRefreshed = true;
         showLoadingSkeleton();
         loadRemittanceData();
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        swipeRefreshLayout = null;
-        shimmerSalary = null;
-        vpSalaryContent = null;
-        btnSummary = null;
-        btnHistory = null;
-        viewSummaryIndicator = null;
-        viewHistoryIndicator = null;
-        tvSummaryLabel = null;
-        tvHistoryLabel = null;
-        tvSalaryDate = null;
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        executor.shutdown();
     }
 
     private void setupDate() {
@@ -159,25 +127,17 @@ public class SalaryFragment extends Fragment {
 
     private void setupViewPager() {
         if (vpSalaryContent == null) return;
-
         adapter = new SalaryPagerAdapter();
         vpSalaryContent.setAdapter(adapter);
-
         vpSalaryContent.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
-            public void onPageSelected(int position) {
-                updateTabUI(position);
-            }
+            public void onPageSelected(int position) { updateTabUI(position); }
         });
     }
 
     private void setupTabClickListeners() {
-        if (btnSummary != null) {
-            btnSummary.setOnClickListener(v -> vpSalaryContent.setCurrentItem(0, true));
-        }
-        if (btnHistory != null) {
-            btnHistory.setOnClickListener(v -> vpSalaryContent.setCurrentItem(1, true));
-        }
+        if (btnSummary != null) btnSummary.setOnClickListener(v -> vpSalaryContent.setCurrentItem(0, true));
+        if (btnHistory != null) btnHistory.setOnClickListener(v -> vpSalaryContent.setCurrentItem(1, true));
     }
 
     private void updateTabUI(int position) {
@@ -200,17 +160,13 @@ public class SalaryFragment extends Fragment {
 
     private void loadRemittanceData() {
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser == null) {
-            hideLoadingSkeleton();
-            return;
-        }
+        if (currentUser == null) { hideLoadingSkeleton(); return; }
 
         currentUser.getIdToken(false)
                 .addOnSuccessListener(result -> {
                     if (!isAdded()) return;
-                    String token = result.getToken();
-                    fetchRemittancesFromApi(token);
-                    fetchSchedulesFromApi(token);
+                    fetchRemittancesFromApi(result.getToken());
+                    fetchSchedulesFromApi(result.getToken());
                 })
                 .addOnFailureListener(e -> {
                     if (isAdded()) {
@@ -226,10 +182,21 @@ public class SalaryFragment extends Fragment {
             try {
                 URL url = new URL(REMITTANCES_API_URL);
                 connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
+                connection.setRequestMethod("POST");
                 connection.setRequestProperty("Authorization", "Bearer " + idToken);
+                connection.setRequestProperty("Content-Type", "application/json");
+                connection.setDoOutput(true);
                 connection.setConnectTimeout(10000);
                 connection.setReadTimeout(10000);
+
+                JSONObject body = new JSONObject();
+                String dateStr = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Calendar.getInstance().getTime());
+                body.put("date", dateStr);
+
+                try (OutputStream os = connection.getOutputStream()) {
+                    byte[] input = body.toString().getBytes(StandardCharsets.UTF_8);
+                    os.write(input, 0, input.length);
+                }
 
                 int responseCode = connection.getResponseCode();
                 InputStream inputStream = (responseCode == HttpURLConnection.HTTP_OK) ? connection.getInputStream() : connection.getErrorStream();
@@ -245,7 +212,7 @@ public class SalaryFragment extends Fragment {
                     if (responseCode == HttpURLConnection.HTTP_OK) {
                         parseAndSaveData(rawResult);
                     } else {
-                        handleErrorResponse(responseCode, rawResult);
+                        handleErrorResponse("Remittance", responseCode, rawResult);
                     }
                     hideLoadingSkeleton();
                 });
@@ -253,13 +220,11 @@ public class SalaryFragment extends Fragment {
                 Log.e(TAG, "Network error", e);
                 handler.post(() -> {
                     if (isAdded()) {
-                        Toast.makeText(getContext(), "Offline: Showing latest cached data.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Network Error: Please check your connection.", Toast.LENGTH_SHORT).show();
                         hideLoadingSkeleton();
                     }
                 });
-            } finally {
-                if (connection != null) connection.disconnect();
-            }
+            } finally { if (connection != null) connection.disconnect(); }
         });
     }
 
@@ -269,45 +234,56 @@ public class SalaryFragment extends Fragment {
             try {
                 URL url = new URL(SCHEDULES_API_URL);
                 connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
+                connection.setRequestMethod("POST");
                 connection.setRequestProperty("Authorization", "Bearer " + idToken);
+                connection.setRequestProperty("Content-Type", "application/json");
+                connection.setDoOutput(true);
                 connection.setConnectTimeout(10000);
                 connection.setReadTimeout(10000);
 
-                int responseCode = connection.getResponseCode();
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    InputStream inputStream = connection.getInputStream();
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-                    StringBuilder responseStr = new StringBuilder();
-                    String line;
-                    while ((line = reader.readLine()) != null) responseStr.append(line);
-                    reader.close();
+                JSONObject body = new JSONObject();
+                String dateStr = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Calendar.getInstance().getTime());
+                body.put("date", dateStr);
 
-                    String rawResult = responseStr.toString();
-                    handler.post(() -> {
-                        if (isAdded() && getContext() != null) {
-                            PreferenceManager.saveSchedulesCache(getContext(), rawResult);
-                            if (adapter != null) {
-                                adapter.notifyDataSetChanged();
-                            }
-                        }
-                    });
+                try (OutputStream os = connection.getOutputStream()) {
+                    byte[] input = body.toString().getBytes(StandardCharsets.UTF_8);
+                    os.write(input, 0, input.length);
                 }
-            } catch (Exception e) {
-                Log.e(TAG, "Schedule fetch error", e);
-            } finally {
-                if (connection != null) connection.disconnect();
-            }
+
+                int responseCode = connection.getResponseCode();
+                InputStream inputStream = (responseCode == HttpURLConnection.HTTP_OK) ? connection.getInputStream() : connection.getErrorStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                StringBuilder responseStr = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) responseStr.append(line);
+                reader.close();
+
+                String rawResult = responseStr.toString();
+                handler.post(() -> {
+                    if (!isAdded() || getContext() == null) return;
+                    if (responseCode == HttpURLConnection.HTTP_OK) {
+                        PreferenceManager.saveSchedulesCache(getContext(), rawResult);
+                        if (adapter != null) adapter.notifyDataSetChanged();
+                    } else {
+                        handleErrorResponse("Schedule", responseCode, rawResult);
+                    }
+                });
+            } catch (Exception e) { Log.e(TAG, "Schedule fetch error", e); }
+            finally { if (connection != null) connection.disconnect(); }
         });
     }
 
-    private void handleErrorResponse(int responseCode, String rawResult) {
-        String errorMsg = "Server error (" + responseCode + ")";
+    private void handleErrorResponse(String type, int responseCode, String rawResult) {
+        String errorMsg = type + " Server error (" + responseCode + ")";
         try {
             JSONObject errJson = new JSONObject(rawResult);
             if (errJson.has("message")) errorMsg = errJson.getString("message");
         } catch (Exception ignored) {}
-        Toast.makeText(getContext(), errorMsg, Toast.LENGTH_SHORT).show();
+
+        if (responseCode == 500) {
+            errorMsg = "Server Error (500) on " + type + ": May internal problem ang server. Pakisigurado na ang 'date' (YYYY-MM-DD) ay tama sa API request.";
+        }
+        Toast.makeText(getContext(), errorMsg, Toast.LENGTH_LONG).show();
     }
 
     private void parseAndSaveData(String json) {
@@ -316,38 +292,23 @@ public class SalaryFragment extends Fragment {
             if (root.optBoolean("success", false)) {
                 JSONArray remittances = root.optJSONArray("remittances");
                 if (remittances != null && adapter != null) {
-                    // Save to persistent storage for offline and optimization
                     PreferenceManager.saveSalaryCache(getContext(), remittances.toString());
                     adapter.setRemittanceData(remittances);
                 }
             } else {
                 Toast.makeText(getContext(), root.optString("message", "Failed to update."), Toast.LENGTH_SHORT).show();
             }
-        } catch (Exception e) {
-            Log.e(TAG, "Parsing error", e);
-        }
+        } catch (Exception e) { Log.e(TAG, "Parsing error", e); }
     }
 
     private void showLoadingSkeleton() {
-        if (shimmerSalary != null) {
-            shimmerSalary.startShimmer();
-            shimmerSalary.setVisibility(View.VISIBLE);
-        }
-        if (vpSalaryContent != null) {
-            vpSalaryContent.setVisibility(View.GONE);
-        }
+        if (shimmerSalary != null) { shimmerSalary.startShimmer(); shimmerSalary.setVisibility(View.VISIBLE); }
+        if (vpSalaryContent != null) vpSalaryContent.setVisibility(View.GONE);
     }
 
     private void hideLoadingSkeleton() {
-        if (shimmerSalary != null) {
-            shimmerSalary.stopShimmer();
-            shimmerSalary.setVisibility(View.GONE);
-        }
-        if (vpSalaryContent != null) {
-            vpSalaryContent.setVisibility(View.VISIBLE);
-        }
-        if (swipeRefreshLayout != null) {
-            swipeRefreshLayout.setRefreshing(false);
-        }
+        if (shimmerSalary != null) { shimmerSalary.stopShimmer(); shimmerSalary.setVisibility(View.GONE); }
+        if (vpSalaryContent != null) vpSalaryContent.setVisibility(View.VISIBLE);
+        if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
     }
 }
