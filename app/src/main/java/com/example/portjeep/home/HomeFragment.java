@@ -84,6 +84,7 @@ public class HomeFragment extends Fragment {
     // User Profile & Unassigned Schedule Data State
     private final List<String> userRestDays = new ArrayList<>();
     private final List<JSONObject> unassignedSchedulesList = new ArrayList<>();
+    private final Set<String> activeScheduledDays = new HashSet<>();
     private String userRole = "";
 
     public HomeFragment() {
@@ -371,7 +372,7 @@ public class HomeFragment extends Fragment {
         } else { // Gabi
             if (isPAO) {
                 return new String[]{
-                    "Gandang gabi, PAO %s! Pagod ka ba?",
+                    "Gandang gabi, PAO %s! Pagog ka ba?",
                     "Good job sa pagkolekta ngayon, %s!",
                     "Pahinga na tayo mamaya, %s.",
                     "Ingat sa pag-uwi, boss %s!",
@@ -553,6 +554,16 @@ public class HomeFragment extends Fragment {
         } catch (Exception e) { Log.e(TAG, "Error processing summary UI", e); }
     }
 
+    private List<String> getFilteredRestDays() {
+        List<String> filtered = new ArrayList<>();
+        for (String rDay : userRestDays) {
+            if (!activeScheduledDays.contains(rDay.trim().toLowerCase(Locale.US))) {
+                filtered.add(rDay);
+            }
+        }
+        return filtered;
+    }
+
     private void loadOfflineUserProfile() {
         Context context = getContext();
         if (context == null) return;
@@ -567,7 +578,7 @@ public class HomeFragment extends Fragment {
         }
         if (cachedRestDays != null && !cachedRestDays.isEmpty()) {
             userRestDays.clear(); userRestDays.addAll(cachedRestDays);
-            if (contentFragment != null) contentFragment.refreshStatusCarousel(userRestDays, unassignedSchedulesList);
+            if (contentFragment != null) contentFragment.refreshStatusCarousel(getFilteredRestDays(), unassignedSchedulesList);
         }
     }
 
@@ -587,7 +598,7 @@ public class HomeFragment extends Fragment {
     private void resetDynamicUI() {
         if (tvDriverName != null) tvDriverName.setText("");
         if (tvRoleBadge != null) tvRoleBadge.setText("");
-        if (contentFragment != null) contentFragment.setNoAssignmentUI();
+        if (contentFragment != null) contentFragment.setNoAssignmentUI(false);
     }
 
     private void loadUserProfile() {
@@ -634,7 +645,7 @@ public class HomeFragment extends Fragment {
                 }
             }).addOnFailureListener(e -> Log.e(TAG, "Error fetching position title", e));
         }
-        if (contentFragment != null) contentFragment.refreshStatusCarousel(userRestDays, unassignedSchedulesList);
+        if (contentFragment != null) contentFragment.refreshStatusCarousel(getFilteredRestDays(), unassignedSchedulesList);
         saveCurrentProfileToCache();
     }
 
@@ -728,7 +739,7 @@ public class HomeFragment extends Fragment {
             JSONObject root = new JSONObject(jsonResponse);
             if (!root.optBoolean("success", false)) {
                 if (contentFragment != null) {
-                    contentFragment.setNoAssignmentUI();
+                    contentFragment.setNoAssignmentUI(false);
                     contentFragment.renderUpcomingScheduleList(new ArrayList<>());
                 }
                 return;
@@ -736,7 +747,7 @@ public class HomeFragment extends Fragment {
             JSONArray schedules = root.optJSONArray("schedules");
             if (schedules == null || schedules.length() == 0) {
                 if (contentFragment != null) {
-                    contentFragment.setNoAssignmentUI();
+                    contentFragment.setNoAssignmentUI(false);
                     contentFragment.renderUpcomingScheduleList(new ArrayList<>());
                 }
                 return;
@@ -747,16 +758,45 @@ public class HomeFragment extends Fragment {
             Date todayAtMidnight = todayCal.getTime();
             int currentYear = todayCal.get(Calendar.YEAR);
             int todayIndex = todayCal.get(Calendar.DAY_OF_WEEK);
+            String todayName = new SimpleDateFormat("EEEE", Locale.US).format(todayCal.getTime()).toLowerCase(Locale.US);
+
             String[] datePatterns = new String[]{"yyyy-MM-dd", "MM/dd/yyyy", "dd/MM/yyyy", "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", "yyyy-MM-dd'T'HH:mm:ss'Z'", "MMM dd, yyyy", "MMMM dd, yyyy", "MMM dd", "MMMM dd"};
             JSONObject todayScheduleDoc = null;
             List<JSONObject> upcomingScheduleDocs = new ArrayList<>();
             unassignedSchedulesList.clear();
-            Set<String> scheduledDays = new HashSet<>();
+            activeScheduledDays.clear();
+            Set<String> allScheduledDaysInSystem = new HashSet<>();
+
+            String currentUid = mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : "";
 
             for (int i = 0; i < schedules.length(); i++) {
                 JSONObject doc = schedules.getJSONObject(i);
+                if ("completed".equalsIgnoreCase(doc.optString("status", ""))) continue;
+
                 String dayStr = doc.optString("day", "").trim();
-                if (!dayStr.isEmpty()) scheduledDays.add(dayStr.toLowerCase(Locale.US));
+                if (!dayStr.isEmpty()) allScheduledDaysInSystem.add(dayStr.toLowerCase(Locale.US));
+
+                String driverId = doc.optString("driver_id", doc.optString("driverId", ""));
+                if (doc.has("driver") && !doc.isNull("driver")) {
+                    Object dObj = doc.get("driver");
+                    if (dObj instanceof JSONObject) {
+                        JSONObject dJson = (JSONObject) dObj;
+                        if (driverId.isEmpty()) driverId = dJson.optString("uid", dJson.optString("id", ""));
+                    }
+                }
+                String paoId = doc.optString("pao_id", doc.optString("paoId", ""));
+                if (doc.has("pao") && !doc.isNull("pao")) {
+                    Object pObj = doc.get("pao");
+                    if (pObj instanceof JSONObject) {
+                        JSONObject pJson = (JSONObject) pObj;
+                        if (paoId.isEmpty()) paoId = pJson.optString("uid", pJson.optString("id", ""));
+                    }
+                }
+
+                boolean isCurrentUserScheduled = (!currentUid.isEmpty() && (currentUid.equals(driverId) || currentUid.equals(paoId)));
+                if (isCurrentUserScheduled && !dayStr.isEmpty()) {
+                    activeScheduledDays.add(dayStr.toLowerCase(Locale.US));
+                }
 
                 String drvName = parseName(doc, "driver", "Unassigned Driver");
                 String paoName = parseName(doc, "pao", "Unassigned PAO");
@@ -766,24 +806,31 @@ public class HomeFragment extends Fragment {
                     unassignedSchedulesList.add(doc);
                 }
 
-                if ("completed".equalsIgnoreCase(doc.optString("status", ""))) continue;
                 Date parsedDate = parseDateString(doc.optString("date", "N/A"), datePatterns, currentYear);
                 if (parsedDate != null) {
                     Calendar parsedCal = Calendar.getInstance(); parsedCal.setTime(parsedDate);
                     parsedCal.set(Calendar.HOUR_OF_DAY, 0); parsedCal.set(Calendar.MINUTE, 0);
                     parsedCal.set(Calendar.SECOND, 0); parsedCal.set(Calendar.MILLISECOND, 0);
-                    if (parsedCal.getTime().equals(todayAtMidnight)) todayScheduleDoc = doc;
-                    else if (parsedCal.getTime().after(todayAtMidnight)) upcomingScheduleDocs.add(doc);
+                    if (parsedCal.getTime().equals(todayAtMidnight)) {
+                        if (isCurrentUserScheduled) todayScheduleDoc = doc;
+                    }
+                    else if (parsedCal.getTime().after(todayAtMidnight)) {
+                        if (isCurrentUserScheduled) upcomingScheduleDocs.add(doc);
+                    }
                 } else {
                     int sIdx = getDayIndex(dayStr);
-                    if (sIdx == todayIndex) todayScheduleDoc = doc;
-                    else if (isDayUpcoming(todayIndex, sIdx)) upcomingScheduleDocs.add(doc);
+                    if (sIdx == todayIndex) {
+                        if (isCurrentUserScheduled) todayScheduleDoc = doc;
+                    }
+                    else if (isDayUpcoming(todayIndex, sIdx)) {
+                        if (isCurrentUserScheduled) upcomingScheduleDocs.add(doc);
+                    }
                 }
             }
 
             String[] weekDays = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
             for (String dName : weekDays) {
-                if (!scheduledDays.contains(dName.toLowerCase(Locale.US))) {
+                if (!allScheduledDaysInSystem.contains(dName.toLowerCase(Locale.US))) {
                     boolean isRest = false;
                     for (String rDay : userRestDays) if (rDay.equalsIgnoreCase(dName)) { isRest = true; break; }
                     if (!isRest) {
@@ -794,12 +841,22 @@ public class HomeFragment extends Fragment {
             }
 
             if (contentFragment != null) {
-                if (todayScheduleDoc != null) contentFragment.processTodaySchedule(todayScheduleDoc); else contentFragment.setNoAssignmentUI();
+                if (todayScheduleDoc != null) {
+                    contentFragment.processTodaySchedule(todayScheduleDoc);
+                } else {
+                    boolean isTodayRestDayProfile = false;
+                    for (String rDay : userRestDays) {
+                        if (rDay.trim().toLowerCase(Locale.US).equals(todayName)) {
+                            isTodayRestDayProfile = true; break;
+                        }
+                    }
+                    contentFragment.setNoAssignmentUI(isTodayRestDayProfile);
+                }
                 contentFragment.renderUpcomingScheduleList(upcomingScheduleDocs);
-                contentFragment.refreshStatusCarousel(userRestDays, unassignedSchedulesList);
+                contentFragment.refreshStatusCarousel(getFilteredRestDays(), unassignedSchedulesList);
             }
         } catch (Exception e) {
-            if (contentFragment != null) contentFragment.setNoAssignmentUI();
+            if (contentFragment != null) contentFragment.setNoAssignmentUI(false);
         }
     }
 

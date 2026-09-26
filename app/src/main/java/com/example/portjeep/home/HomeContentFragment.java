@@ -121,7 +121,7 @@ public class HomeContentFragment extends Fragment {
 
         setupStatusCarousel();
         setupClickListeners();
-        setNoAssignmentUI();
+        setNoAssignmentUI(false);
 
         if (savedInstanceState != null) {
             hideLoadingSkeleton();
@@ -169,10 +169,10 @@ public class HomeContentFragment extends Fragment {
         });
     }
 
-    public void refreshStatusCarousel(List<String> userRestDays, List<JSONObject> unassignedSchedulesList) {
+    public void refreshStatusCarousel(List<String> filteredRestDays, List<JSONObject> unassignedSchedulesList) {
         if (vpStatusCarousel == null || getContext() == null) return;
         bannerItems.clear();
-        bannerItems.add(new StatusBannerAdapter.BannerItem(StatusBannerAdapter.BannerItem.TYPE_REST_DAY, "Rest Day Schedule", "Your upcoming rest day assignments:", userRestDays, null));
+        bannerItems.add(new StatusBannerAdapter.BannerItem(StatusBannerAdapter.BannerItem.TYPE_REST_DAY, "Rest Day Schedule", "Your upcoming rest day assignments:", filteredRestDays, null));
         String unassignedDesc = unassignedSchedulesList.isEmpty() ? "Perfect! All your shifts are successfully assigned." : "Heads up! These shifts currently have no unit assigned:";
         bannerItems.add(new StatusBannerAdapter.BannerItem(StatusBannerAdapter.BannerItem.TYPE_UNASSIGNED, "Unassigned Log", unassignedDesc, null, unassignedSchedulesList));
         vpStatusCarousel.post(() -> {
@@ -315,14 +315,14 @@ public class HomeContentFragment extends Fragment {
         }
     }
 
-    public void setNoAssignmentUI() {
+    public void setNoAssignmentUI(boolean isRestDay) {
         if (tvUnitNo == null) return;
-        if (tvUnitNo != null) tvUnitNo.setText("No Unit");
-        if (tvPlateNo != null) tvPlateNo.setText("No Duty Today");
-        if (tvJeepStatus != null) tvJeepStatus.setText("● Off Duty");
-        if (tvAssignmentStatus != null) tvAssignmentStatus.setText("● Off Duty");
-        if (tvDriverFullName != null) tvDriverFullName.setText("Rest Day / Unassigned");
-        if (tvPaoFullName != null) tvPaoFullName.setText("Rest Day / Unassigned");
+        tvUnitNo.setText("No Unit");
+        tvPlateNo.setText(isRestDay ? "Rest Day Today" : "No Duty Today");
+        tvJeepStatus.setText(isRestDay ? "● Rest Day" : "● Off Duty");
+        tvAssignmentStatus.setText(isRestDay ? "● Rest Day" : "● Off Duty");
+        tvDriverFullName.setText(isRestDay ? "Rest Day" : "Unassigned / No Duty");
+        tvPaoFullName.setText(isRestDay ? "Rest Day" : "Unassigned / No Duty");
     }
 
     public void processTodaySchedule(JSONObject doc) {
